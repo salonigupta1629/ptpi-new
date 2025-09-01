@@ -5,26 +5,69 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Dashboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  
+ <!-- Font Awesome 6 Free CDN -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
 </head>
 <body class="h-screen flex overflow-hidden bg-gray-100">
 
   <!-- Sidebar -->
-  <aside class="w-64 bg-white shadow-md fixed h-full">
-    <div class="p-4 text-xl font-bold border-b">PTPI</div>
-    <nav class="mt-4 flex flex-col space-y-2 px-4">
-      <a href="#" class="flex items-center space-x-2 text-gray-700 hover:bg-gray-200 rounded p-2">
-        <span>📊</span><span>Dashboard</span>
+ <aside class="w-64 bg-white border-r border-gray-200 fixed h-screen transition-all duration-300">
+  <div class="p-6 text-2xl font-bold text-gray-800 border-b border-gray-200 flex items-center space-x-2">
+    <i class="fas fa-clipboard text-blue-600"></i>
+    <span>PTPI</span>
+  </div>
+  <nav class="mt-4 flex flex-col space-y-2 px-4">
+    <a href="{{ route('admin.dashboard') }}" class="flex items-center space-x-3 text-gray-600 hover:bg-blue-100 hover:text-blue-700 rounded-lg p-3 transition-colors duration-200">
+      <i class="fas fa-tachometer-alt text-lg"></i>
+      <span class="font-medium">Dashboard</span>
+    </a>
+    <!-- Data Management Header -->
+    <div class="text-gray-700 text-base font-semibold px-3 py-2">
+      <i class="fas fa-folder-open text-base mr-2"></i>
+      <span>Data Management</span>
+    </div>
+    <!-- Submenu Links -->
+    <div class="pl-6 space-y-1">
+      <a href="{{route('admin.subjects')}}" class="flex items-center space-x-3 text-gray-500 hover:bg-blue-100 hover:text-blue-700 rounded-lg p-2 transition-colors duration-200">
+        <i class="fas fa-book text-sm"></i>
+        <span class="font-medium text-sm">Subjects</span>
       </a>
-      <a href="#" class="flex items-center space-x-2 text-gray-700 hover:bg-gray-200 rounded p-2">
-        <span>📂</span><span>Data Management</span>
+      <a href="{{ route('admin.class_categories') }}" class="flex items-center space-x-3 text-gray-500 hover:bg-blue-100 hover:text-blue-700 rounded-lg p-2 transition-colors duration-200">
+        <i class="fas fa-layer-group text-sm"></i>
+        <span class="font-medium text-sm">Class Category</span>
       </a>
-      <a href="#" class="flex items-center space-x-2 text-gray-700 hover:bg-gray-200 rounded p-2">
-        <span>📘</span><span>Subjects</span>
+      <a href="{{ route('admin.skills') }}" class="flex items-center space-x-3 text-gray-500 hover:bg-blue-100 hover:text-blue-700 rounded-lg p-2 transition-colors duration-200">
+        <i class="fas fa-tools text-sm"></i>
+        <span class="font-medium text-sm">Skills</span>
       </a>
-      <!-- Add more links here -->
-      <a href="#" class="text-red-600 mt-auto p-2">Logout</a>
-    </nav>
-  </aside>
+      <a href="{{ route('admin.levels') }}" class="flex items-center space-x-3 text-gray-500 hover:bg-blue-100 hover:text-blue-700 rounded-lg p-2 transition-colors duration-200">
+        <i class="fas fa-signal text-sm"></i>
+        <span class="font-medium text-sm">Level</span>
+      </a>
+      <a href="{{ route('admin.qualifications') }}" class="flex items-center space-x-3 text-gray-500 hover:bg-blue-100 hover:text-blue-700 rounded-lg p-2 transition-colors duration-200">
+        <i class="fas fa-certificate text-sm"></i>
+        <span class="font-medium text-sm">Qualifications</span>
+      </a>
+       <a href="{{ route('admin.job_types') }}" class="flex items-center space-x-3 text-gray-500 hover:bg-blue-100 hover:text-blue-700 rounded-lg p-2 transition-colors duration-200">
+        <i class="fas fa-layer-group text-sm"></i>
+        <span class="font-medium text-sm">Job Type</span>
+      </a>
+       <a href="{{ route('admin.class_categories') }}" class="flex items-center space-x-3 text-gray-500 hover:bg-blue-100 hover:text-blue-700 rounded-lg p-2 transition-colors duration-200">
+        <i class="fas fa-layer-group text-sm"></i>
+        <span class="font-medium text-sm">Exam</span>
+      </a>
+    </div>
+   <a class="text-gray-700 text-base font-semibold px-3 py-2">
+      <i class="fas fa-layer-group text-base mr-2 "></i>
+      <span>Manage Request</span>
+    </a>
+    <a href="#" class="flex items-center space-x-3 text-red-500 hover:bg-red-100 hover:text-red-700 rounded-lg p-3 mt-auto transition-colors duration-200">
+      <i class="fas fa-right-from-bracket text-lg"></i>
+      <span class="font-medium">Logout</span>
+    </a>
+  </nav>
+</aside>
 
   <!-- Main Content -->
   <div class="flex-1 ml-64 flex flex-col h-screen">
