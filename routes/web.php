@@ -1,10 +1,11 @@
 <?php
 
+use App\Livewire\Landing\Homepage;
+use App\Livewire\Landing\Login;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', Homepage::class)->name('homepage');
+Route::get('/login', Login::class)->name('login');
 
 Route::name('admin.')->prefix('admin')->group(function () {
     require __DIR__ . '/admin.php';
