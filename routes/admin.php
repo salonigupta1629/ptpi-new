@@ -8,6 +8,7 @@ use App\Livewire\Admin\Skills;
 use App\Livewire\Admin\Levels;
 use App\Livewire\Admin\Qualification;
 use App\Livewire\Admin\JobTypes;
+use App\Livewire\Admin\ManageExam;
 
 
 Route::get("/", Dashboard::class)->name("dashboard");
@@ -17,3 +18,4 @@ Route::get("/", Dashboard::class)->name("dashboard");
   Route::get('levels', Levels::class)->name('levels');
   Route::get('qualifications', Qualification::class)->name('qualifications');
   Route::get('teacher-job-types', JobTypes::class)->name('job_types');
+  Route::get('manage-exam',ManageExam::class)->name('manage-exam');

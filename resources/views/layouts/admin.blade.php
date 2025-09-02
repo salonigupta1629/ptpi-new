@@ -53,7 +53,7 @@
         <i class="fas fa-layer-group text-sm"></i>
         <span class="font-medium text-sm">Job Type</span>
       </a>
-       <a href="{{ route('admin.class_categories') }}" class="flex items-center space-x-3 text-gray-500 hover:bg-blue-100 hover:text-blue-700 rounded-lg p-2 transition-colors duration-200">
+       <a href="{{ route('admin.manage-exam') }}" class="flex items-center space-x-3 text-gray-500 hover:bg-blue-100 hover:text-blue-700 rounded-lg p-2 transition-colors duration-200">
         <i class="fas fa-layer-group text-sm"></i>
         <span class="font-medium text-sm">Exam</span>
       </a>

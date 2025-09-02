@@ -64,6 +64,14 @@
                     <textarea wire:model="subject_description" placeholder="Description"
                               class="w-full border border-gray-400 p-2 rounded"></textarea>
 
+<select wire:model="category_id" class="w-full border border-gray-300 p-2 rounded">
+    <option value="">-- Select Category --</option>
+    @foreach($categories as $category)
+        <option value="{{ $category->id }}">{{ $category->name }}</option>
+    @endforeach
+</select>
+
+
                     <div class="flex justify-end space-x-2">
                         <button type="button" wire:click="closeModal"
                                 class="px-4 py-2 bg-gray-500 text-white rounded">
