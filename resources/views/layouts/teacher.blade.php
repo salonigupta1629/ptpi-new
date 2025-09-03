@@ -8,20 +8,7 @@
     <title>{{ $title ?? 'Page Title' }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
 
-    @php
-        $activeTab = $activeTab ?? 'dashboard';
-        $currentStep = $currentStep ?? 1;
-        $progressPercentage = ($currentStep - 1) * 50; // Assuming 3 steps: 0%, 50%, 100%
-        $categories = [
-            ['id' => 'math', 'label' => 'Mathematics', 'subjects' => 5],
-            ['id' => 'science', 'label' => 'Science', 'subjects' => 4],
-            ['id' => 'english', 'label' => 'English', 'subjects' => 3],
-            ['id' => 'history', 'label' => 'History', 'subjects' => 2],
-        ];
-        $selectedCategory = $selectedCategory ?? null;
-        $notificationCount = $notificationCount ?? 0;
-        $personalDetails = $personalDetails ?? ['name' => '', 'email' => '', 'phone' => '', 'experience' => ''];
-    @endphp
+
 </head>
 
 <body>
@@ -30,12 +17,10 @@
             <!-- Sidebar -->
             <div class="w-64 bg-white shadow-lg">
                 <!-- Logo Header -->
-                <div class="p-6 border-b border-gray-200">
+                <div class="p-6 flex flex-col items-center border-b border-gray-200">
                     <h1 class="text-xl font-bold text-gray-800">PTPI</h1>
                     <p class="text-sm text-gray-500">Private Teacher Provider Institute</p>
                 </div>
-
-                <!-- User Profile -->
                 <div class="p-4 border-b border-gray-100">
                     <div class="flex items-center space-x-3">
                         <div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
@@ -51,7 +36,7 @@
                 <!-- Navigation -->
                 <nav class="p-4">
                     <a href="{{ route('teacher.dashboard') }}" wire:navigate
-                        class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-left transition-colors mb-1 {{ $activeTab === 'dashboard' ? 'bg-blue-50 text-blue-600 border-r-2 border-blue-500' : 'text-gray-600 hover:bg-gray-100' }}">
+                        class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-left transition-colors mb-1 bg-blue-50 text-blue-600 border-r-2 border-blue-500">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6">
@@ -128,9 +113,9 @@
             <!-- Main Content -->
             <div class="flex-1 flex flex-col">
                 <!-- Top Header -->
-                <header class="bg-blue-500 text-white p-6">
+                <header class="bg-blue-500 text-white px-6 py-2">
                     <div class="flex items-center justify-between">
-                        <h2 class="text-2xl font-bold">Teacher Dashboard</h2>
+                        <h2 class="text-xl font-medium">Teacher Dashboard</h2>
                         <div class="flex items-center space-x-4">
                             <button class="relative" wire:click="toggleNotifications">
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -138,12 +123,6 @@
                                         d="M15 17h5l-5 5v-5zM19 12H5a2 2 0 01-2-2V5a2 2 0 012-2h14a2 2 0 012 2v5a2 2 0 01-2 2z">
                                     </path>
                                 </svg>
-                                @if($notificationCount > 0)
-                                    <span
-                                        class="absolute -top-1 -right-1 bg-red-500 text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                                        {{ $notificationCount }}
-                                    </span>
-                                @endif
                             </button>
                             <div class="text-right">
                                 <p class="font-medium">Name</p>
@@ -155,7 +134,7 @@
                 <!-- Main Dashboard Content -->
                 <main class="flex-1 p-6 overflow-y-auto">
                     {{ $slot }}
-        </main>
+                </main>
             </div>
         </div>
     </div>
