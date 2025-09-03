@@ -59,6 +59,14 @@
                 </h3>
 
                 <form wire:submit.prevent="save" class="space-y-3">
+
+<select wire:model="category_id" class="w-full border border-gray-300 p-2 rounded">
+    <option value="">-- Select Category --</option>
+    @foreach($categories as $category)
+        <option value="{{ $category->id }}">{{ $category->name }}</option>
+    @endforeach
+</select>
+
                     <input type="text" wire:model="subject_name" placeholder="Subject Name"
                            class="w-full border border-gray-300 p-2 rounded">
                     <textarea wire:model="subject_description" placeholder="Description"
