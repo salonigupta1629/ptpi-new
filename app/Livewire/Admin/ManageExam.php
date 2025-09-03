@@ -95,6 +95,7 @@ class ManageExam extends Component
     public function storeOrUpdate()
     {
         $validated = $this->validate();
+        // dd('$validated');
 
     if (auth()->check()) {
         $validated['user_id'] = auth()->id();

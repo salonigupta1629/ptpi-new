@@ -59,10 +59,6 @@
                 </h3>
 
                 <form wire:submit.prevent="save" class="space-y-3">
-                    <input type="text" wire:model="subject_name" placeholder="Subject Name"
-                           class="w-full border border-gray-300 p-2 rounded">
-                    <textarea wire:model="subject_description" placeholder="Description"
-                              class="w-full border border-gray-400 p-2 rounded"></textarea>
 
 <select wire:model="category_id" class="w-full border border-gray-300 p-2 rounded">
     <option value="">-- Select Category --</option>
@@ -71,6 +67,10 @@
     @endforeach
 </select>
 
+                    <input type="text" wire:model="subject_name" placeholder="Subject Name"
+                           class="w-full border border-gray-300 p-2 rounded">
+                    <textarea wire:model="subject_description" placeholder="Description"
+                              class="w-full border border-gray-400 p-2 rounded"></textarea>
 
                     <div class="flex justify-end space-x-2">
                         <button type="button" wire:click="closeModal"

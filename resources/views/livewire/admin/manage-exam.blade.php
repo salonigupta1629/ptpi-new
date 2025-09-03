@@ -41,7 +41,7 @@
                          {{ $exam->subject?->subject_name }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {{ $exam->level->level_name }}
+                            {{ $exam->level->name }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
@@ -51,7 +51,7 @@
                             </span>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-3 flex items-center">
-                            <a href="" 
+                            <a href="{{ route('admin.exam-questions',$exam->id) }}" 
                                class="text-teal-600 hover:text-teal-900 flex items-center">
                                 <span>Questions</span>
                             </a>
@@ -111,7 +111,7 @@
                                 <!-- Category - Moved before Subject -->
                                 <div>
                                     <label for="category_id" class="block text-sm font-medium text-gray-700 mb-1">Category</label>
-                                  <select wire:model="category_id" wire:change="updateSubjects($event.target.value)" id="category_id"
+                                 <select wire:model="category_id" id="category_id"
                                         class="w-full p-2 border rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                                         <option value="">Select Category</option>
                                         @foreach($categories as $category)
