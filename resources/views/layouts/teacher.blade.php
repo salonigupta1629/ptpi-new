@@ -7,13 +7,13 @@
 
     <title>{{ $title ?? 'Page Title' }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
-
-
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
 <body>
     <div>
-        <div class="flex h-screen bg-gray-50">
+        <div class="flex h-screen ">
             <!-- Sidebar -->
             <div class="w-64 bg-white shadow-lg">
                 <!-- Logo Header -->
