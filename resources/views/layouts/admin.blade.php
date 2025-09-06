@@ -5,7 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Dashboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  
+
+
 
   <style>
     .font-hindi {
@@ -65,6 +66,12 @@
         <i class="fas fa-layer-group text-sm"></i>
         <span class="font-medium text-sm">Job Type</span>
       </a>
+      <a href="{{ route('admin.manage-role') }}"
+   class="flex items-center space-x-3 text-gray-500 hover:bg-blue-100 hover:text-blue-700 rounded-lg p-2 transition-colors duration-200">
+    <i class="fas fa-users text-sm"></i>
+    <span class="font-medium text-sm">Manage Role</span>
+</a>
+
        <a href="{{ route('admin.manage-exam') }}" class="flex items-center space-x-3 text-gray-500 hover:bg-blue-100 hover:text-blue-700 rounded-lg p-2 transition-colors duration-200">
         <i class="fas fa-layer-group text-sm"></i>
         <span class="font-medium text-sm">Exam</span>
@@ -119,7 +126,7 @@
 
     <!-- Scrollable Content -->
     <main class="flex-1 overflow-y-auto p-6">
-      
+
       {{ $slot }}
     </main>
   </div>
@@ -137,7 +144,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Dashboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  
+
   <style>
     .font-hindi {
         font-family: 'Noto Sans Devanagari', sans-serif;
@@ -148,7 +155,7 @@
 
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">
-  
+
   <!-- Font Awesome 6 -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
 </head>
@@ -165,13 +172,13 @@
         <i class="fas fa-tachometer-alt text-lg"></i>
         <span class="font-medium">Dashboard</span>
       </a>
-      
+
       <!-- Data Management Header -->
       <div class="text-gray-700 text-base font-semibold px-3 py-2">
         <i class="fas fa-folder-open text-base mr-2"></i>
         <span>Data Management</span>
       </div>
-      
+
       <!-- Submenu Links -->
       <div class="pl-6 space-y-1">
         <a href="{{ route('admin.class_categories') }}" class="flex items-center space-x-3 text-gray-500 hover:bg-blue-100 hover:text-blue-700 rounded-lg p-2 transition-colors duration-200">
@@ -203,13 +210,13 @@
           <span class="font-medium text-sm">Exam</span>
         </a>
       </div>
-      
+
       <!-- Manage Request Header -->
       <div class="text-gray-700 text-base font-semibold px-3 py-2">
         <i class="fas fa-tasks text-base mr-2"></i>
         <span>Manage Request</span>
       </div>
-      
+
       <!-- Manage Request Submenu -->
       <div class="pl-6 space-y-1">
         <a href="" class="flex items-center space-x-3 text-gray-500 hover:bg-blue-100 hover:text-blue-700 rounded-lg p-2 transition-colors duration-200">
