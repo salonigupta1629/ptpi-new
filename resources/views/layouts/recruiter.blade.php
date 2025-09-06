@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -109,26 +108,22 @@
     </div>
     <!-- Overlay for mobile -->
     <div id="overlay" class="overlay fixed inset-0 lg:hidden"></div>
-
     <!-- Header -->
     <header class="bg-white border-b px-4 lg:px-6 py-4 flex justify-between items-center sticky top-0 z-30 ">
         <h1 class="text-xl lg:text-2xl font-bold text-teal-600 flex items-center">
             <span class="hidden sm:inline">Teacher Recruiter</span>
             <span class="sm:hidden">TR</span>
         </h1>
-
         <div class="flex items-center space-x-2 lg:space-x-4 md:mr-10">
             <div class="relative hidden sm:block">
                 <input type="text" placeholder="Search teachers..."
                     class="border border-gray-300 rounded-full px-4 py-2 w-40 lg:w-64 focus:outline-none focus:ring-2 focus:ring-teal-300 pl-10" />
                 <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
             </div>
-
             <!-- Mobile search button -->
             <button id="mobileSearchButton" class="sm:hidden p-2 text-gray-600">
                 <i class="fas fa-search"></i>
             </button>
-
             <button id="open-modal"
                 class="bg-teal-500 text-white px-3 py-2 lg:px-4 lg:py-2 rounded-lg hover:bg-teal-600 flex items-center text-sm lg:text-base">
                 <i class="fas fa-plus-circle mr-1 lg:mr-2"></i>
@@ -222,7 +217,7 @@
                                         <input type="text" class="py-2 px-3 border rounded w-full text-sm"
                                             placeholder="Enter pincode">
                                         <button type="submit"
-                                            class="bg-teal-600 text-white text-sm px-3 py-2 rounded">Check</button>
+                                            class="bg-teal-600 text-white text-sm px-3 py-2 rounded"><i class="fa-solid fa-check"></i></i></button>
                                     </div>
                                 </div>
 
@@ -233,7 +228,7 @@
                                         <input type="text" class="py-2 px-3 border rounded w-full text-sm"
                                             placeholder="Enter district">
                                         <button type="submit"
-                                            class="bg-teal-600 text-white text-sm px-3 py-2 rounded">Check</button>
+                                            class="bg-teal-600 text-white text-sm px-3 py-2 rounded"><i class="fa-solid fa-check"></i></i></button>
                                     </div>
                                 </div>
 
@@ -244,7 +239,7 @@
                                         <input type="text" class="py-2 px-3 border rounded w-full text-sm"
                                             placeholder="Enter block">
                                         <button type="submit"
-                                            class="bg-teal-600 text-white text-sm px-3 py-2 rounded">Check</button>
+                                            class="bg-teal-600 text-white text-sm px-3 py-2 rounded"><i class="fa-solid fa-check"></i></i></button>
                                     </div>
                                 </div>
 
@@ -255,7 +250,7 @@
                                         <input type="text" class="py-2 px-3 border rounded w-full text-sm"
                                             placeholder="Enter village">
                                         <button type="submit"
-                                            class="bg-teal-600 text-white text-sm px-3 py-2 rounded">Check</button>
+                                            class="bg-teal-600 text-white text-sm px-3 py-2 rounded"><i class="fa-solid fa-check"></i></i></button>
                                     </div>
                                 </div>
                             </div>
@@ -269,20 +264,19 @@
                         </h3>
                         <div class="mt-2 pl-6 hidden toggle-content">
                             <div class="flex items-center mb-2">
-                                <input type="checkbox" id="bachelor" class="mr-2 rounded text-teal-600">
+                                <input type="checkbox" id="bachelor" class="mr-2 rounded border border-gray-400 text-teal-600">
                                 <label for="bachelor" class="text-sm">Bachelor's Degree</label>
                             </div>
                             <div class="flex items-center mb-2">
-                                <input type="checkbox" id="master" class="mr-2 rounded text-teal-600">
+                                <input type="checkbox" id="master" class="mr-2 rounded border border-gray-400 text-teal-600">
                                 <label for="master" class="text-sm">Master's Degree</label>
                             </div>
                             <div class="flex items-center">
-                                <input type="checkbox" id="phd" class="mr-2 rounded text-teal-600">
+                                <input type="checkbox" id="phd" class="mr-2 rounded border border-gray-400 text-teal-600">
                                 <label for="phd" class="text-sm">PhD</label>
                             </div>
                         </div>
                     </div>
-
                     <div class="filter-box p-3 rounded-lg border">
                         <h3 class="font-medium cursor-pointer flex justify-between items-center toggle-header">
                             <span><i class="fas fa-layer-group mr-2 text-teal-600"></i>Class Category</span>
@@ -290,15 +284,15 @@
                         </h3>
                         <div class="mt-2 pl-6 hidden toggle-content">
                             <div class="flex items-center mb-2">
-                                <input type="checkbox" id="primary" class="mr-2 rounded text-teal-600">
+                                <input type="checkbox" id="primary" class="mr-2 rounded border border-gray-400 text-teal-600">
                                 <label for="primary" class="text-sm">0 - 2</label>
                             </div>
                             <div class="flex items-center mb-2">
-                                <input type="checkbox" id="middle" class="mr-2 rounded text-teal-600">
+                                <input type="checkbox" id="middle" class="mr-2 rounded border border-gray-400 text-teal-600">
                                 <label for="middle" class="text-sm">0 - 4</label>
                             </div>
                             <div class="flex items-center">
-                                <input type="checkbox" id="high" class="mr-2 rounded text-teal-600">
+                                <input type="checkbox" id="high" class="mr-2 rounded border border-gray-400 text-teal-600">
                                 <label for="high" class="text-sm">0 - 6</label>
                             </div>
                         </div>
@@ -311,19 +305,19 @@
                         </h3>
                         <div class="mt-2 pl-6 hidden toggle-content">
                             <div class="flex items-center mb-2">
-                                <input type="checkbox" id="math" class="mr-2 rounded text-teal-600">
+                                <input type="checkbox" id="math" class="mr-2 rounded border border-gray-400 text-teal-600">
                                 <label for="math" class="text-sm">Mathematics</label>
                             </div>
                             <div class="flex items-center mb-2">
-                                <input type="checkbox" id="science" class="mr-2 rounded text-teal-600">
+                                <input type="checkbox" id="science" class="mr-2 rounded border border-gray-400 text-teal-600">
                                 <label for="science" class="text-sm">Science</label>
                             </div>
                             <div class="flex items-center mb-2">
-                                <input type="checkbox" id="english" class="mr-2 rounded text-teal-600">
+                                <input type="checkbox" id="english" class="mr-2 rounded border border-gray-400 text-teal-600">
                                 <label for="english" class="text-sm">English</label>
                             </div>
                             <div class="flex items-center">
-                                <input type="checkbox" id="history" class="mr-2 rounded text-teal-600">
+                                <input type="checkbox" id="history" class="mr-2 rounded border border-gray-400 text-teal-600">
                                 <label for="history" class="text-sm">History</label>
                             </div>
                         </div>
@@ -336,21 +330,21 @@
                         </h3>
                         <div class="mt-2 pl-6 hidden toggle-content">
                             <div class="flex items-center mb-2">
-                                <input type="checkbox" id="communication" class="mr-2 rounded text-teal-600">
+                                <input type="checkbox" id="communication" class="mr-2 rounded border border-gray-400 text-teal-600">
                                 <label for="communication" class="text-sm">C++</label>
                             </div>
                             <div class="flex items-center mb-2">
-                                <input type="checkbox" id="management" class="mr-2 rounded text-teal-600">
+                                <input type="checkbox" id="management" class="mr-2 rounded border border-gray-400 text-teal-600">
                                 <label for="management" class="text-sm">Java</label>
                             </div>
                             <div class="flex items-center">
-                                <input type="checkbox" id="technology" class="mr-2 rounded text-teal-600">
+                                <input type="checkbox" id="technology" class="mr-2 rounded border border-gray-400 text-teal-600">
                                 <label for="technology" class="text-sm">Python</label>
                             </div>
                         </div>
                     </div>
 
-                    <button id="clearFilters" class="text-sm text-teal-600 mt-2 font-medium flex items-center">
+                    <button id="clearFilters" class="text-sm text-teal-600 mt-2 font-medium border border-gray-400 flex items-center">
                         <i class="fas fa-times-circle mr-1"></i>Clear Filters
                     </button>
                 </div>
