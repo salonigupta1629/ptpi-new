@@ -2,7 +2,6 @@
   <!-- Top Bar -->
   <div class="flex justify-between bg-white p-2 shadow rounded-md border items-center mb-6">
     <h2 class="text-xl font-bold text-gray-800">Available Teachers</h2>
-
     <!-- Buttons -->
     <div class="flex space-x-2">
       <!-- View Switch -->
