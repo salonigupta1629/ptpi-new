@@ -13,10 +13,12 @@ class Question extends Model
         'correct_option',
         'language',
         'solution',
+        'translations',
     ];
 
     protected $casts = [
 'options' => 'array',
+   'translations' => 'array', 
     ];
 
     public function examSet(){

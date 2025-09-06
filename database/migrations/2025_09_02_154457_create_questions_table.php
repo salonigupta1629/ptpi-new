@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('correct_option');
             $table->text('solution')->nullable();
             $table->string('language')->nullable();
+$table->json('translations')->nullable();
             $table->timestamps();
         });
     }

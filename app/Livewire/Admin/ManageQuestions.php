@@ -3,18 +3,19 @@
 namespace App\Livewire\Admin;
 
 use Livewire\Component;
-
 use App\Models\ExamSet;
 use App\Models\Question;
 use Livewire\Attributes\Validate;
+use Illuminate\Support\Facades\Http;
 
 class ManageQuestions extends Component
 {
-
-       public ExamSet $examSet;
+    public ExamSet $examSet;
     public $questions = [];
     public $isModalOpen = false;
     public $editingQuestionId = null;
+    public $selectedLanguage = 'en';
+    public $availableLanguages = ['en' => 'English', 'hi' => 'Hindi'];
 
     #[Validate('required|string')]
     public $question_text = '';
@@ -39,6 +40,12 @@ class ManageQuestions extends Component
             ->get();
     }
 
+    public function changeLanguage($language)
+    {
+        $this->selectedLanguage = $language;
+        $this->loadQuestions(); 
+    }
+
     public function openModal()
     {
         $this->resetForm();
@@ -51,27 +58,111 @@ class ManageQuestions extends Component
         $this->isModalOpen = false;
     }
 
-    public function storeOrUpdate()
-    {
-        $this->validate();
+   public function storeOrUpdate()
+{
+    $this->validate();
 
-        $data = [
-            'exam_set_id' => $this->examSet->id,
+    \Log::info("Starting translation process...");
+    \Log::info("Question text: " . $this->question_text);
+    \Log::info("Options: " . json_encode($this->options));
+
+    // Translate to all supported languages
+    $translations = $this->translateContent();
+
+    \Log::info("Final translations: " . json_encode($translations));
+
+    $data = [
+        'exam_set_id' => $this->examSet->id,
+        'question_text' => $this->question_text,
+        'options' => json_encode(array_values(array_filter($this->options))),
+        'correct_option' => $this->correct_options,
+        'translations' => json_encode($translations, JSON_UNESCAPED_UNICODE), // Add this flag
+    ];
+
+    if ($this->editingQuestionId) {
+        Question::find($this->editingQuestionId)->update($data);
+    } else {
+        Question::create($data);
+    }
+
+    $this->loadQuestions();
+    $this->closeModal();
+    session()->flash('success', $this->editingQuestionId ? 'Question updated successfully!' : 'Question created successfully!');
+}
+
+private function translateContent()
+{
+    $translations = [
+        'en' => [
             'question_text' => $this->question_text,
-            'options' => json_encode(array_values(array_filter($this->options))),
-            'correct_option' => $this->correct_options,
-        ];
+            'options' => $this->options
+        ]
+    ];
 
-        if ($this->editingQuestionId) {
-            Question::find($this->editingQuestionId)->update($data);
-        } else {
-            Question::create($data);
+    // Translate to Hindi
+    try {
+        $hindiQuestion = $this->translateText($this->question_text, 'hi');
+        
+        $hindiOptions = [];
+        foreach ($this->options as $option) {
+            $hindiOptions[] = !empty($option) ? $this->translateText($option, 'hi') : '';
         }
 
-        $this->loadQuestions();
-        $this->closeModal();
-        session()->flash('success', $this->editingQuestionId ? 'Question updated successfully!' : 'Question created successfully!');
+        $translations['hi'] = [
+            'question_text' => $hindiQuestion,
+            'options' => $hindiOptions
+        ];
+
+        \Log::info("Hindi translation completed: ", $translations['hi']);
+
+    } catch (\Exception $e) {
+        \Log::error('Hindi translation failed: ' . $e->getMessage());
+        // Fallback to English
+        $translations['hi'] = [
+            'question_text' => $this->question_text,
+            'options' => $this->options
+        ];
     }
+
+    return $translations;
+}
+
+private function translateText($text, $targetLanguage)
+{
+    if (empty($text)) {
+        return $text;
+    }
+
+    try {
+        \Log::info("Attempting to translate: '$text' to $targetLanguage");
+        
+        $response = Http::timeout(10)->post('https://api.ptpinstitute.com/api/translator/', [
+            'source' => 'en',
+            'dest' => $targetLanguage,
+            'text' => $text,
+        ]);
+
+        \Log::info("Translation API response status: " . $response->status());
+        
+        if ($response->successful()) {
+            $responseData = $response->json();
+            
+            \Log::info("Translation API response data: ", $responseData);
+            
+            // FIX: Use the correct key 'translated' instead of 'translated_text'
+            $translatedText = $responseData['translated'] ?? $text;
+            
+            \Log::info("Translated text: '$translatedText'");
+            return $translatedText;
+        } else {
+            \Log::error("Translation API error - Status: " . $response->status() . ", Body: " . $response->body());
+            return $text;
+        }
+    } catch (\Exception $e) {
+        \Log::error('Translation failed: ' . $e->getMessage());
+        return $text;
+    }
+}
 
     public function edit($id)
     {
@@ -98,23 +189,28 @@ class ManageQuestions extends Component
     private function resetForm()
     {
         $this->reset(['editingQuestionId', 'question_text', 'correct_options']);
-        $this->options = array_fill(0, 4, ''); 
+        $this->options = array_fill(0, 4, '');
     }
 
     public function render()
     {
-      return view('livewire.admin.manage-questions')->layout('layouts.admin');
+        $questions = $this->questions->map(function ($question) {
+            $translations = json_decode($question->translations, true) ?? [];
+            
+            if (isset($translations[$this->selectedLanguage])) {
+                $question->display_question_text = $translations[$this->selectedLanguage]['question_text'] ?? $question->question_text;
+                $question->display_options = $translations[$this->selectedLanguage]['options'] ?? json_decode($question->options, true);
+            } else {
+                $question->display_question_text = $question->question_text;
+                $question->display_options = json_decode($question->options, true);
+            }
+
+            return $question;
+        });
+
+        return view('livewire.admin.manage-questions', [
+            'displayQuestions' => $questions,
+            'languages' => $this->availableLanguages
+        ])->layout('layouts.admin');
     }
 }
-  
-
-
-
-
-
-
-
-
-
-
-

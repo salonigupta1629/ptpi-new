@@ -22,3 +22,20 @@ Route::get("/", Dashboard::class)->name("dashboard");
   Route::get('manage-exam',ManageExam::class)->name('manage-exam');
   Route::get('exam/{examId}/questions',ManageQuestions::class)->name('exam-questions');
   Route::get('question-managers',ManageQuestionManager::class)->name('question-managers');
+
+
+routes/web.php
+Route::get('/test-translation-api', function () {
+    $response = Http::post('https://api.ptpinstitute.com/api/translator/', [
+        'source' => 'en',
+        'dest' => 'hi',
+        'text' => 'Hello world'
+    ]);
+
+    return response()->json([
+        'status' => $response->status(),
+        'headers' => $response->headers(),
+        'body' => $response->body(),
+        'json' => $response->json()
+    ]);
+});
