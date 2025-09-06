@@ -17,7 +17,6 @@ class Question extends Model
 
     protected $casts = [
 'options' => 'array',
-'correct_option' => 'integer',
     ];
 
     public function examSet(){
