@@ -10,11 +10,14 @@ class Question extends Model
         'exam_set_id',
         'question_text',
         'options',
-        'correct_options',
+        'correct_option',
+        'language',
+        'solution',
     ];
 
     protected $casts = [
 'options' => 'array',
+'correct_option' => 'integer',
     ];
 
     public function examSet(){

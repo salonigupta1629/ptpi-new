@@ -16,7 +16,9 @@ return new class extends Migration
             $table->foreignId('exam_set_id')->constrained('exam_sets')->onDelete('cascade');
             $table->text('question_text');
             $table->json('options');
-            $table->string('correct_options');
+             $table->unsignedInteger('correct_option')->default(1);
+            $table->text('solution')->nullable();
+            $table->string('language')->nullable();
             $table->timestamps();
         });
     }

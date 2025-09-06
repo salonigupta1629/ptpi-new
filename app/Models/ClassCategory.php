@@ -8,4 +8,15 @@ class ClassCategory extends Model
 {
     protected $table= 'class_categories';
     protected $fillable = ['name'];
+
+
+    public function subjects()
+    {
+        return $this->hasMany(Subject::class, 'category_id');
+    }
+
+    public function questionManagers()
+    {
+        return $this->hasMany(QuestionManager::class);
+    }
 }
