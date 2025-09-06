@@ -14,6 +14,7 @@ class JobTypes extends Component
     public $jobTypeId;
     public $isEditing = false;
     public $showModal = false;
+    public $search = '';
 
     protected function rules()
     {
@@ -93,10 +94,19 @@ class JobTypes extends Component
 
     public function render()
     {
-        return view('livewire.admin.job-types', [
-            'jobTypes' => TeacherJobType::latest()->get(),
-        ])->layout('layouts.admin');
+        $jobTypes = TeacherJobType::query()
+        ->when($this->search, function ($query) {
+            $query->where('teacher_job_name', 'like', '%' . $this->search . '%');
+        })
+        ->orderBy('created_at', 'desc')
+        ->paginate(10);
+
+    return view('livewire.admin.job-types', [
+        'jobTypes' => $jobTypes,  
+    ])->layout('layouts.admin');
     }
+
+    
 }
 
 

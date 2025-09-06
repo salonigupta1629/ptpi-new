@@ -5,10 +5,15 @@
      <span class=" text-gray-900 text-lg font-semibold">({{ $totalCount }})</span>
  </h2>
      <!-- Button to open modal -->
+       <div class="flex items-center gap-3 flex-1 justify-end">
+                   <input type="text" wire:model.live.debounce.300ms="search" 
+       placeholder="Search subjects..."
+       class="border rounded px-3 py-1" />
     <button wire:click="openModal"
             class="mb-4 px-4 py-2 bg-blue-600 text-white rounded">
         + Add Subject
     </button>
+</div>
     </div>
 
 

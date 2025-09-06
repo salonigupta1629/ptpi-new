@@ -1,7 +1,13 @@
 <div class="p-6 bg-white shadow rounded-lg">
     <div class="flex items-center justify-between mb-4">
         <h2 class="text-lg font-semibold">Job Types</h2>
+
+        <div class="flex items-center gap-3">
+                   <input type="text" wire:model.live.debounce.300ms="search" 
+       placeholder="Search job types..."
+       class="border rounded px-3 py-1" />
         <button wire:click="openModal" class="px-4 py-2 bg-blue-600 text-white rounded">+ Add Job Type</button>
+        </div>
     </div>
 
     @if (session()->has('message'))

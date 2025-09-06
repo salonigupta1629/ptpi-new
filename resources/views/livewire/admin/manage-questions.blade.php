@@ -64,7 +64,47 @@
                             </div>
                         </div> --}}
 
-                    <div class="flex items-center space-x-4">
+
+<div class="flex items-center space-x-4">
+    <!-- Language Dropdown -->
+    <div class="relative">
+        <select 
+            wire:model="selectedLanguage" 
+            wire:change="changeLanguage($event.target.value)"
+            class="appearance-none bg-white border border-gray-300 rounded-lg py-2 px-4 pr-8 leading-tight focus:outline-none focus:border-teal-500"
+        >
+            @foreach($languages as $code => $name)
+                <option value="{{ $code }}">{{ $name }}</option>
+            @endforeach
+        </select>
+        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+            <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
+            </svg>
+        </div>
+    </div>
+
+    <a href="{{ route('admin.manage-exam', $examSet->id) }}"
+        class="inline-flex items-center px-5 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors duration-200">
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M11 17l-5-5m0 0l5-5m-5 5h12" />
+        </svg>
+        Back to Exam Sets
+    </a>
+    <button wire:click="openModal"
+        class="inline-flex items-center px-5 py-2.5 text-sm font-medium text-white bg-teal-600 border border-transparent rounded-xl hover:bg-teal-700 transition-colors duration-200">
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            </svg>
+        Add Question
+    </button>
+</div>
+
+
+
+                    {{-- <div class="flex items-center space-x-4">
                         <a href="{{ route('admin.manage-exam', $examSet->id) }}"
                             class="inline-flex items-center px-5 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors duration-200">
                             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -81,7 +121,7 @@
                             </svg>
                             Add Question
                         </button>
-                    </div>
+                    </div> --}}
                 </nav>
             </div>
 
@@ -93,32 +133,34 @@
 
             <!-- Questions List -->
             <div class="space-y-6">
-                @forelse ($questions as $index => $question)
-                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 hover:shadow-lg transition-all duration-200">
-                        <div class="p-6">
-                            <div class="flex items-start justify-between">
-                                <div class="flex-1">
-                                    <div class="flex items-center space-x-3 mb-4">
-                                        <span class="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-teal-50 text-teal-600 font-semibold text-lg">
-                                            Q{{ $index + 1 }}
-                                        </span>
-                                        <h3 class="text-xl font-semibold text-gray-900 leading-tight">
-                                            {{ $question->question_text }}
-                                        </h3>
-                                    </div>
-                                    <div class="mt-4 space-y-3">
-                                        @foreach (json_decode($question->options) as $optIndex => $option)
-                                            <div class="flex items-center space-x-3">
-                                                <span class="flex-shrink-0 w-8 h-8 rounded-full border-2 
-                                                    {{ chr(65 + $optIndex) === $question->correct_options ? 'border-teal-500 bg-teal-50 text-teal-600' : 'border-gray-200 text-gray-600' }} 
-                                                    flex items-center justify-center font-medium">
-                                                    {{ chr(65 + $optIndex) }}
-                                                </span>
-                                                <span class="text-gray-700 text-base">{{ $option }}</span>
-                                            </div>
-                                        @endforeach
-                                    </div>
-                                </div>
+             @forelse ($displayQuestions as $index => $question)
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 hover:shadow-lg transition-all duration-200">
+        <div class="p-6">
+            <div class="flex items-start justify-between">
+                <div class="flex-1">
+                    <div class="flex items-center space-x-3 mb-4">
+                        <span class="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-teal-50 text-teal-600 font-semibold text-lg">
+                            Q{{ $index + 1 }}
+                        </span>
+                        <h3 class="text-xl font-semibold text-gray-900 leading-tight {{ $selectedLanguage === 'hi' ? 'font-hindi' : '' }}">
+                            {{ $question->display_question_text }}
+                        </h3>
+                    </div>
+                    <div class="mt-4 space-y-3">
+                        @foreach ($question->display_options as $optIndex => $option)
+                            <div class="flex items-center space-x-3">
+                                <span class="flex-shrink-0 w-8 h-8 rounded-full border-2 
+                                    {{ chr(65 + $optIndex) === $question->correct_option ? 'border-teal-500 bg-teal-50 text-teal-600' : 'border-gray-200 text-gray-600' }} 
+                                    flex items-center justify-center font-medium">
+                                    {{ chr(65 + $optIndex) }}
+                                </span>
+                                <span class="text-gray-700 text-base {{ $selectedLanguage === 'hi' ? 'font-hindi' : '' }}">
+                                    {{ $option }}
+                                </span>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
                                 <div class="flex items-center space-x-2 ml-6">
                                     <button wire:click="edit({{ $question->id }})"
                                         class="p-2.5 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors duration-150">
@@ -286,8 +328,6 @@
         </div>
     </div>
 </div>
-
-
 
 
 

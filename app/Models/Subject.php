@@ -11,4 +11,9 @@ class Subject extends Model
     public function category(){
         return $this->belongsTo(ClassCategory::class, 'category_id');
     }
+
+      public function questionManagers()
+    {
+        return $this->hasMany(QuestionManager::class);
+    }
 }
