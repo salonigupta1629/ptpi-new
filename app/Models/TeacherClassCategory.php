@@ -6,5 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class TeacherClassCategory extends Model
 {
-    //
+    protected $guarded = [];
+
 }

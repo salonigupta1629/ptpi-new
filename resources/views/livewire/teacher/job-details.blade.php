@@ -1,5 +1,12 @@
 <div class="flex flex-col gap-6">
-    
+    <div>
+    @if (session()->has('message'))
+        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-2 rounded">
+            {{ session('message') }}
+        </div>
+    @endif
+</div>
+
     <!-- Teaching Preference -->
     <div x-data="{ show:false }" class="flex flex-col gap-4 border rounded-md p-5 shadow-sm bg-white">
         <!-- Header -->
@@ -17,18 +24,7 @@
 
         <!-- Display View -->
         <div x-show="!show" class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
-            <template x-for="(field, index) in [
-            {label:'Class Category', value:'Not Provided'},
-            {label:'Job Role', value:'Teacher'},
-            {label:'Subject', value:'Not Provided'},
-            {label:'Teacher Job Type', value:'Not Provided'}
-        ]" :key="index">
-                <div class="flex flex-col gap-2 border rounded-lg p-4">
-                    <p class="text-base font-medium" x-text="field.label"></p>
-                    <p class="bg-blue-50 border border-blue-300 rounded-full py-1 px-3 w-fit text-sm text-gray-700"
-                        x-text="field.value"></p>
-                </div>
-            </template>
+           
         </div>
 
         <!-- Edit Form -->
@@ -76,7 +72,7 @@
                     <div class="border rounded-lg p-3 space-y-2">
                         @forelse ($subjects as $subject)
                             <label class="flex items-center gap-2 cursor-pointer">
-                                <input type="checkbox" value="{{ $subject->name }}" wire:model="selectedSubjects"
+                                <input type="checkbox" id="subject-{{ $subject->id }}" value="{{ $subject->id }}" wire:model="selectedSubjects"
                                     class="rounded text-blue-600 focus:ring-blue-500">
                                 {{ $subject->subject_name }}
                             </label>

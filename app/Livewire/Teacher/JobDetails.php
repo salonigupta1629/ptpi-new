@@ -7,24 +7,23 @@ use App\Models\Preference;
 use App\Models\Role;
 use App\Models\Skill;
 use App\Models\Subject;
+use App\Models\TeacherClassCategory;
 use App\Models\TeacherJobType;
+use App\Models\TeacherSubject;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 
 class JobDetails extends Component
 {
-    //    public $query = '';
-    //     public $skills = [];
-    //     public $selectedSkill = null;
     public $currentlyWorking = false;
     public $classCategories;
     public $selectedClassCategories = [];
-    public $selectedJobType;
-    public $teacherJobTypes;
+    public $selectedJobType = [];
+    public $teacherJobTypes = [];
     public $jobRoles;
     public $selectedJobRole = [];
     public $subjects = [];
-    public $selectedSubjects = ['arts'];
+    public $selectedSubjects = [];
 
     public function mount()
     {
@@ -36,14 +35,30 @@ class JobDetails extends Component
     {
         $this->subjects = Subject::where('category_id', $this->selectedClassCategories)->get();
     }
+    public function check($id){
+        dd($id);
+    }
 
     public function createOrUpdatePreference(){
         Preference::updateOrCreate([
             'user_id' => 1,
-            'job_role_id' => $this->selectedJobRole,
-            'preferred_subjects' => $this->selectedSubjects,
-            'teacher_job_type_id' => 1
+            'job_role_id' => $this->selectedJobRole[0],
+            'teacher_job_type_id' => $this->selectedJobType[0]
         ]);
+
+        foreach ($this->selectedClassCategories as $selectedClassCategory) {
+            TeacherClassCategory::updateOrCreate([
+            'user_id' => 1,
+            'class_category_id' => (int) $selectedClassCategory,
+        ]);
+        }
+         foreach ($this->selectedSubjects as $selectedSubject) {
+            TeacherSubject::updateOrCreate([
+            'user_id' => 1,
+            'subject_id' => (int) $selectedSubject,
+        ]);
+        }
+        
         session()->flash('message','updated successfully');
     }
 
