@@ -6,18 +6,23 @@ use Illuminate\Database\Eloquent\Model;
 
 class ExamSet extends Model
 {
-    public $fillable = [
-        'name',
-        'description',
-        'duration',
-        'status',
-        'type',
-        'user_id',
-        'level_id',
-        'subject_id',
-        'category_id',
-        'total_marks',
-    ];
+   protected $fillable = [
+    'name',
+    'description',
+    'duration',
+    'status',
+    'type',
+    'user_id',
+    'level_id',
+    'subject_id',
+    'category_id',
+    'total_marks',
+];
+
+// In your status dropdown in the Blade file, change:
+// <option value="archieved">Archieved</option>
+// to:
+// <option value="archived">Archived</option>
 
     public function category(){
         return $this->belongsTo(ClassCategory::class,'category_id');
@@ -36,5 +41,5 @@ class ExamSet extends Model
     return $this->belongsTo(Subject::class);
 }
 
-    
+
 }
