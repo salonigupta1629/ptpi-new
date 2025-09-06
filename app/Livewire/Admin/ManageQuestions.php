@@ -98,7 +98,7 @@ class ManageQuestions extends Component
     private function resetForm()
     {
         $this->reset(['editingQuestionId', 'question_text', 'correct_options']);
-        $this->options = array_fill(0, 4, ''); 
+        $this->options = array_fill(0, 4, '');
     }
 
     public function render()
@@ -106,7 +106,7 @@ class ManageQuestions extends Component
       return view('livewire.admin.manage-questions')->layout('layouts.admin');
     }
 }
-  
+
 
 
 
@@ -301,4 +301,3 @@ class ManageQuestions extends Component
 
 
 
-        

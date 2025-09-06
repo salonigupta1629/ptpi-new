@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Dashboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  
+
  <!-- Font Awesome 6 Free CDN -->
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
   @livewireStyles
@@ -54,6 +54,12 @@
         <i class="fas fa-layer-group text-sm"></i>
         <span class="font-medium text-sm">Job Type</span>
       </a>
+      <a href="{{ route('admin.manage-role') }}"
+   class="flex items-center space-x-3 text-gray-500 hover:bg-blue-100 hover:text-blue-700 rounded-lg p-2 transition-colors duration-200">
+    <i class="fas fa-users text-sm"></i>
+    <span class="font-medium text-sm">Manage Role</span>
+</a>
+
        <a href="{{ route('admin.manage-exam') }}" class="flex items-center space-x-3 text-gray-500 hover:bg-blue-100 hover:text-blue-700 rounded-lg p-2 transition-colors duration-200">
         <i class="fas fa-layer-group text-sm"></i>
         <span class="font-medium text-sm">Exam</span>
@@ -108,7 +114,7 @@
 
     <!-- Scrollable Content -->
     <main class="flex-1 overflow-y-auto p-6">
-      
+
       {{ $slot }}
     </main>
   </div>
