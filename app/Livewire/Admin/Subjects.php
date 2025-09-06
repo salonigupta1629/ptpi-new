@@ -13,6 +13,7 @@ class Subjects extends Component
     public $showModal = false;
     public $totalCount = 0;
     public $category_id;
+    public $search='';
 
     protected $rules = [
         'subject_name' => 'required|string|max:255',
@@ -78,13 +79,34 @@ class Subjects extends Component
         $this->isEditing = false;
     }
 
+    // public function render()
+    // {
+    //       $subjects = Subject::query()
+    //     ->when($this->search, function ($query) {
+    //         $query->where('subject_name', 'like', '%' . $this->search . '%');
+    //     })
+    //     ->orderBy('created_at', 'desc')
+    //     ->paginate(10);
+
+    //     return view('livewire.admin.subjects', [
+    //         'subjects' => Subject::latest()->get(),
+    //          'categories' => ClassCategory::all(), 
+    //     'totalCount' => Subject::count(),
+    //     ])->layout('layouts.admin');
+    // }
+
     public function render()
-    {
-        return view('livewire.admin.subjects', [
-            'subjects' => Subject::latest()->get(),
-            // $this->totalCount = Subject::count(),
-             'categories' => ClassCategory::all(), 
-        'totalCount' => Subject::count(),
-        ])->layout('layouts.admin');
-    }
+{
+    $subjectsQuery = Subject::query()
+        ->when($this->search, function ($query) {
+            $query->where('subject_name', 'like', '%' . $this->search . '%');
+        })
+        ->orderBy('created_at', 'desc');
+
+    return view('livewire.admin.subjects', [
+        'subjects' => $subjectsQuery->paginate(10), 
+        'categories' => ClassCategory::all(), 
+        'totalCount' => Subject::count(),  
+    ])->layout('layouts.admin');
+}
 }

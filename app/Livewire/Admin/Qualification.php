@@ -15,6 +15,7 @@ class Qualification extends Component
 
     public $isEditing = false;
     public $showModal = false;
+    public $search='';
 
     public function openModal()
     {
@@ -78,8 +79,15 @@ class Qualification extends Component
 
     public function render()
     {
+         $qualifications = EducationalQualification::query()
+        ->when($this->search, function ($query) {
+            $query->where('name', 'like', '%' . $this->search . '%');
+        })
+        ->orderBy('created_at', 'desc')
+        ->paginate(10);
+
         return view('livewire.admin.qualification', [
-            'qualifications' => EducationalQualification::latest()->get(),
+            'qualifications' => $qualifications,
         ])->layout('layouts.admin');
     }
 }

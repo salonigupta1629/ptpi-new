@@ -115,16 +115,19 @@ class Skills extends Component
     }
 
     public function render()
-    {
-        $skills = Skill::query()
-            ->where('name', 'like', '%' . $this->search . '%')
-            ->orderBy('created_at', 'desc')
-            ->paginate(10);
+{
+    $skills = Skill::query()
+        ->when($this->search, function ($query) {
+            $query->where('name', 'like', '%' . $this->search . '%');
+        })
+        ->orderBy('created_at', 'desc')
+        ->paginate(10);
 
-        return view('livewire.admin.skills', [
-            'skills' => $skills,
-        ])->layout('layouts.admin');
-    }
+    return view('livewire.admin.skills', [
+        'skills' => $skills,
+    ])->layout('layouts.admin');
+}
+
 }
 
 

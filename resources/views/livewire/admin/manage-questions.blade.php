@@ -110,7 +110,7 @@
                                         @foreach (json_decode($question->options) as $optIndex => $option)
                                             <div class="flex items-center space-x-3">
                                                 <span class="flex-shrink-0 w-8 h-8 rounded-full border-2 
-                                                    {{ chr(65 + $optIndex) === $question->correct_options ? 'border-teal-500 bg-teal-50 text-teal-600' : 'border-gray-200 text-gray-600' }} 
+                                                    {{ chr(65 + $optIndex) === $question->correct_option ? 'border-teal-500 bg-teal-50 text-teal-600' : 'border-gray-200 text-gray-600' }} 
                                                     flex items-center justify-center font-medium">
                                                     {{ chr(65 + $optIndex) }}
                                                 </span>

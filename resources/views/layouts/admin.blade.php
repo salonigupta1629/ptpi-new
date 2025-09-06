@@ -30,13 +30,13 @@
     </div>
     <!-- Submenu Links -->
     <div class="pl-6 space-y-1">
+          <a href="{{ route('admin.class_categories') }}" class="flex items-center space-x-3 text-gray-500 hover:bg-blue-100 hover:text-blue-700 rounded-lg p-2 transition-colors duration-200">
+        <i class="fas fa-layer-group text-sm"></i>
+        <span class="font-medium text-sm">Class Category</span>
+      </a>
       <a href="{{route('admin.subjects')}}" class="flex items-center space-x-3 text-gray-500 hover:bg-blue-100 hover:text-blue-700 rounded-lg p-2 transition-colors duration-200">
         <i class="fas fa-book text-sm"></i>
         <span class="font-medium text-sm">Subjects</span>
-      </a>
-      <a href="{{ route('admin.class_categories') }}" class="flex items-center space-x-3 text-gray-500 hover:bg-blue-100 hover:text-blue-700 rounded-lg p-2 transition-colors duration-200">
-        <i class="fas fa-layer-group text-sm"></i>
-        <span class="font-medium text-sm">Class Category</span>
       </a>
       <a href="{{ route('admin.skills') }}" class="flex items-center space-x-3 text-gray-500 hover:bg-blue-100 hover:text-blue-700 rounded-lg p-2 transition-colors duration-200">
         <i class="fas fa-tools text-sm"></i>

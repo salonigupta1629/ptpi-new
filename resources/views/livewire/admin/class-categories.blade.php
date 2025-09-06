@@ -5,7 +5,7 @@
     </h2>
 
         <div class="flex items-center gap-3">
-            <input type="text" wire:model.debounce.300ms="search" placeholder="Search..."
+            <input type="text" wire:model.live.debounce.300ms="search" placeholder="Search..."
                    class="border rounded p-2" />
 
             <button wire:click="openModal"

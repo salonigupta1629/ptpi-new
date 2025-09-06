@@ -80,7 +80,7 @@ class ManageQuestions extends Component
             $this->editingQuestionId = $question->id;
             $this->question_text = $question->question_text;
             $this->options = json_decode($question->options, true);
-            $this->correct_options = $question->correct_options;
+            $this->correct_options = $question->correct_option;
             $this->isModalOpen = true;
         }
     }

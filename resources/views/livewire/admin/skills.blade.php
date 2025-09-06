@@ -4,8 +4,9 @@
         <h2 class="text-lg font-semibold">Manage Skills</h2>
 
         <div class="flex items-center gap-3">
-            <input type="text" wire:model.debounce.300ms="search" placeholder="Search skills..."
-                   class="border rounded px-3 py-1" />
+                   <input type="text" wire:model.live.debounce.300ms="search" 
+       placeholder="Search skills..."
+       class="border rounded px-3 py-1" />
             <button wire:click="openModal"
                     class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
                 + Add Skill

@@ -3,9 +3,8 @@
         <h2 class="text-lg font-semibold">Manage Levels</h2>
 
         <div class="flex items-center gap-2">
-            <input type="text" wire:model.debounce.300ms="search" placeholder="Search levels..."
+            <input type="text" wire:model.live.debounce.300ms="search" placeholder="Search levels..."
                    class="border rounded px-3 py-2" />
-
             <button wire:click="openModal" class="px-4 py-2 bg-blue-600 text-white rounded">
                 + Add Level
             </button>
