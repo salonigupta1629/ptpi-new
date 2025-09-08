@@ -1,12 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
-
     <style>
         .font-hindi {
             font-family: 'Noto Sans Devanagari', sans-serif;
@@ -14,7 +12,6 @@
             line-height: 1.6;
         }
     </style>
-
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap"
         rel="stylesheet">

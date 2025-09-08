@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class ClassCategory extends Model
 {
@@ -18,5 +19,9 @@ class ClassCategory extends Model
     public function questionManagers()
     {
         return $this->hasMany(QuestionManager::class);
+    }
+      public function teachers(): HasMany
+    {
+        return $this->hasMany(Teacher::class, 'class_categories_id');
     }
 }

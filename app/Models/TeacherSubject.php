@@ -3,11 +3,18 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class TeacherSubject extends Model
 {
     protected $guarded = [];
-    public function subject () {
-        return $this->belongsTo(Subject::class, 'subject_id');
+     public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function subject(): BelongsTo
+    {
+        return $this->belongsTo(Subject::class);
     }
 }
