@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
+
 <body>
     <div>
         <div class="flex h-screen ">
@@ -97,6 +98,7 @@
                         </svg>
                         <span class="font-medium">Setting</span>
                     </a>
+                    
 
                     <button wire:click="logout"
                         class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-left transition-colors mb-1 text-red-600 hover:bg-red-50">
@@ -145,6 +147,7 @@
             // Initialize any additional functionality
         });
     </script>
+
 </body>
 
 </html>
