@@ -3,8 +3,19 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class TeacherQualification extends Model
 {
-    //
+    protected $guarded = [];
+     public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function qualification(): BelongsTo
+    {
+        return $this->belongsTo(EducationalQualification::class, 'qualification_id');
+    }
+
 }

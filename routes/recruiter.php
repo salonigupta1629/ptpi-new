@@ -6,6 +6,6 @@ use Illuminate\Support\Facades\Route;
 
 // Route::get("/dashboard", "DashboardController@index")->name("recruiter.dashboard");
 
-Route::get('/',RecruiterDashboard::class)->name('recruiter.dashboard');
-Route::get('/teacher', TeacherProfile::class)->name('teacher.profile');
+Route::get('/',RecruiterDashboard::class)->name('dashboard');
+Route::get('/teacher/{id}',TeacherProfile::class)->name('teacher.profile');
 
