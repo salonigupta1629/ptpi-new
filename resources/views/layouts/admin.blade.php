@@ -109,122 +109,22 @@
                     <i class="fas fa-comments text-sm"></i>
                     <span class="font-medium text-sm">Interview</span>
                 </a>
-                <a href=""
+                {{-- <a href=""
                     class="flex items-center space-x-3 text-gray-500 hover:bg-blue-100 hover:text-blue-700 rounded-lg p-2 transition-colors duration-200">
                     <i class="fas fa-briefcase text-sm"></i>
                     <span class="font-medium text-sm">Job Applied</span>
-                </a>
-                <a href=""
+                </a> --}}
+                <a href="{{ route('admin.question-managers') }}"
                     class="flex items-center space-x-3 text-gray-500 hover:bg-blue-100 hover:text-blue-700 rounded-lg p-2 transition-colors duration-200">
                     <i class="fas fa-envelope text-sm"></i>
-                    <span class="font-medium text-sm">Recruiter Enquiry</span>
+                    <span class="font-medium text-sm">Question Manager</span>
                 </a>
                 <a href=""
                     class="flex items-center space-x-3 text-gray-500 hover:bg-blue-100 hover:text-blue-700 rounded-lg p-2 transition-colors duration-200">
                     <i class="fas fa-flag text-sm"></i>
-                    <span class="font-medium text-sm">Question Report</span>
+                    <span class="font-medium text-sm">Exam Center</span>
                 </a>
             </div>
-  <!-- Sidebar -->
-  <aside class="w-64 bg-white border-r border-gray-200 fixed h-screen transition-all duration-300">
-    <div class="p-6 text-2xl font-bold text-gray-800 border-b border-gray-200 flex items-center space-x-2">
-      <i class="fas fa-clipboard text-blue-600"></i>
-      <span>PTPI</span>
-    </div>
-    <nav class="mt-4 flex flex-col space-y-2 px-4">
-      <a href="{{ route('admin.dashboard') }}" class="flex items-center space-x-3 text-gray-600 hover:bg-blue-100 hover:text-blue-700 rounded-lg p-3 transition-colors duration-200">
-        <i class="fas fa-tachometer-alt text-lg"></i>
-        <span class="font-medium">Dashboard</span>
-      </a>
-      
-      <!-- Data Management Header -->
-      <div class="text-gray-700 text-base font-semibold px-3 py-2">
-        <i class="fas fa-folder-open text-base mr-2"></i>
-        <span>Data Management</span>
-      </div>
-      
-      <!-- Submenu Links -->
-      <div class="pl-6 space-y-1">
-        <a href="{{ route('admin.class_categories') }}" class="flex items-center space-x-3 text-gray-500 hover:bg-blue-100 hover:text-blue-700 rounded-lg p-2 transition-colors duration-200">
-          <i class="fas fa-layer-group text-sm"></i>
-          <span class="font-medium text-sm">Class Category</span>
-        </a>
-        <a href="{{ route('admin.subjects') }}" class="flex items-center space-x-3 text-gray-500 hover:bg-blue-100 hover:text-blue-700 rounded-lg p-2 transition-colors duration-200">
-          <i class="fas fa-book text-sm"></i>
-          <span class="font-medium text-sm">Subjects</span>
-        </a>
-        <a href="{{ route('admin.skills') }}" class="flex items-center space-x-3 text-gray-500 hover:bg-blue-100 hover:text-blue-700 rounded-lg p-2 transition-colors duration-200">
-          <i class="fas fa-tools text-sm"></i>
-          <span class="font-medium text-sm">Skills</span>
-        </a>
-        <a href="{{ route('admin.levels') }}" class="flex items-center space-x-3 text-gray-500 hover:bg-blue-100 hover:text-blue-700 rounded-lg p-2 transition-colors duration-200">
-          <i class="fas fa-signal text-sm"></i>
-          <span class="font-medium text-sm">Level</span>
-        </a>
-        <a href="{{ route('admin.qualifications') }}" class="flex items-center space-x-3 text-gray-500 hover:bg-blue-100 hover:text-blue-700 rounded-lg p-2 transition-colors duration-200">
-          <i class="fas fa-certificate text-sm"></i>
-          <span class="font-medium text-sm">Qualifications</span>
-        </a>
-        <a href="{{ route('admin.job_types') }}" class="flex items-center space-x-3 text-gray-500 hover:bg-blue-100 hover:text-blue-700 rounded-lg p-2 transition-colors duration-200">
-          <i class="fas fa-briefcase text-sm"></i>
-          <span class="font-medium text-sm">Job Type</span>
-        </a>
-        <a href="{{ route('admin.manage-exam') }}" class="flex items-center space-x-3 text-gray-500 hover:bg-blue-100 hover:text-blue-700 rounded-lg p-2 transition-colors duration-200">
-          <i class="fas fa-file-alt text-sm"></i>
-          <span class="font-medium text-sm">Exam</span>
-        </a>
-      </div>
-      
-      <!-- Manage Request Header -->
-      <div class="text-gray-700 text-base font-semibold px-3 py-2">
-        <i class="fas fa-tasks text-base mr-2"></i>
-        <span>Manage Request</span>
-      </div>
-      
-      <!-- Manage Request Submenu -->
-      <div class="pl-6 space-y-1">
-        <a href="" class="flex items-center space-x-3 text-gray-500 hover:bg-blue-100 hover:text-blue-700 rounded-lg p-2 transition-colors duration-200">
-          <i class="fas fa-user-plus text-sm"></i>
-          <span class="font-medium text-sm">Hiring</span>
-        </a>
-        <a href="" class="flex items-center space-x-3 text-gray-500 hover:bg-blue-100 hover:text-blue-700 rounded-lg p-2 transition-colors duration-200">
-          <i class="fas fa-key text-sm"></i>
-          <span class="font-medium text-sm">Passkeys</span>
-        </a>
-        <a href="" class="flex items-center space-x-3 text-gray-500 hover:bg-blue-100 hover:text-blue-700 rounded-lg p-2 transition-colors duration-200">
-          <i class="fas fa-comments text-sm"></i>
-          <span class="font-medium text-sm">Interview</span>
-        </a>
-        {{-- <a href="" class="flex items-center space-x-3 text-gray-500 hover:bg-blue-100 hover:text-blue-700 rounded-lg p-2 transition-colors duration-200">
-          <i class="fas fa-briefcase text-sm"></i>
-          <span class="font-medium text-sm">Job Applied</span>
-        </a>
-        <a href="" class="flex items-center space-x-3 text-gray-500 hover:bg-blue-100 hover:text-blue-700 rounded-lg p-2 transition-colors duration-200">
-          <i class="fas fa-envelope text-sm"></i>
-          <span class="font-medium text-sm">Recruiter Enquiry</span>
-        </a>
-        <a href="" class="flex items-center space-x-3 text-gray-500 hover:bg-blue-100 hover:text-blue-700 rounded-lg p-2 transition-colors duration-200">
-          <i class="fas fa-flag text-sm"></i>
-          <span class="font-medium text-sm">Question Report</span>
-        </a> --}}
-      </div>
-
-       <!-- Manage Users Header -->
-      <div class="text-gray-700 text-base font-semibold px-3 py-2">
-        <i class="fas fa-tasks text-base mr-2"></i>
-        <span>Manage Users</span>
-      </div>
-
-       <div class="pl-6 space-y-1">
-        <a href="{{ route('admin.question-managers') }}" class="flex items-center space-x-3 text-gray-500 hover:bg-blue-100 hover:text-blue-700 rounded-lg p-2 transition-colors duration-200">
-          <i class="fas fa-user-plus text-sm"></i>
-          <span class="font-medium text-sm">Question Manager</span>
-        </a>
-        <a href="" class="flex items-center space-x-3 text-gray-500 hover:bg-blue-100 hover:text-blue-700 rounded-lg p-2 transition-colors duration-200">
-          <i class="fas fa-key text-sm"></i>
-          <span class="font-medium text-sm">Exam Center</span>
-        </a>
-      </div>
 
             <!-- Logout -->
             <form method="POST" action="" class="mt-auto">
