@@ -224,7 +224,7 @@
           <i class="fas fa-comments text-sm"></i>
           <span class="font-medium text-sm">Interview</span>
         </a>
-        <a href="" class="flex items-center space-x-3 text-gray-500 hover:bg-blue-100 hover:text-blue-700 rounded-lg p-2 transition-colors duration-200">
+        {{-- <a href="" class="flex items-center space-x-3 text-gray-500 hover:bg-blue-100 hover:text-blue-700 rounded-lg p-2 transition-colors duration-200">
           <i class="fas fa-briefcase text-sm"></i>
           <span class="font-medium text-sm">Job Applied</span>
         </a>
@@ -235,6 +235,23 @@
         <a href="" class="flex items-center space-x-3 text-gray-500 hover:bg-blue-100 hover:text-blue-700 rounded-lg p-2 transition-colors duration-200">
           <i class="fas fa-flag text-sm"></i>
           <span class="font-medium text-sm">Question Report</span>
+        </a> --}}
+      </div>
+
+       <!-- Manage Users Header -->
+      <div class="text-gray-700 text-base font-semibold px-3 py-2">
+        <i class="fas fa-tasks text-base mr-2"></i>
+        <span>Manage Users</span>
+      </div>
+
+       <div class="pl-6 space-y-1">
+        <a href="{{ route('admin.question-managers') }}" class="flex items-center space-x-3 text-gray-500 hover:bg-blue-100 hover:text-blue-700 rounded-lg p-2 transition-colors duration-200">
+          <i class="fas fa-user-plus text-sm"></i>
+          <span class="font-medium text-sm">Question Manager</span>
+        </a>
+        <a href="" class="flex items-center space-x-3 text-gray-500 hover:bg-blue-100 hover:text-blue-700 rounded-lg p-2 transition-colors duration-200">
+          <i class="fas fa-key text-sm"></i>
+          <span class="font-medium text-sm">Exam Center</span>
         </a>
       </div>
 
