@@ -119,7 +119,7 @@
                     <i class="fas fa-envelope text-sm"></i>
                     <span class="font-medium text-sm">Question Manager</span>
                 </a>
-                <a href=""
+                <a href="{{ route('admin.exam-centers') }}"
                     class="flex items-center space-x-3 text-gray-500 hover:bg-blue-100 hover:text-blue-700 rounded-lg p-2 transition-colors duration-200">
                     <i class="fas fa-flag text-sm"></i>
                     <span class="font-medium text-sm">Exam Center</span>

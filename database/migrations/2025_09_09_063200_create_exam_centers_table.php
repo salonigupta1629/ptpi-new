@@ -13,6 +13,13 @@ return new class extends Migration
     {
         Schema::create('exam_centers', function (Blueprint $table) {
             $table->id();
+               $table->string('center_name');
+            $table->string('area');
+            $table->string('pincode');
+            $table->string('city');
+            $table->string('state');
+            $table->foreignId('manager_id')->constrained('users');
+            $table->boolean('inactive')->default(false);
             $table->timestamps();
         });
     }

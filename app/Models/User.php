@@ -19,6 +19,7 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name',
+        'role',
         'email',
         'password',
     ];
@@ -78,5 +79,15 @@ class User extends Authenticatable
     public function classCategories(): HasMany
     {
         return $this->hasMany(TeacherClassCategory::class);
+    }
+
+       public function examCenters()
+    {
+        return $this->hasMany(ExamCenter::class, 'manager_id');
+    }
+
+    public function isCenterManager()
+    {
+        return $this->role === 'center-manager';
     }
 }

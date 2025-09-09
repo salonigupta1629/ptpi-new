@@ -12,6 +12,7 @@ use App\Livewire\Admin\ManageExam;
 use App\Livewire\Admin\ManageQuestions;
 use App\Livewire\Admin\ManageQuestionManager;
 use App\Livewire\Admin\ManageRole;
+use App\Livewire\Admin\ExamCenters;
 
 Route::get("/", Dashboard::class)->name("dashboard");
   Route::get('subjects', Subjects::class)->name('subjects');
@@ -24,5 +25,8 @@ Route::get("/", Dashboard::class)->name("dashboard");
   Route::get('exam/{examId}/questions',ManageQuestions::class)->name('exam-questions');
   Route::get('manage-role', ManageRole::class)->name('manage-role');
   Route::get('question-managers',ManageQuestionManager::class)->name('question-managers');
+  Route::get('exam-centers', ExamCenters::class)->name('exam-centers');
+
+  
 
 
