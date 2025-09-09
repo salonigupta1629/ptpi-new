@@ -1,5 +1,12 @@
 <div class="flex flex-col gap-6">
-    
+    <div>
+        @if (session()->has('message'))
+            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-2 rounded">
+                    {{ session('message') }}
+            </div>
+        @endif
+    </div>
+
     <!-- Teaching Preference -->
     <div x-data="{ show:false }" class="flex flex-col gap-4 border rounded-md p-5 shadow-sm bg-white">
         <!-- Header -->
@@ -15,21 +22,77 @@
             </button>
         </div>
 
-        <!-- Display View -->
-        <div x-show="!show" class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
-            <template x-for="(field, index) in [
-            {label:'Class Category', value:'Not Provided'},
-            {label:'Job Role', value:'Teacher'},
-            {label:'Subject', value:'Not Provided'},
-            {label:'Teacher Job Type', value:'Not Provided'}
-        ]" :key="index">
-                <div class="flex flex-col gap-2 border rounded-lg p-4">
-                    <p class="text-base font-medium" x-text="field.label"></p>
-                    <p class="bg-blue-50 border border-blue-300 rounded-full py-1 px-3 w-fit text-sm text-gray-700"
-                        x-text="field.value"></p>
-                </div>
-            </template>
+         <div x-show="!show" class="mt-5">
+    <div class="grid md:grid-cols-2 gap-6">
+        
+        <!-- Class Category -->
+        <div class="flex flex-col border p-5 rounded-2xl shadow-sm bg-white">
+            <p class="text-lg font-semibold text-gray-800">Class Category</p>
+            <div class="flex flex-wrap gap-2 mt-3">
+                @foreach ($classCategories as $classCategory)
+                    @if ($selectedCategory->contains($classCategory->id))
+                        <span class="px-3 py-1 text-sm rounded-full bg-blue-100 text-blue-700">
+                            {{ $classCategory->name }}
+                        </span>
+                    @endif
+                @endforeach
+            </div>
         </div>
+
+        <!-- Job Role -->
+        <div class="flex flex-col border p-5 rounded-2xl shadow-sm bg-white">
+            <p class="text-lg font-semibold text-gray-800">Job Role</p>
+            <div class="mt-3">
+                @foreach ($jobRoles as $role)
+                    @if ($selectedJobRole == $role->id)
+                        <span class="px-3 py-1 text-sm rounded-full bg-green-100 text-green-700">
+                            {{ $role->name }}
+                        </span>
+                    @endif
+                @endforeach
+            </div>
+        </div>
+
+        <!-- Subject -->
+        <div class="flex flex-col border p-5 rounded-2xl shadow-sm bg-white md:col-span-2">
+            <p class="text-lg font-semibold text-gray-800">Subjects</p>
+            <div class="mt-3 space-y-3">
+                @foreach ($subjects as $categoryId => $subjectList)
+                    <div>
+                        <p class="text-sm font-medium text-gray-600 mb-1">
+                            {{ $subjectList[0]['category_name'] }} →
+                        </p>
+                        <div class="flex flex-wrap gap-2">
+                            @foreach ($subjectList as $sub)
+                                @if ($selectedSubject->contains($sub['id']))
+                                    <span class="px-3 py-1 text-sm rounded-full bg-purple-100 text-purple-700">
+                                        {{ $sub['subject_name'] }}
+                                    </span>
+                                @endif
+                            @endforeach
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+
+        <!-- Job Type -->
+        <div class="flex flex-col border p-5 rounded-2xl shadow-sm bg-white md:col-span-2">
+            <p class="text-lg font-semibold text-gray-800">Teacher Job Type</p>
+            <div class="mt-3">
+                @foreach ($jobTypes as $type)
+                    @if ($selectedJobType == $type->id)
+                        <span class="px-3 py-1 text-sm rounded-full bg-yellow-100 text-yellow-700">
+                            {{ $type->teacher_job_name }}
+                        </span>
+                    @endif
+                @endforeach
+            </div>
+        </div>
+
+    </div>
+</div>
+
 
         <!-- Edit Form -->
         <div x-show="show" x-transition class="border rounded-lg p-5 space-y-5">
@@ -42,11 +105,11 @@
                     <p class="text-lg font-medium">Class Category*</p>
                     <p class="text-sm text-gray-500">Select the educational level you're comfortable teaching</p>
                     <div class="border rounded-lg p-3 space-y-2">
-                        @foreach ($classCategories as $classCategory)
+                       @foreach ($classCategories as $classCategory)
                             <label class="flex items-center gap-2 cursor-pointer">
-                                <input type="checkbox" id="classCategory-{{ $classCategory->id }}"
-                                    value="{{ $classCategory->id }}" wire:model="selectedClassCategories"
-                                    wire:change="updateSubjects" class="rounded text-blue-600 focus:ring-blue-500">
+                                <input type="checkbox" id="classCategory-{{ $classCategory->id }}" value="{{ $classCategory->id }}"
+                                    wire:model="selectedCategory" wire:change="updateSubjects"
+                                    class="rounded text-blue-600 focus:ring-blue-500" @if ($selectedCategory->contains($classCategory->id)) checked @endif>
                                 {{ $classCategory->name }}
                             </label>
                         @endforeach
@@ -58,13 +121,13 @@
                     <p class="text-lg font-medium">Job Role*</p>
                     <p class="text-sm text-gray-500">"Teacher" is required. Add additional roles if desired</p>
                     <div class="border rounded-lg p-3 space-y-2">
-                      @foreach ($jobRoles as $role)
+                        @foreach ($jobRoles as $role)
                             <label class="flex items-center gap-2 cursor-pointer">
-                                <input type="checkbox" id="role-{{ $role->id }}"
-                                    value="{{ $role->id }}" wire:model="selectedJobRole"
-                                    class="rounded text-blue-600 focus:ring-blue-500">
-                                {{ $role->name }}
-                            </label>
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input type="radio" name="jobRole" id="role-{{ $role->id }}" value="{{ $role->id }}"
+                                        wire:model="selectedJobRole" class="text-blue-600 focus:ring-blue-500">
+                                    {{ $role->name }}
+                                </label>
                         @endforeach
                     </div>
                 </div>
@@ -74,15 +137,18 @@
                     <p class="text-lg font-medium">Preferred Subjects*</p>
                     <p class="text-sm text-gray-500">Select subjects you're qualified to teach</p>
                     <div class="border rounded-lg p-3 space-y-2">
-                        @forelse ($subjects as $subject)
-                            <label class="flex items-center gap-2 cursor-pointer">
-                                <input type="checkbox" value="{{ $subject->name }}" wire:model="selectedSubjects"
-                                    class="rounded text-blue-600 focus:ring-blue-500">
-                                {{ $subject->subject_name }}
-                            </label>
-                        @empty
-                            <p>Select class categories to view available subjects</p>
-                        @endforelse
+                        @foreach ($subjects as $categoryId => $subjectList)
+                            <p class="mt-2 font-medium">
+                                {{ $subjectList[0]['category_name'] }} →
+                            </p>
+                            @foreach ($subjectList as $sub)
+                                <label class="flex items-center gap-2 cursor-pointer ml-4">
+                                    <input type="checkbox" id="sub-{{ $sub['id'] }}" value="{{ $sub['id'] }}" wire:model="selectedSubject"
+                                        class="rounded text-blue-600 focus:ring-blue-500">
+                                    {{ $sub['subject_name'] }}
+                                </label>
+                            @endforeach
+                        @endforeach
                     </div>
                 </div>
 
@@ -91,12 +157,13 @@
                     <p class="text-lg font-medium">Teacher Job Type*</p>
                     <p class="text-sm text-gray-500">Choose your preferred employment type(s)</p>
                     <div class="border rounded-lg p-3 space-y-2">
-                        @foreach ($teacherJobTypes as $teacherJobType)
+                         @foreach ($jobTypes as $type)
                             <label class="flex items-center gap-2 cursor-pointer">
-                                <input type="checkbox" value="{{ $teacherJobType->id }}" wire:model="selectedJobType"
-                                    class="rounded text-blue-600 focus:ring-blue-500">
-                                {{ $teacherJobType->teacher_job_name }}
-                            </label>
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input type="radio" name="jobtype" id="type-{{ $type->id }}" value="{{ $type->id }}"
+                                        wire:model="selectedJobType" class="text-blue-600 focus:ring-blue-500">
+                                    {{ $type->teacher_job_name }}
+                                </label>
                         @endforeach
                     </div>
                 </div>
