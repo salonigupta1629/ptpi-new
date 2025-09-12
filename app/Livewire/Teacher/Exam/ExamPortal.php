@@ -45,27 +45,33 @@ class ExamPortal extends Component
 
     public function prevQuestion()
     {
-        $question = $this->questions[$this->currentIndex];
-        $this->answers[$question->id] = $this->selectedOption[$this->currentIndex] ?? null;
+        // $question = $this->questions[$this->currentIndex];
+        // $this->answers[$question->id] = $this->selectedOption[$this->currentIndex] ?? null;
+        $currentQuestion = $this->questions[$this->currentIndex];
+$this->answers[$currentQuestion->id] = $this->selectedOption[$currentQuestion->id] ?? null;
         if ($this->currentIndex > 0) {
             $this->currentIndex--;
         }
     }
     public function nextQuestion()
     {
-        $question = $this->questions[$this->currentIndex];
-        $this->answers[$question->id] = $this->selectedOption[$this->currentIndex] ?? null;
+        // $question = $this->questions[$this->currentIndex];
+        // $this->answers[$question->id] = $this->selectedOption[$this->currentIndex] ?? null;
+        $currentQuestion = $this->questions[$this->currentIndex];
+$this->answers[$currentQuestion->id] = $this->selectedOption[$currentQuestion->id] ?? null;
         if ($this->currentIndex < $this->questions->count() - 1) {
             $this->currentIndex++;
         }
     }
     public function submitExam()
     {
-        $question = $this->questions[$this->currentIndex];
-        $this->answers[$question->id] = $this->selectedOption[$this->currentIndex] ?? null;
+        // $question = $this->questions[$this->currentIndex];
+        // $this->answers[$question->id] = $this->selectedOption[$this->currentIndex] ?? null;
+        $currentQuestion = $this->questions[$this->currentIndex];
+$this->answers[$currentQuestion->id] = $this->selectedOption[$currentQuestion->id] ?? null;
         dd($this->answers, $this->correctAnswers);
-        foreach ($this->questions as $index => $question){
-            $selected = $this->answers[$index] ?? null;
+        foreach ($this->questions as $question) {
+    $selected = $this->answers[$question->id] ?? null;
 
             if($selected != null){
                 UserAnswer::updateOrCreate(
@@ -84,12 +90,21 @@ class ExamPortal extends Component
     }
 
     public function calculateResult(){
-        if($this->answers === $this->correctAnswers){
-            $this->result = 'well done , you passed';
-        }
-        else{
-            $this->result = 'fail';
-        }
+       $correctCount = 0;
+$totalQuestions = $this->questions->count();
+
+foreach ($this->questions as $question) {
+    $selectedAnswer = $this->answers[$question->id] ?? null;
+    $correctAnswer = $this->correctAnswers[$question->id] ?? null;
+    
+    if ($selectedAnswer === $correctAnswer) {
+        $correctCount++;
+    }
+}
+
+$score = ($correctCount / $totalQuestions) * 100;
+$this->result = "Score: $correctCount/$totalQuestions (" . round($score, 2) . "%) - " . 
+               ($score >= 60 ? "Passed" : "Failed");
     }
 
     #[Layout('layouts.default')]
