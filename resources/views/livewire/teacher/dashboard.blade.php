@@ -79,7 +79,7 @@
                 <p class="font-semibold">{{ $selection['level_name'] }}</p>
                 <p class="text-gray-600">{{ $selection['subject_name'] }}</p>
                 <p class="text-gray-600">{{ $selection['category_name'] }}</p>
-                <button class="mt-4 bg-green-500 hover:bg-green-600 text-white p-3 rounded font-medium transition">
+                <button wire:click="startExam" class="mt-4 bg-green-500 hover:bg-green-600 text-white p-3 rounded font-medium transition">
                     Start Exam
                 </button>
             </div>

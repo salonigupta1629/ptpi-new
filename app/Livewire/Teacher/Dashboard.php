@@ -77,25 +77,10 @@ class Dashboard extends Component
             $this->subjects = [];
         }
     }
-    // public function updateSubject($id)
-    // {   
-    //     $this->subjects = Subject::where('category_id', $id)->get();
-    //     $category = ClassCategory::find($id);
-    //     $this->selectedClassCategory = $id;
-    //     $this->selectedCategoryName = $category->name;
-    // }
-    // public function updateLavel($id)
-    // {
-    //     $this->levels = Level::select('id', 'name', 'description')->get();
-    //      $subject = Subject::find($id);
-    //     $this->selectedSubject = $id;
-    //     $this->selectedSubjectName = $subject->subject_name;
-    // }
-    // public function updateSelection($id){
-    //     $this->selectedLevel = $id;
-    //     $level = Level::find($id);
-    //     $this->selectedLevelName = $level->name;
-    // }
+    public function startExam()
+    {
+        return redirect()->route('teacher.exam-instruction', [$this->selection['category_id'], $this->selection['subject_id'], $this->selection['level_id']]);
+    }
     #[Layout('layouts.teacher')]
     public function render()
     {
