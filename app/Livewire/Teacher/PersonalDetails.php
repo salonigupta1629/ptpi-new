@@ -12,4 +12,5 @@ class PersonalDetails extends Component
     {
         return view('livewire.teacher.personal-details');
     }
+    
 }
