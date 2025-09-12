@@ -33,7 +33,7 @@ class TeacherProfile extends Component
             'experiences',
             'skills',
             'subjects',
-            'classCategory'
+            'classCategories'
         ])->findOrFail($this->teacherId); // Use $this->teacherId
     }
     public function render()
