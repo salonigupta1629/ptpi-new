@@ -21,7 +21,7 @@ return new class extends Migration
             $table->foreignId('subject_id')->constrained('subjects')->onDelete('cascade');
             $table->integer('total_marks')->default(0);
             $table->integer('duration')->default(60);
-            $table->string('total_question')->nullable();
+            $table->integer('total_question')->nullable();
             $table->enum('type',['online','offline'])->default('online');
           $table->enum('status',['draft','published','archieved'])->default('draft');
             $table->timestamps();

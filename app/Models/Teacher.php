@@ -39,7 +39,7 @@ class Teacher extends Model
         return $this->hasManyThrough(TeacherExperiences::class, User::class, 'id', 'user_id', 'user_id', 'id');
     }
 
-    public function classCategory(): BelongsTo
+    public function classCategories(): BelongsTo
     {
         return $this->belongsTo(ClassCategory::class, 'class_categories_id');
     }

@@ -11,17 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('questions', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('exam_set_id')->constrained('exam_sets')->onDelete('cascade');
-            $table->text('question_text');
-            $table->json('options');
-            $table->string('correct_option');
-            $table->text('solution')->nullable();
-            $table->string('language')->nullable();
-$table->json('translations')->nullable();
-            $table->timestamps();
-        });
+            Schema::create('questions', function (Blueprint $table) {
+                $table->id();
+                $table->foreignId('exam_set_id')->constrained('exam_sets')->onDelete('cascade');
+                $table->text('question_text');
+                $table->json('options');
+                $table->string('correct_option');
+                $table->text('solution')->nullable();
+                $table->string('language')->nullable();
+                $table->json('translations')->nullable();
+                $table->timestamps();
+            });
     }
 
     /**
