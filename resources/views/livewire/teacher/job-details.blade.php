@@ -122,7 +122,6 @@
                     <p class="text-sm text-gray-500">"Teacher" is required. Add additional roles if desired</p>
                     <div class="border rounded-lg p-3 space-y-2">
                         @foreach ($jobRoles as $role)
-                            <label class="flex items-center gap-2 cursor-pointer">
                                 <label class="flex items-center gap-2 cursor-pointer">
                                     <input type="radio" name="jobRole" id="role-{{ $role->id }}" value="{{ $role->id }}"
                                         wire:model="selectedJobRole" class="text-blue-600 focus:ring-blue-500">
