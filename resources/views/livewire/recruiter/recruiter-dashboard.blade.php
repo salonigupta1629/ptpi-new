@@ -54,7 +54,7 @@
 
 
     <!-- Card View -->
-    @if($view === 'card')
+    @if($view === 'table')
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         @forelse($teachers as $teacher)
         <div class="teacher-card bg-white rounded-md border overflow-hidden transition-all duration-300 hover:shadow-lg">
@@ -134,7 +134,7 @@
     @endif
 
     <!-- Table View -->
-    @if($view === 'table')
+    @if($view === 'card')
     <div class="overflow-x-auto bg-white rounded-lg shadow">
         <table class="min-w-full">
             <thead class="bg-gray-100">

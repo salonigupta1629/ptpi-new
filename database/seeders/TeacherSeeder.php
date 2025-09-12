@@ -131,19 +131,19 @@ class TeacherSeeder extends Seeder
                 ]);
             }
 
-          $availableSkillCount = $skills->count();
-$skillCount = min(fake()->numberBetween(2, 5), $availableSkillCount);
-$selectedSkills = $skills->random($skillCount);
-foreach ($selectedSkills as $skill) {
-    TeacherSkill::create([
-        'user_id' => $user->id,
-        'skill_id' => $skill->id,
-        'proficiency_level' => fake()->randomElement(['Beginner', 'Intermediate', 'Advanced', 'Expert']),
-        'years_of_experience' => fake()->numberBetween(1, 10),
-        'created_at' => now(),
-        'updated_at' => now(),
-    ]);
-}
+            $availableSkillCount = $skills->count();
+            $skillCount = min(fake()->numberBetween(2, 5), $availableSkillCount);
+            $selectedSkills = $skills->random($skillCount);
+            foreach ($selectedSkills as $skill) {
+                TeacherSkill::create([
+                    'user_id' => $user->id,
+                    'skill_id' => $skill->id,
+                    'proficiency_level' => fake()->randomElement(['Beginner', 'Intermediate', 'Advanced', 'Expert']),
+                    'years_of_experience' => fake()->numberBetween(1, 10),
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
 
             // Create subjects (1-3 per teacher)
             $subjectCount = fake()->numberBetween(1, 3);
