@@ -8,6 +8,7 @@ use App\Models\Role;
 use App\Models\Skill;
 use App\Models\Subject;
 use App\Models\TeacherClassCategory;
+use App\Models\TeacherExperiences;
 use App\Models\TeacherJobType;
 use App\Models\TeacherSubject;
 use Livewire\Attributes\Layout;
@@ -26,6 +27,10 @@ class JobDetails extends Component
     public $selectedSubject = [];
     public $subjects = [];
 
+    public $institution, $selectedRole, $start_date, $end_date, $achievements, $description;
+    public $teacherExperience;
+    public $editingId = null;
+
     public function mount()
     {
         $this->classCategories = ClassCategory::all();
@@ -37,6 +42,7 @@ class JobDetails extends Component
             ->pluck('class_category_id'); // get only ids
         $this->selectedSubject = TeacherSubject::where('user_id', 1)
             ->pluck('subject_id');
+        $this->teacherExperience = TeacherExperiences::where('user_id', 1)->get();
     }
     public function updateSubjects()
     {
@@ -84,12 +90,93 @@ class JobDetails extends Component
                 'subject_id' => $subjectId,
             ]);
         }
-        
+        $this->dispatch('notify', message: 'Preference Data updated');
+    }
+    public function rules()
+    {
+        return [
+            'institution' => 'required|string|max:255',
+            'selectedRole' => 'required|exists:roles,id',
+            'start_date' => 'required|date|unique:teacher_experiences,start_date',
+            'end_date' => 'nullable|date|after_or_equal:start_date',
+            'achievements' => 'nullable|string|max:1000',
+            'description' => 'required|string|max:2000',
+        ];
+    }
+    public function messages()
+    {
+        return [
+            'institution.required' => 'Institution name is required.',
+            'selectedRole.required' => 'Please select a job role.',
+            'start_date.required' => 'Start date is required.',
+            'end_date.after_or_equal' => 'End date must be after or equal to start date.',
+        ];
+    }
+    public function saveExperience()
+    {
+
+        if ($this->currentlyWorking == true) {
+            $this->end_date = now();
+        }
+        if ($this->editingId) {
+            $experience = TeacherExperiences::find($this->editingId);
+            $experience->update([
+                'role_id' => $this->selectedRole,
+                'institution' => $this->institution,
+                'start_date' => $this->start_date,
+                'end_date' => $this->end_date,
+                'description' => $this->description,
+                'achievements' => $this->achievements
+            ]);
+            $this->dispatch('notify', message: 'Experience Updated Successfully');
+            $this->resetForm();
+
+        } else {
+            $this->validate();
+            TeacherExperiences::create([
+                'user_id' => 1,
+                'role_id' => $this->selectedRole,
+                'institution' => $this->institution,
+                'start_date' => $this->start_date,
+                'end_date' => $this->end_date,
+                'description' => $this->description,
+                'achievements' => $this->achievements
+            ]);
+            $this->dispatch('notify', message: 'Experience Added Successfully');
+            $this->resetForm();
+        }
+
+    }
+    public function editExperience($id)
+    {
+        $experience = TeacherExperiences::find($id);
+
+        $this->editingId = $experience->id;
+        $this->institution = $experience->institution;
+        $this->selectedRole = $experience->role_id;
+        $this->start_date = $experience->start_date;
+        $this->end_date = $experience->end_date;
+        $this->achievements = $experience->achievements;
+        $this->description = $experience->description;
+
+        $this->dispatch('open-form');
+    }
+    public function deleteExperience($id)
+    {
+        TeacherExperiences::find($id)->delete();
+    }
+
+    public function resetForm()
+    {
+        $this->reset(['institution', 'selectedRole', 'start_date', 'end_date', 'achievements', 'description', 'editingId']);
+        $this->dispatch('close-form');
     }
 
     #[Layout('layouts.teacher')]
     public function render()
     {
+        $this->teacherExperience = TeacherExperiences::where('user_id', 1)->get();
+
         return view('livewire.teacher.job-details');
     }
 }
