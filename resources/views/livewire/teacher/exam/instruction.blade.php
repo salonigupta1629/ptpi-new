@@ -1,4 +1,4 @@
-<div class="flex flex-col">
+{{-- <div class="flex flex-col">
     <h1 class="font-medium text-2xl text-center">Exam Guidelines</h1>
     <p wire:click="backToDashboard" class="text-blue-500 cursor-pointer font-medium justify-end text-end">Back To
         teacher dashboard</p>
@@ -47,4 +47,4 @@
         </label>
     </div>
     <button wire:click="proceedToExam" class="bg-teal-500 px-2 py-2 rounded">Proceed to exam</button>
-</div>
+</div> --}}

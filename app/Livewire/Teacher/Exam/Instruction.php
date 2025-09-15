@@ -1,4 +1,4 @@
-<?php
+<!-- 
 
 namespace App\Livewire\Teacher\Exam;
 
@@ -19,6 +19,7 @@ class Instruction extends Component
         $this->subjectId = $subject;
         $this->levelId = $level;
     }
+
     public function proceedToExam()
     {
         return redirect()->route('teacher.exam-portal', [
@@ -36,4 +37,4 @@ class Instruction extends Component
     {
         return view('livewire.teacher.exam.instruction');
     }
-}
+} -->

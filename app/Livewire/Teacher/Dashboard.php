@@ -18,7 +18,7 @@ class Dashboard extends Component
     public $selectedLevelName;
     public $subjects = [];
     public $levels = [];
-    // public $categories;
+    public $categories;
     public $step = 'category';
 
     public $selection = [
@@ -79,7 +79,7 @@ class Dashboard extends Component
     }
     public function startExam()
     {
-        return redirect()->route('teacher.exam-instruction', [$this->selection['category_id'], $this->selection['subject_id'], $this->selection['level_id']]);
+        return redirect()->route('teacher.exam-portal', [$this->selection['category_id'], $this->selection['subject_id'], $this->selection['level_id']]);
     }
     #[Layout('layouts.teacher')]
     public function render()
