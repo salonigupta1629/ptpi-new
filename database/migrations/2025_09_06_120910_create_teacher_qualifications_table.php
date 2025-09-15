@@ -16,9 +16,11 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('qualification_id')->constrained('educational_qualifications')->onDelete('cascade');; // FK -> EducationalQualification(id)
             $table->string('institution', 225)->nullable();
+            $table->string('board_or_university');
+            $table->string('session');
             $table->integer('year_of_passing')->nullable();
             $table->string('grade_or_percentage', 50)->nullable();
-
+            $table->json('subjects');
             $table->timestamps();
         });
     }

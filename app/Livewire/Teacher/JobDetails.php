@@ -3,6 +3,7 @@
 namespace App\Livewire\Teacher;
 
 use App\Models\ClassCategory;
+use App\Models\EducationalQualification;
 use App\Models\Preference;
 use App\Models\Role;
 use App\Models\Skill;
@@ -10,6 +11,8 @@ use App\Models\Subject;
 use App\Models\TeacherClassCategory;
 use App\Models\TeacherExperiences;
 use App\Models\TeacherJobType;
+use App\Models\TeacherQualification;
+use App\Models\TeacherSkill;
 use App\Models\TeacherSubject;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
@@ -31,6 +34,92 @@ class JobDetails extends Component
     public $teacherExperience;
     public $editingId = null;
 
+    public $teacherQualification;
+    public $teacherSkills;
+    public $qualifications;
+    public $institute;
+    public $qualification;
+    public $session;
+    public $year_of_passing;
+    public $board_or_university;
+    public $grade_or_percentage;
+    public $qualification_subjects = [], $subject_name, $marks;
+
+    public $searchSkill = '', $isSearching = false, $skills = [];
+    public function updatedSearchSkill()
+    {
+        $this->isSearching = true;
+        if (strlen($this->searchSkill) > 1) {
+            $this->skills = Skill::where('name', 'like', '%' . $this->searchSkill . '%')->take(5)->get();
+        } else {
+            $this->skills = [];
+        }
+        $this->isSearching = false;
+    }
+    public function createSkill($id){
+        TeacherSkill::create([
+            'user_id' => 1,
+            'skill_id' => $id,
+            'proficiency_level' => 'advance',
+            'years_of_experience' => 2
+        ]);
+        $this->dispatch('notify',message:'Skill Added Successfully');
+    }
+    public function removeSkill($id){
+        TeacherSkill::find($id)->delete();
+        $this->dispatch('notify-error', message: 'Skill Removed');
+    }
+    public function addSubject()
+    {
+        $this->validate([
+            'subject_name' => 'required|string',
+            'marks' => 'required|numeric|min:10|max:100'
+        ]);
+
+        $this->qualification_subjects[] = [
+            'subject_name' => $this->subject_name,
+            'marks' => $this->marks,
+        ];
+
+        $this->subject_name = '';
+        $this->marks = '';
+    }
+    public function removeSubject($index)
+    {
+        unset($this->qualification_subjects[$index]);
+        $this->qualification_subjects = array_values($this->qualification_subjects);
+    }
+    public function saveEducation()
+    {
+        $this->validate([
+            'institute' => 'required|string|max:255',
+            'qualification' => 'required|integer', // since you’re storing ID
+            'session' => 'required|regex:/^\d{4}-\d{2,4}$/', // e.g. 2020-23 or 2020-2023
+            'year_of_passing' => 'required|digits:4|integer|min:1900|max:2100',
+            'board_or_university' => 'required|string|max:255',
+            'grade_or_percentage' => 'required|string|max:50', // or numeric if only numbers allowed
+            'qualification_subjects' => 'required|array|min:1',
+        ]);
+        TeacherQualification::create([
+            'user_id' => 1,
+            'qualification_id' => $this->qualification,
+            'institution' => $this->institute,
+            'board_or_university' => $this->board_or_university,
+            'session' => $this->session,
+            'year_of_passing' => $this->year_of_passing,
+            'grade_or_percentage' => $this->grade_or_percentage,
+            'subjects' => json_encode($this->qualification_subjects),
+        ]);
+        $this->dispatch('notify', message: 'Education created Successfully');
+        $this->resetForm();
+    }
+    public function deleteQualification($id)
+    {
+        TeacherQualification::find($id)->delete();
+        $this->dispatch('notify-error', message: 'Qualification Deleted');
+
+    }
+
     public function mount()
     {
         $this->classCategories = ClassCategory::all();
@@ -43,6 +132,10 @@ class JobDetails extends Component
         $this->selectedSubject = TeacherSubject::where('user_id', 1)
             ->pluck('subject_id');
         $this->teacherExperience = TeacherExperiences::where('user_id', 1)->get();
+
+        $this->qualifications = EducationalQualification::all();
+        $this->teacherQualification = TeacherQualification::where('user_id', 1)->get();
+        $this->teacherSkills = TeacherSkill::where('user_id',1)->get();
     }
     public function updateSubjects()
     {
@@ -110,6 +203,9 @@ class JobDetails extends Component
             'selectedRole.required' => 'Please select a job role.',
             'start_date.required' => 'Start date is required.',
             'end_date.after_or_equal' => 'End date must be after or equal to start date.',
+
+            'session.regex' => 'Session format must be YYYY-YY or YYYY-YYYY',
+            'qualification_subjects.required' => 'Please add at least one subject with marks.',
         ];
     }
     public function saveExperience()
@@ -164,11 +260,12 @@ class JobDetails extends Component
     public function deleteExperience($id)
     {
         TeacherExperiences::find($id)->delete();
+        $this->dispatch('notify-error', message: 'Experience Deleted');
     }
 
     public function resetForm()
     {
-        $this->reset(['institution', 'selectedRole', 'start_date', 'end_date', 'achievements', 'description', 'editingId']);
+        $this->reset(['institution', 'selectedRole', 'start_date', 'end_date', 'achievements', 'description', 'editingId', 'institute', 'grade_or_percentage', 'board_or_university', 'session', 'year_of_passing', 'qualification', 'qualification_subjects']);
         $this->dispatch('close-form');
     }
 
