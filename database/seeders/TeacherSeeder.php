@@ -105,6 +105,13 @@ class TeacherSeeder extends Seeder
                     'user_id' => $user->id,
                     'qualification_id' => $qualifications->random()->id,
                     'institution' => fake()->company(),
+                    'board_or_university' => 'basb',
+                    'session' => '2020-2023',
+                    'subjects' => json_encode([
+                        ['name' => 'Science', 'marks' => 75],
+                        ['name' => 'Math', 'marks' => 88],
+                        ['name' => 'English', 'marks' => 92],
+                    ]),
                     'year_of_passing' => fake()->numberBetween(1990, 2023),
                     'grade_or_percentage' => fake()->randomElement(['A', 'B', 'C', 'First Class', 'Second Class']) . ' (' . fake()->numberBetween(60, 95) . '%)',
                     'created_at' => now(),
