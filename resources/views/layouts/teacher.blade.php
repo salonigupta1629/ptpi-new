@@ -9,6 +9,9 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- for notification -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
+
 </head>
 
 
@@ -98,7 +101,7 @@
                         </svg>
                         <span class="font-medium">Setting</span>
                     </a>
-                    
+
 
                     <button wire:click="logout"
                         class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-left transition-colors mb-1 text-red-600 hover:bg-red-50">
@@ -141,13 +144,29 @@
         </div>
     </div>
 
+    <!-- Notyf JS -->
+    <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
     <script>
-        // Optional: Add any JavaScript interactions here
-        document.addEventListener('livewire:load', function () {
-            // Initialize any additional functionality
+
+        window.notyf = new Notyf({
+            duration: 5000, // auto close after 5s
+            dismissible: true, // adds an ✖ close button
+            position: { x: 'right', y: 'top' }
+        });
+
+
+        document.addEventListener('livewire:init', () => {
+            // Success
+            Livewire.on('notify', (event) => {
+                notyf.success(event.message);
+            });
+
+            // Error
+            Livewire.on('notify-error', (event) => {
+                notyf.error(event.message);
+            });
         });
     </script>
-
 </body>
 
 </html>

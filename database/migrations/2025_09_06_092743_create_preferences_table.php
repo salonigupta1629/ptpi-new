@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('preferences', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->foreignId('job_role_id')->constrained('roles')->onDelete('cascade');
+            $table->foreignId('job_role_id')->default(1);
             $table->foreignId('teacher_job_type_id')->default(1);
             $table->timestamps();
         });
