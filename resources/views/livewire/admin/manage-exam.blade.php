@@ -133,6 +133,8 @@
                         </h3>
 
                         <form wire:submit.prevent="storeOrUpdate" class="space-y-6">
+                            <!-- Add this in your form -->
+<input type="hidden" wire:model="user_id" value="{{ auth()->id() ?? 1 }}">
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <!-- Name -->
                                 <div>

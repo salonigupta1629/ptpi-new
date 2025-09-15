@@ -60,7 +60,13 @@ class ManageQuestions extends Component
 
    public function storeOrUpdate()
 {
-    $this->validate();
+   // Add this to your storeOrUpdate method before calling translateContent()
+$this->validate([
+    'question_text' => 'required|string',
+    'options' => 'required|array|min:2',
+    'options.*' => 'required|string', // Ensure each option is not empty
+    'correct_options' => 'required|string|in:A,B,C,D', // Validate correct option
+]);
 
     \Log::info("Starting translation process...");
     \Log::info("Question text: " . $this->question_text);
@@ -113,7 +119,7 @@ private function translateContent()
             'options' => $hindiOptions
         ];
 
-        \Log::info("Hindi translation completed: ", $translations['hi']);
+        \Log::info("Hindi translation completed: ", ['question' => $hindiQuestion, 'options' => $hindiOptions]);
 
     } catch (\Exception $e) {
         \Log::error('Hindi translation failed: ' . $e->getMessage());
@@ -147,7 +153,8 @@ private function translateText($text, $targetLanguage)
         if ($response->successful()) {
             $responseData = $response->json();
             
-            \Log::info("Translation API response data: ", $responseData);
+            $logData = is_array($responseData) ? $responseData : ['response' => $responseData];
+            \Log::info("Translation API response data: ", $logData);
             
             // FIX: Use the correct key 'translated' instead of 'translated_text'
             $translatedText = $responseData['translated'] ?? $text;
