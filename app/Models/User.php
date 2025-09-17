@@ -90,4 +90,9 @@ class User extends Authenticatable
     {
         return $this->role === 'center-manager';
     }
+
+public function isTeacher()
+{
+    return $this->teacher !== null;
+}
 }

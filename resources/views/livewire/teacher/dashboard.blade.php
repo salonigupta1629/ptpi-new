@@ -158,22 +158,6 @@
 
 <div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6"> 
     <div class="max-w-6xl mx-auto">
-     <!-- Header --> 
-       {{-- <div class="bg-white rounded-xl shadow-md p-6 mb-8 flex justify-between items-center">
-       <div class="flex items-center gap-4">
-            
-            <div class="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center text-white text-xl"> 
-                <i class="fas fa-graduation-cap"></i> 
-            </div> 
-            <div>
-                 <h1 class="text-2xl font-bold text-gray-800">PTPI Exam Portal</h1> 
-                    <p class="text-gray-500 text-sm">Computer Based Testing System</p>
-                 </div> 
-                </div>
-                  <div class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center text-gray-500 text-xl cursor-pointer hover:bg-blue-600 hover:text-white transition-colors">
-                     <i class="fas fa-user-circle"></i> 
-                    </div> 
-                </div> --}}
     <div x-data="{ step: @entangle('step') }" class="space-y-8">
         <!-- Progress Header -->
         <div class="bg-white rounded-xl shadow-md p-6 transition-all duration-500">
@@ -251,21 +235,52 @@
                 @endforeach
             @endif
 
-            @if($step === 'level')
-                @foreach($levels as $level)
-                <button wire:click="updateLevel({{ $level->id }})"
-                        wire:loading.attr="disabled"
-                        class="bg-white rounded-xl p-6 border-2 border-gray-200 hover:border-blue-500 hover:shadow-lg transition-all duration-300 group text-left">
-                    <div class="flex items-center gap-4 mb-3">
-                        <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center text-purple-600 group-hover:bg-purple-600 group-hover:text-white transition-colors">
-                            <i class="fas fa-chart-line"></i>
-                        </div>
-                        <h3 class="font-semibold text-gray-800">{{ $level->name }}</h3>
-                    </div>
-                    <p class="text-gray-600 text-sm">{{ $level->description }}</p>
-                </button>
-                @endforeach
-            @endif
+          @if($step === 'level')
+    @foreach($levels as $level)
+        <button 
+            wire:click="updateLevel({{ $level->id }})"
+            @if(!$level->is_unlocked) disabled @endif
+            class="bg-white rounded-xl p-6 border-2 
+                @if($level->is_unlocked) 
+                    border-gray-200 hover:border-blue-500 hover:shadow-lg 
+                    transition-all duration-300 group text-left
+                @else
+                    border-gray-100 bg-gray-50 opacity-75 cursor-not-allowed
+                @endif">
+            
+            <div class="flex items-center gap-4 mb-3">
+                <div class="w-12 h-12 
+                    @if($level->is_unlocked)
+                        bg-purple-100 text-purple-600 group-hover:bg-purple-600 group-hover:text-white
+                    @else
+                        bg-gray-200 text-gray-400
+                    @endif
+                    rounded-lg flex items-center justify-center transition-colors">
+                    
+                    @if($level->is_unlocked)
+                        <i class="fas fa-chart-line"></i>
+                    @else
+                        <i class="fas fa-lock"></i>
+                    @endif
+                </div>
+                
+                <div>
+                    <h3 class="font-semibold 
+                        @if($level->is_unlocked) text-gray-800 @else text-gray-400 @endif">
+                        {{ $level->name }}
+                    </h3>
+                    @if(!$level->is_unlocked)
+                        <p class="text-sm text-gray-400 mt-1">Complete previous level to unlock</p>
+                    @endif
+                </div>
+            </div>
+            
+            <p class="text-gray-600 text-sm @if(!$level->is_unlocked) text-gray-400 @endif">
+                {{ $level->description }}
+            </p>
+        </button>
+    @endforeach
+@endif
 
             @if($step === 'confirm')
             <div class="bg-white rounded-xl p-6 border-2 border-blue-500 shadow-lg col-span-full">

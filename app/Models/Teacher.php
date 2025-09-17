@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Teacher extends Model
 {
@@ -13,6 +14,19 @@ class Teacher extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+     public function unlockedLevels(): HasMany
+    {
+        return $this->hasMany(TeacherUnlockedLevel::class);
+    }
+
+    public function hasUnlockedLevel($levelId): bool
+    {
+        return $this->unlockedLevels()
+                    ->where('level_id', $levelId)
+                    ->exists();
+    }
+
 
     public function addresses(): HasManyThrough
     {
