@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -20,6 +21,7 @@
         }
     </script>
 </head>
+
 <body class="font-sans">
     <!-- Header -->
     <header class="bg-white shadow-sm">
@@ -29,19 +31,32 @@
                 <div class="flex items-center">
                     <h1 class="text-2xl font-bold text-gray-800">PTP INSTITUTE</h1>
                 </div>
-                
+
                 <!-- Navigation Buttons -->
                 <div class="flex items-center space-x-3">
                     <button class="bg-teal-500 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-teal-600">
                         Give Job
                     </button>
-                    <a href="{{ route('login') }}" class="border border-gray-300 text-gray-700 px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-50">
-                        Login
-                    </a>
-                    <a href="" class="border border-gray-300 text-gray-700 px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-50">
-                        Register as Teacher
-                    </a>
-                    <a href="" class="border border-gray-300 text-gray-700 px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-50">
+
+                    @auth
+                        <form method="POST" action="{{ route('logout') }}" class="inline">
+                            @csrf
+                            <button type="submit"
+                                class="border border-gray-300 text-gray-700 px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-50">
+                                logout </button>
+                        </form>
+                    @else
+                        <a href="{{ route('login') }}"
+                            class="border border-gray-300 text-gray-700 px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-50">
+                            Login
+                        </a>
+                        <a href="{{ route('register') }}"
+                            class="border border-gray-300 text-gray-700 px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-50">
+                            Register as Teacher
+                        </a>
+                    @endauth
+                    <a href=""
+                        class="border border-gray-300 text-gray-700 px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-50">
                         Become Sign Up
                     </a>
                 </div>
@@ -66,7 +81,7 @@
                         <li><a href="#" class="hover:text-white">Career</a></li>
                     </ul>
                 </div>
-                
+
                 <!-- Top Services Column -->
                 <div>
                     <h3 class="text-lg font-semibold mb-4">Top Services</h3>
@@ -79,7 +94,7 @@
                         <li><a href="#" class="hover:text-white">Science Tutors</a></li>
                     </ul>
                 </div>
-                
+
                 <!-- Students Column -->
                 <div>
                     <h3 class="text-lg font-semibold mb-4">Students</h3>
@@ -92,7 +107,7 @@
                         <li><a href="#" class="hover:text-white">Explore with us</a></li>
                     </ul>
                 </div>
-                
+
                 <!-- Tutors Jobs Column -->
                 <div>
                     <h3 class="text-lg font-semibold mb-4">Tutors Jobs</h3>
@@ -107,15 +122,17 @@
                     </ul>
                 </div>
             </div>
-            
+
             <div class="border-t border-gray-800 mt-8 pt-8 text-center">
-                <p class="text-gray-400 text-sm">© 2024 Copyright · Terms of Use · Privacy Policy · Accessibility · Sitemap</p>
+                <p class="text-gray-400 text-sm">© 2024 Copyright · Terms of Use · Privacy Policy · Accessibility ·
+                    Sitemap</p>
             </div>
         </div>
     </footer>
 
     <!-- Scroll to top button -->
-    <button id="scrollToTop" class="fixed bottom-8 right-8 bg-teal-500 text-white p-3 rounded-full shadow-lg hover:bg-teal-600 transition-all duration-300 opacity-0 invisible">
+    <button id="scrollToTop"
+        class="fixed bottom-8 right-8 bg-teal-500 text-white p-3 rounded-full shadow-lg hover:bg-teal-600 transition-all duration-300 opacity-0 invisible">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
         </svg>
@@ -124,7 +141,7 @@
     <script>
         // Scroll to top functionality
         const scrollToTopButton = document.getElementById('scrollToTop');
-        
+
         window.addEventListener('scroll', () => {
             if (window.pageYOffset > 300) {
                 scrollToTopButton.classList.remove('opacity-0', 'invisible');
@@ -134,7 +151,7 @@
                 scrollToTopButton.classList.remove('opacity-100', 'visible');
             }
         });
-        
+
         scrollToTopButton.addEventListener('click', () => {
             window.scrollTo({
                 top: 0,
@@ -192,6 +209,7 @@
                 opacity: 0;
                 transform: translateY(20px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -232,4 +250,5 @@
         }
     </style>
 </body>
+
 </html>
