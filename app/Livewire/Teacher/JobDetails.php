@@ -14,6 +14,7 @@ use App\Models\TeacherJobType;
 use App\Models\TeacherQualification;
 use App\Models\TeacherSkill;
 use App\Models\TeacherSubject;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 
@@ -56,19 +57,24 @@ class JobDetails extends Component
         }
         $this->isSearching = false;
     }
+
     public function createSkill($id){
         TeacherSkill::create([
-            'user_id' => 1,
+            'user_id' => Auth::id(),
             'skill_id' => $id,
             'proficiency_level' => 'advance',
             'years_of_experience' => 2
         ]);
+        $this->teacherSkills = TeacherSkill::where('user_id', Auth::id())->get();
         $this->dispatch('notify',message:'Skill Added Successfully');
     }
+
     public function removeSkill($id){
-        TeacherSkill::find($id)->delete();
+        TeacherSkill::find($id)?->delete();
+        $this->teacherSkills = TeacherSkill::where('user_id', Auth::id())->get();
         $this->dispatch('notify-error', message: 'Skill Removed');
     }
+
     public function addSubject()
     {
         $this->validate([
@@ -93,15 +99,15 @@ class JobDetails extends Component
     {
         $this->validate([
             'institute' => 'required|string|max:255',
-            'qualification' => 'required|integer', // since you’re storing ID
-            'session' => 'required|regex:/^\d{4}-\d{2,4}$/', // e.g. 2020-23 or 2020-2023
+            'qualification' => 'required|integer',
+            'session' => 'required|regex:/^\d{4}-\d{2,4}$/',
             'year_of_passing' => 'required|digits:4|integer|min:1900|max:2100',
             'board_or_university' => 'required|string|max:255',
-            'grade_or_percentage' => 'required|string|max:50', // or numeric if only numbers allowed
+            'grade_or_percentage' => 'required|string|max:50',
             'qualification_subjects' => 'required|array|min:1',
         ]);
         TeacherQualification::create([
-            'user_id' => 1,
+            'user_id' => Auth::id(),
             'qualification_id' => $this->qualification,
             'institution' => $this->institute,
             'board_or_university' => $this->board_or_university,
@@ -110,6 +116,7 @@ class JobDetails extends Component
             'grade_or_percentage' => $this->grade_or_percentage,
             'subjects' => json_encode($this->qualification_subjects),
         ]);
+        $this->teacherQualification = TeacherQualification::where('user_id', Auth::id())->get();
         $this->dispatch('notify', message: 'Education created Successfully');
         $this->resetForm();
     }
@@ -122,20 +129,40 @@ class JobDetails extends Component
 
     public function mount()
     {
+        $userId = Auth::id();
         $this->classCategories = ClassCategory::all();
         $this->jobRoles = Role::all();
         $this->jobTypes = TeacherJobType::all();
-        $this->preference = Preference::where('user_id', 1)->first();
-        $this->selectedJobRole = $this->preference->job_role_id;
-        $this->selectedCategory = TeacherClassCategory::where('user_id', 1)
-            ->pluck('class_category_id'); // get only ids
-        $this->selectedSubject = TeacherSubject::where('user_id', 1)
+        $this->preference = Preference::where('user_id', $userId)->first();
+
+        // Fix: If no preference, set defaults to avoid job_role_id error
+        $this->selectedJobRole = $this->preference?->job_role_id ?? ($this->jobRoles->first()->id ?? null);
+        $this->selectedJobType = $this->preference?->teacher_job_type_id ?? ($this->jobTypes->first()->id ?? null);
+
+        $this->selectedCategory = TeacherClassCategory::where('user_id', $userId)
+            ->pluck('class_category_id');
+        $this->selectedSubject = TeacherSubject::where('user_id', $userId)
             ->pluck('subject_id');
-        $this->teacherExperience = TeacherExperiences::where('user_id', 1)->get();
+        $this->teacherExperience = TeacherExperiences::where('user_id', $userId)->get();
 
         $this->qualifications = EducationalQualification::all();
-        $this->teacherQualification = TeacherQualification::where('user_id', 1)->get();
-        $this->teacherSkills = TeacherSkill::where('user_id',1)->get();
+        $this->teacherQualification = TeacherQualification::where('user_id', $userId)->get();
+        $this->teacherSkills = TeacherSkill::where('user_id', $userId)->get();
+        $this->subjects = Subject::whereIn('category_id', $this->selectedCategory)
+            ->with('category:id,name')
+            ->get()
+            ->groupBy('category_id')
+            ->map(function ($group) {
+                return $group->map(function ($sub) {
+                    return [
+                        'id' => $sub->id,
+                        'subject_name' => $sub->subject_name,
+                        'category_id' => $sub->category_id,
+                        'category_name' => $sub->category->name,
+                    ];
+                });
+            })
+            ->toArray();
     }
     public function updateSubjects()
     {
@@ -149,37 +176,35 @@ class JobDetails extends Component
                         'id' => $sub->id,
                         'subject_name' => $sub->subject_name,
                         'category_id' => $sub->category_id,
-                        'category_name' => $sub->category->name, // ✅ include category name
+                        'category_name' => $sub->category->name,
                     ];
                 });
             })
             ->toArray();
-        ;
     }
     public function createOrUpdatePreference()
     {
-        // Remove old records first (to prevent duplicates)
-        TeacherClassCategory::where('user_id', 1)->delete();
+        $userId = Auth::id();
+        TeacherClassCategory::where('user_id', $userId)->delete();
 
-        // Insert new selected categories
         foreach ($this->selectedCategory as $categoryId) {
             TeacherClassCategory::create([
-                'user_id' => 1,
+                'user_id' => $userId,
                 'class_category_id' => $categoryId,
             ]);
         }
         Preference::updateOrCreate(
-            ['user_id' => 1],
+            ['user_id' => $userId],
             [
                 'job_role_id' => $this->selectedJobRole,
                 'teacher_job_type_id' => $this->selectedJobType
             ]
         );
 
-        TeacherSubject::where('user_id', 1)->delete();
+        TeacherSubject::where('user_id', $userId)->delete();
         foreach ($this->selectedSubject as $subjectId) {
             TeacherSubject::create([
-                'user_id' => 1,
+                'user_id' => $userId,
                 'subject_id' => $subjectId,
             ]);
         }
@@ -210,7 +235,7 @@ class JobDetails extends Component
     }
     public function saveExperience()
     {
-
+        $userId = Auth::id();
         if ($this->currentlyWorking == true) {
             $this->end_date = now();
         }
@@ -230,7 +255,7 @@ class JobDetails extends Component
         } else {
             $this->validate();
             TeacherExperiences::create([
-                'user_id' => 1,
+                'user_id' => $userId,
                 'role_id' => $this->selectedRole,
                 'institution' => $this->institution,
                 'start_date' => $this->start_date,
@@ -241,7 +266,6 @@ class JobDetails extends Component
             $this->dispatch('notify', message: 'Experience Added Successfully');
             $this->resetForm();
         }
-
     }
     public function editExperience($id)
     {
@@ -272,8 +296,7 @@ class JobDetails extends Component
     #[Layout('layouts.teacher')]
     public function render()
     {
-        $this->teacherExperience = TeacherExperiences::where('user_id', 1)->get();
-
+        $this->teacherExperience = TeacherExperiences::where('user_id', Auth::id())->get();
         return view('livewire.teacher.job-details');
     }
 }
