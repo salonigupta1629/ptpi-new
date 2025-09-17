@@ -22,7 +22,6 @@ return new class extends Migration
             $table->string('phone', 15)->nullable();
             $table->string('alternate_phone', 15)->nullable();
             $table->boolean('verified')->default(false);
-            $table->unsignedBigInteger('class_categories_id'); // FK -> ClassCategory(id)
             $table->decimal('rating', 3, 2)->nullable();
             $table->date('date_of_birth')->nullable();
             $table->string('availability_status', 50)->default('Available');
