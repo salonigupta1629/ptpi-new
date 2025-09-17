@@ -6,6 +6,8 @@ use Illuminate\Support\Facades\Route;
 use App\Livewire\Landing\Homepage;
 use App\Livewire\Landing\Login;
 
+require __DIR__ . '/auth.php';
+
 Route::get('/', Homepage::class)->name('homepage');
 // Route::get('/login', Login::class)->name('login');
 
@@ -51,4 +53,3 @@ Route::post('/logout', function () {
     return redirect('/');
 })->name('logout');
 
-require __DIR__ . '/auth.php';
