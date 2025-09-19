@@ -46,7 +46,7 @@
                 </div>
                 <button type="button" class="text-blue-600 text-sm font-medium hover:underline" x-show="!edit" @click="edit=true">Edit</button>
             </div>
-<<<<<<< HEAD
+
             
             <div class="p-6">
                 <div class="flex flex-col md:flex-row gap-8">
@@ -231,7 +231,7 @@
                             </div>
                         </div>
                     </div>
-=======
+
             <div x-show="edit" class="flex items-center gap-2 mt-2">
                 <select class="border rounded-md px-3 py-2 w-full text-sm" wire:model.defer="language">
                     <option value="">Select</option>
@@ -288,7 +288,7 @@
                 <div class="col-span-2 flex gap-2 mt-3">
                     <button type="button" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm" wire:click="saveField('current_address')" @click="edit=false">Save</button>
                     <button type="button" class="bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded text-sm" @click="edit=false">Cancel</button>
->>>>>>> a8147bdb660c5fde5d113cfd8ec7e5e8dc719191
+
                 </div>
             </div>
         </div>
