@@ -46,11 +46,11 @@
                                 logout </button>
                         </form>
                     @else
-                        <a href="{{ route('login') }}"
+                        <a href="{{ route('login') }}" 
                             class="border border-gray-300 text-gray-700 px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-50">
                             Login
                         </a>
-                        <a href="{{ route('register') }}"
+                        <a href="{{ route('register') }}" wire:navigate
                             class="border border-gray-300 text-gray-700 px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-50">
                             Register as Teacher
                         </a>

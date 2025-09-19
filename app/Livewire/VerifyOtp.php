@@ -39,7 +39,7 @@ class VerifyOtp extends Component
 
         $this->addError('otp', 'Invalid OTP. Please try again.');
     }
-    #[Layout('layouts.guest')]
+    #[Layout('layouts.auth')]
     public function render()
     {
         return view('livewire.verify-otp');

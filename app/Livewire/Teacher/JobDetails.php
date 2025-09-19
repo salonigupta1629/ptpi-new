@@ -58,7 +58,8 @@ class JobDetails extends Component
         $this->isSearching = false;
     }
 
-    public function createSkill($id){
+    public function createSkill($id)
+    {
         TeacherSkill::create([
             'user_id' => Auth::id(),
             'skill_id' => $id,
@@ -66,10 +67,12 @@ class JobDetails extends Component
             'years_of_experience' => 2
         ]);
         $this->teacherSkills = TeacherSkill::where('user_id', Auth::id())->get();
-        $this->dispatch('notify',message:'Skill Added Successfully');
+        $this->dispatch('notify', message: 'Skill Added Successfully');
+        $this->reset('skills','isSearching','searchSkill');
     }
 
-    public function removeSkill($id){
+    public function removeSkill($id)
+    {
         TeacherSkill::find($id)?->delete();
         $this->teacherSkills = TeacherSkill::where('user_id', Auth::id())->get();
         $this->dispatch('notify-error', message: 'Skill Removed');
@@ -185,8 +188,31 @@ class JobDetails extends Component
     public function createOrUpdatePreference()
     {
         $userId = Auth::id();
-        TeacherClassCategory::where('user_id', $userId)->delete();
 
+        // Validation: For each selected category, at least one subject must be selected
+        $categorySubjects = [];
+        foreach ($this->selectedCategory as $categoryId) {
+            $categorySubjects[$categoryId] = [];
+        }
+        foreach ($this->selectedSubject as $subjectId) {
+            $subject = Subject::find($subjectId);
+            if ($subject && isset($categorySubjects[$subject->category_id])) {
+                $categorySubjects[$subject->category_id][] = $subjectId;
+            }
+        }
+        $missingSubjects = [];
+        foreach ($categorySubjects as $catId => $subjects) {
+            if (count($subjects) === 0) {
+                $cat = ClassCategory::find($catId);
+                $missingSubjects[] = $cat ? $cat->name : "Category ID $catId";
+            }
+        }
+        if (count($missingSubjects) > 0) {
+            $this->addError('selectedSubject', 'Please select at least one subject for: ' . implode(', ', $missingSubjects));
+            return;
+        }
+
+        TeacherClassCategory::where('user_id', $userId)->delete();
         foreach ($this->selectedCategory as $categoryId) {
             TeacherClassCategory::create([
                 'user_id' => $userId,
@@ -208,7 +234,9 @@ class JobDetails extends Component
                 'subject_id' => $subjectId,
             ]);
         }
+        $this->resetErrorBag('selectedSubject');
         $this->dispatch('notify', message: 'Preference Data updated');
+        $this->resetForm();
     }
     public function rules()
     {

@@ -103,14 +103,14 @@
                     </a>
 
 
-                    <button wire:click="logout"
+                    <button
                         class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-left transition-colors mb-1 text-red-600 hover:bg-red-50">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1">
                             </path>
                         </svg>
-                        <span class="font-medium">Logout</span>
+
                     </button>
                 </nav>
             </div>
@@ -121,17 +121,28 @@
                 <header class="bg-blue-500 text-white px-6 py-2">
                     <div class="flex items-center justify-between">
                         <h2 class="text-xl font-medium">Teacher Dashboard</h2>
-                        <div class="flex items-center space-x-4">
-                            <button class="relative" wire:click="toggleNotifications">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M15 17h5l-5 5v-5zM19 12H5a2 2 0 01-2-2V5a2 2 0 012-2h14a2 2 0 012 2v5a2 2 0 01-2 2z">
-                                    </path>
-                                </svg>
-                            </button>
-                            <div class="text-right">
-                                <p class="font-medium">Name</p>
-                                <p class="text-blue-100 text-sm">Email</p>
+                        <div x-data="{ open: false}" class="relative">
+                            <div @click="open = !open" class="flex items-center space-x-4 cursor-pointer">
+                                <div class="text-right">
+                                    <p class="font-medium">{{ auth()->user()->name }}</p>
+                                    <p class="text-blue-100 text-sm">{{auth()->user()->email}}</p>
+                                </div>
+
+                                <button class="bg-white p-1 flex items-center justify-center rounded-full">
+                                    <svg class="w-8 h-8 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M5.121 17.804A9 9 0 0112 15a9 9 0 016.879 2.804M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    </svg>
+                                </button>
+                            </div>
+                            <div x-show="open" @click.outside="open = false" x-transition
+                                class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 px-5 border border-gray-300 shadow-lg z-50">
+                                <form method="POST" action="{{ route('logout') }}" class="inline">
+                                    @csrf
+                                    <button type="submit" class=" text-red-700  text-sm font-medium hover:bg-gray-50">
+                                        logout </button>
+                                </form>
                             </div>
                         </div>
                     </div>

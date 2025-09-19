@@ -59,11 +59,11 @@ class TeacherSeeder extends Seeder
                 'image' => null,
                 'aadhar_no' => fake()->numerify('##########'),
                 'phone' => fake()->numerify('9##########'),
-                'alternate_phone' => fake()->numerify('9##########'),
+                'language' => 'hindi',
                 'verified' => fake()->boolean(80), // 80% chance of being verified
                 'rating' => fake()->randomFloat(2, 3, 5),
                 'date_of_birth' => fake()->dateTimeBetween('-50 years', '-22 years')->format('Y-m-d'),
-                'availability_status' => fake()->randomElement(['Available', 'Busy', 'On Leave']),
+                'marital_status' => null,
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);

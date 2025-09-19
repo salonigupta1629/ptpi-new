@@ -20,11 +20,11 @@ return new class extends Migration
             $table->string('image', 255)->nullable();
             $table->string('aadhar_no', 12)->unique()->nullable();
             $table->string('phone', 15)->nullable();
-            $table->string('alternate_phone', 15)->nullable();
+            $table->string('language')->nullable();
             $table->boolean('verified')->default(false);
             $table->decimal('rating', 3, 2)->nullable();
             $table->date('date_of_birth')->nullable();
-            $table->string('availability_status', 50)->default('Available');
+            $table->string('marital_status')->nullable();
 
             $table->timestamps();
 
