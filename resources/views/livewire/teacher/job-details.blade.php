@@ -1,6 +1,6 @@
 <div class="flex flex-col gap-6">
     <!-- Teaching Preference -->
-    <div x-data="{ show:false }" class="flex flex-col gap-4 border rounded-md p-5 shadow-sm bg-white">
+    <div x-data="{ show:false }" x-on:open-form.window="show = true" x-on:close-form.window="show = false" class="flex flex-col gap-4 border rounded-md p-5 shadow-sm bg-white">
         <!-- Header -->
         <div class="flex border-b pb-4 justify-between items-center">
             <div>
@@ -8,10 +8,9 @@
                 <p class="text-gray-600 text-sm">Manage your teaching preferences including subject, grade levels, and
                     job type</p>
             </div>
-            <button x-show="!show" @click="show=true"
-                class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 rounded px-3 py-2 text-white text-sm font-medium">
-                <i class="fa-solid fa-pen"></i> Edit Preferences
-            </button>
+              <button @click="show = !show" x-text="show ? 'Cancel' : 'Edit Preference'"
+                    class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 font-medium rounded px-3 py-2 text-white">
+                </button>
         </div>
 
         <div x-show="!show" class="mt-5">
@@ -83,7 +82,7 @@
             </div>
         </div>
         <!-- Edit Form -->
-        <div x-show="show" x-transition class="border rounded-lg p-5 space-y-5">
+        <div x-show="show" class="border rounded-lg p-5 space-y-5">
             <p class="border-b pb-3 text-gray-700 text-sm">Please update your teaching preferences below. Fields marked
                 with * are required.</p>
 
@@ -140,7 +139,13 @@
                                 </label>
                             @endforeach
                         @endforeach
+                        
+
                     </div>
+                    @error('selectedSubject')
+                        <div class="text-red-500 text-sm font-semibold">{{ $message }}</div>
+                    @enderror
+                    
                 </div>
 
                 <!-- Job Type -->
@@ -169,8 +174,6 @@
             </div>
         </div>
     </div>
-
-
     <!-- Professional Experience -->
     <div x-data="{ show:false }" x-on:open-form.window="show = true" x-on:close-form.window="show = false"
         class="flex flex-col gap-4 border rounded-md p-5 shadow-sm">
@@ -186,40 +189,55 @@
             </div>
         </div>
 
-        <div x-show="!show">
+       <div x-show="!show">
             @forelse ($teacherExperience as $experience)
-                <div class="flex justify-between items-start border rounded p-3 bg-gray-50">
-                    <div>
-                        <p class="font-semibold">{{ $experience->institution }}</p>
-                        <p class="text-gray-600">{{ $experience->role->name }}</p>
-                        <p class="text-sm text-gray-500">From {{ $experience->start_date }} to
-                            {{ $experience->end_date ?? 'Present' }}
+                <div class="flex justify-between items-start border rounded-xl p-4 bg-white shadow-sm hover:shadow-md transition mb-3">
+                    <div class="space-y-1">
+                        <p class="font-semibold text-lg text-gray-800">
+                            <span class="text-gray-600">Institution:</span> {{ $experience->institution }}
                         </p>
-                        <p class="text-sm">{{ $experience->description }}</p>
-                        <p class="text-sm text-gray-700 italic">{{ $experience->achievements }}</p>
+                        <p class="text-gray-700">
+                            <span class="text-gray-600">Role:</span> {{ $experience->role->name }}
+                        </p>
+                        <p class="text-sm text-gray-600">
+                            <span class="text-gray-500">Duration:</span>
+                            {{ \Carbon\Carbon::parse($experience->start_date)->format('M Y') }}
+                            –
+                            {{ $experience->end_date ? \Carbon\Carbon::parse($experience->end_date)->format('M Y') : 'Present' }}
+                        </p>
+                        @if($experience->description)
+                            <p class="text-sm text-gray-700">
+                                <span class="text-gray-600">Description:</span> {{ $experience->description }}
+                            </p>
+                        @endif
+                        @if($experience->achievements)
+                            <p class="text-sm text-green-700 italic">
+                                <span class="text-gray-600">Achievements:</span> {{ $experience->achievements }}
+                            </p>
+                        @endif
                     </div>
-                    <div class="flex gap-2">
+                    <div class="flex gap-2 shrink-0">
                         <button wire:click="editExperience({{ $experience->id }})"
-                            class="px-2 py-1 bg-yellow-500 hover:bg-yellow-600 text-white text-sm rounded">
+                            class="px-3 py-1.5 bg-yellow-500 hover:bg-yellow-600 text-white text-sm font-medium rounded-lg shadow-sm flex items-center gap-1">
                             <i class="fa-solid fa-pen"></i> Edit
                         </button>
-                        <button wire:confirm="Are you sure want to delete?"
+                        <button wire:confirm="Are you sure you want to delete this experience?"
                             wire:click="deleteExperience({{ $experience->id }})"
-                            class="px-2 py-1 bg-red-500 hover:bg-red-600 text-white text-sm rounded">
+                            class="px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white text-sm font-medium rounded-lg shadow-sm flex items-center gap-1">
                             <i class="fa-solid fa-trash"></i> Delete
                         </button>
                     </div>
                 </div>
             @empty
                 <div
-                    class="flex flex-col justify-center items-center mt-4 border border-gray-300 bg-gray-50 rounded-xl p-8 border-dashed text-center">
-                    <i class="fa-solid fa-briefcase text-gray-400 text-3xl"></i>
-                    <p class="text-gray-500 font-medium mt-2">No Experience Added yet</p>
-                    <p class="text-gray-400 text-sm">Click 'Add Experience' to get started</p>
+                    class="flex flex-col justify-center items-center mt-6 border border-gray-300 bg-gray-50 rounded-xl p-10 border-dashed text-center shadow-inner">
+                    <i class="fa-solid fa-briefcase text-gray-400 text-4xl mb-2"></i>
+                    <p class="text-gray-600 font-semibold text-lg">No Experience Added Yet</p>
+                    <p class="text-gray-400 text-sm">Click <span class="font-medium text-blue-500">'Add Experience'</span> to get started</p>
                 </div>
             @endforelse
-
         </div>
+
         <!-- Add Form -->
         <div x-show="show" class="flex flex-col border rounded-lg mt-4 p-5 bg-gray-50">
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 border-b pb-4">
@@ -294,47 +312,214 @@
             </div>
         </div>
     </div>
+   <!-- Education Background -->
+    <div x-data="{show:false}" x-on:open-form.window="show = true" x-on:close-form.window="show = false"
+        class="flex flex-col gap-6 border rounded-lg p-6 shadow-sm bg-white">
+        
+        <!-- Header -->
+        <div class="flex border-b pb-4 justify-between items-center">
+            <div>
+                <h2 class="text-2xl font-semibold text-gray-800">Education Background</h2>
+                <p class="text-gray-600 text-sm">Manage your academic qualifications and educational history</p>
+            </div>
+            <button @click="show = !show" 
+                class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 font-medium rounded-lg px-4 py-2 text-white shadow-sm transition">
+                <i class="fa-solid" :class="show ? 'fa-xmark' : 'fa-plus'"></i>
+                <span x-text="show ? 'Cancel' : 'Add Education'"></span>
+            </button>
+        </div>
 
+        <!-- Qualifications -->
+        <div class="mt-4 space-y-6">
+            <h2 class="text-xl font-semibold text-gray-700">Qualifications</h2>
+
+            @forelse($teacherQualification as $qualification)
+                <div class="border rounded-xl p-5 bg-gray-50 shadow-sm hover:shadow-md transition">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-gray-700">
+                        <p><span class="font-semibold text-gray-600">Institution:</span> {{ $qualification->institution }}</p>
+                        <p><span class="font-semibold text-gray-600">Qualification:</span> {{ $qualification->qualification->name ?? 'N/A' }}</p>
+                        <p><span class="font-semibold text-gray-600">Board/University:</span> {{ $qualification->board_or_university }}</p>
+                        <p><span class="font-semibold text-gray-600">Session:</span> {{ $qualification->session }}</p>
+                        <p><span class="font-semibold text-gray-600">Year of Passing:</span> {{ $qualification->year_of_passing }}</p>
+                        <p><span class="font-semibold text-gray-600">Grade/Percentage:</span> {{ $qualification->grade_or_percentage }}</p>
+                    </div>
+
+                    <!-- Subjects -->
+                    @if($qualification->subjects)
+                        <div class="mt-4">
+                            <h3 class="font-medium text-gray-800 mb-2">Subjects</h3>
+                            <ul class="list-disc list-inside text-sm text-gray-700 space-y-1">
+                                @foreach(json_decode($qualification->subjects, true) as $sub)
+                                    <li>{{ $sub['subject_name'] ?? $sub['name'] }} - {{ $sub['marks'] }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+
+                    <!-- Actions -->
+                    <div class="mt-4 flex justify-end">
+                        <button class="flex items-center gap-2 bg-red-500 hover:bg-red-600 text-white text-sm font-medium px-3 py-2 rounded-lg shadow-sm transition"
+                            wire:click="deleteQualification({{ $qualification->id }})" 
+                            wire:confirm="Are you sure you want to delete this education?">
+                            <i class="fa-solid fa-trash"></i> Delete
+                        </button>
+                    </div>
+                </div>
+            @empty
+                <div x-show="!show"
+                    class="flex flex-col justify-center items-center mt-6 border border-gray-300 bg-gray-50 rounded-xl p-10 border-dashed text-center shadow-inner">
+                    <i class="fa-solid fa-graduation-cap text-gray-400 text-4xl"></i>
+                    <p class="text-gray-600 font-semibold mt-2">No Education Added Yet</p>
+                    <p class="text-gray-400 text-sm">Click "Add Education" to get started</p>
+                </div>
+            @endforelse
+        </div>
+
+        <!-- Add Education Form -->
+        <div x-show="show" x-transition
+            class="flex flex-col border rounded-xl mt-4 p-6 bg-gray-50 shadow-inner space-y-6">
+            
+            <!-- Inputs -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="flex flex-col gap-1">
+                    <label class="text-sm font-medium">Institution Name*</label>
+                    <input type="text" class="border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none text-sm"
+                        wire:model="institute" placeholder="University Name">
+                    @error('institute') <p class="text-red-500 text-xs font-semibold">{{ $message }}</p> @enderror
+                </div>
+
+                <div class="flex flex-col gap-1">
+                    <label class="text-sm font-medium">Qualification*</label>
+                    <select class="border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none text-sm"
+                        wire:model="qualification">
+                        <option value="">Select Qualification</option>
+                        @foreach ($qualifications as $qualification)
+                            <option value="{{ $qualification->id }}">{{ $qualification->name }}</option>
+                        @endforeach
+                    </select>
+                    @error('qualification') <p class="text-red-500 text-xs font-semibold">{{ $message }}</p> @enderror
+                </div>
+
+                <div class="flex flex-col gap-1">
+                    <label class="text-sm font-medium">Session</label>
+                    <input type="text" wire:model="session" placeholder="YYYY-YY"
+                        class="border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none text-sm">
+                    @error('session') <p class="text-red-500 text-xs font-semibold">{{ $message }}</p> @enderror
+                </div>
+
+                <div class="flex flex-col gap-1">
+                    <label class="text-sm font-medium">Year of Passing*</label>
+                    <input type="text" wire:model="year_of_passing" placeholder="YYYY"
+                        class="border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none text-sm">
+                    @error('year_of_passing') <p class="text-red-500 text-xs font-semibold">{{ $message }}</p> @enderror
+                </div>
+
+                <div class="flex flex-col gap-1">
+                    <label class="text-sm font-medium">Board/University</label>
+                    <input type="text" wire:model="board_or_university" placeholder="Enter board or university name"
+                        class="border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none text-sm">
+                    @error('board_or_university') <p class="text-red-500 text-xs font-semibold">{{ $message }}</p> @enderror
+                </div>
+
+                <div class="flex flex-col gap-1">
+                    <label class="text-sm font-medium">Grade/Percentage</label>
+                    <input type="text" wire:model="grade_or_percentage" placeholder="Enter grade or percentage"
+                        class="border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none text-sm">
+                    @error('grade_or_percentage') <p class="text-red-500 text-xs font-semibold">{{ $message }}</p> @enderror
+                </div>
+            </div>
+
+            <!-- Subjects -->
+            <div class="space-y-3">
+                <h3 class="text-lg font-semibold text-gray-800">Subjects & Marks</h3>
+                <div class="flex flex-col sm:flex-row gap-3 items-start">
+                    <input type="text" wire:model="subject_name" placeholder="Subject Name"
+                        class="border rounded-lg px-3 py-2 flex-1 focus:ring-2 focus:ring-blue-400 focus:outline-none text-sm">
+                    <input type="text" wire:model="marks" placeholder="Marks"
+                        class="border rounded-lg px-3 py-2 w-28 focus:ring-2 focus:ring-blue-400 focus:outline-none text-sm">
+                    <button wire:click="addSubject"
+                        class="flex items-center gap-2 bg-teal-500 hover:bg-teal-600 px-4 py-2 rounded-lg font-medium text-white shadow-sm transition">
+                        <i class="fa-solid fa-plus"></i> Add
+                    </button>
+                </div>
+                @error('subject_name') <p class="text-red-500 text-xs font-semibold">{{ $message }}</p> @enderror
+                @error('marks') <p class="text-red-500 text-xs font-semibold">{{ $message }}</p> @enderror
+
+                <div class="flex flex-wrap gap-2">
+                    @foreach ($qualification_subjects as $index => $subjects)
+                        <span class="flex items-center gap-2 bg-gray-200 text-gray-800 px-3 py-1 rounded-full text-sm shadow-sm">
+                            {{ $subjects['subject_name'] }} - {{ $subjects['marks'] }}
+                            <button wire:click="removeSubject({{ $index }})" class="text-red-500 hover:text-red-600">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        </span>
+                    @endforeach
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex gap-3 mt-4">
+                <button @click="show = false"
+                    class="flex items-center gap-2 bg-red-500 hover:bg-red-600 text-white font-medium px-4 py-2 rounded-lg shadow-sm transition">
+                    <i class="fa-solid fa-xmark"></i> Cancel
+                </button>
+                <button wire:click="saveEducation"
+                    class="flex items-center gap-2 bg-teal-500 hover:bg-teal-600 text-white font-medium px-4 py-2 rounded-lg shadow-sm transition">
+                    <i class="fa-solid fa-save"></i> Save Education
+                </button>
+            </div>
+        </div>
+    </div>
     <!-- Skill & Expertise -->
-    <div x-data="{ show:false }" class="flex flex-col gap-4 border rounded-md p-5 shadow-sm">
+    <div x-data="{ show:false }" class="flex flex-col gap-4 border rounded-md p-5 shadow-sm bg-white">
+        <!-- Header -->
         <div class="flex border-b pb-4 justify-between items-center">
             <div>
                 <h2 class="text-xl font-semibold">Skill & Expertise</h2>
                 <p class="text-gray-600 text-sm">Showcase your core competencies and technical abilities</p>
             </div>
             <button @click="show = !show" x-text="show ? 'Cancel' : 'Add Skill'"
-                class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 font-medium rounded px-3 py-2 text-white">
+                class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 font-medium rounded px-3 py-2 text-white transition">
                 <i class="fa-solid" :class="show ? 'fa-xmark' : 'fa-plus'"></i>
             </button>
         </div>
 
+        <!-- Always showing skills -->
+        <div class="flex flex-wrap gap-2">
+            @forelse ($teacherSkills as $teacherSkill)
+                <span class="flex items-center gap-2 bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm shadow-sm">
+                    {{ $teacherSkill->skill->name }}
+                    <button wire:click="removeSkill({{ $teacherSkill->id }})"
+                        class="text-red-500 hover:text-red-600">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </span>
+            @empty
+                <p class="text-gray-500 text-sm italic">No skills added yet. Click "Add Skill" to get started.</p>
+            @endforelse
+        </div>
+
+        <!-- Add Skill Form (toggle) -->
         <div x-show="show" x-transition class="flex flex-col sm:flex-row items-start gap-3 mt-3 w-full">
-            <!-- Input with relative wrapper -->
-             @foreach ($teacherSkills as $teacherSkill)
-             <div class="p-1 rounded">
-                <span>{{ $teacherSkill->skill->name }}</span>
-                <button class="text-red-500 font-semibold" wire:click="removeSkill({{ 
-                $teacherSkill->id }})">X</button>
-             </div>
-             @endforeach
+            <!-- Search box -->
             <div class="relative w-full sm:w-1/2">
                 <input type="search" wire:model.live.debounce.300ms="searchSkill" placeholder="Search Skill..."
-                    class="border p-2 rounded w-full">
+                    class="border rounded-lg px-3 py-2 w-full focus:ring-2 focus:ring-blue-400 focus:outline-none text-sm">
 
-                <!-- Right icon (loading or clear button) -->
-                <div class="absolute inset-y-0 right-0 flex items-center pr-3">
-                   
-                        <div wire:loading.delay.shortest wire:target="searchSkill">
-                            <svg class="animate-spin h-5 w-5 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none"
-                                viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
-                                </circle>
-                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 
-                                                 5.291A7.962 7.962 0 014 12H0c0 
-                                                 3.042 1.135 5.824 3 7.938l3-2.647z">
-                                </path>
-                            </svg>
-                        </div>
+                <!-- Loading icon -->
+                <div class="absolute inset-y-0 right-3 flex items-center">
+                    <div wire:loading.delay.shortest wire:target="searchSkill">
+                        <svg class="animate-spin h-5 w-5 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none"
+                            viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor"
+                                d="M4 12a8 8 0 018-8V0C5.373 0 
+                                0 5.373 0 12h4zm2 5.291A7.962 7.962 0 
+                                014 12H0c0 3.042 1.135 5.824 3 
+                                7.938l3-2.647z"></path>
+                        </svg>
+                    </div>
                 </div>
 
                 <!-- Search results dropdown -->
@@ -343,164 +528,19 @@
                         class="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto divide-y divide-gray-100">
                         @foreach ($skills as $skill)
                             <button type="button" wire:click="createSkill({{ $skill->id }})"
-                                class="block w-full text-left px-4 py-2 hover:bg-gray-100">
+                                class="block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm">
                                 {{ $skill->name }}
                             </button>
                         @endforeach
                     </div>
-                @else
-                    <h1 class="text-red-500 font-bold text-3xl">hello</h1>
                 @endif
             </div>
 
             <!-- Add button -->
             <button wire:click="addSkill"
-                class="flex items-center gap-2 bg-teal-500 hover:bg-teal-600 font-medium text-white px-3 py-2 rounded">
+                class="flex items-center gap-2 bg-teal-500 hover:bg-teal-600 font-medium text-white px-4 py-2 rounded-lg shadow-sm transition">
                 <i class="fa-solid fa-plus"></i> Add
             </button>
-        </div>
-    </div>
-
-    <!-- Education Background -->
-    <div x-data="{show:false}" x-on:open-form.window="show = true" x-on:close-form.window="show = false"
-        class="flex flex-col gap-4 border rounded-md p-5 shadow-sm">
-        <div class="flex border-b pb-4 justify-between items-center">
-            <div>
-                <h2 class="text-xl font-semibold">Education Background</h2>
-                <p class="text-gray-600 text-sm">Manage your academic qualifications and educational history</p>
-            </div>
-            <button @click="show = !show" x-text="show ? 'Cancel' : 'Add Education'"
-                class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 font-medium rounded px-3 py-2 text-white">
-            </button>
-        </div>
-        <div class="mt-6 space-y-6">
-            <h2 class="text-xl font-semibold">Qualifications</h2>
-
-            @forelse($teacherQualification as $qualification)
-                <div class="border rounded-lg p-4 bg-white shadow">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <p><strong>Institution:</strong> {{ $qualification->institution }}</p>
-                        <p><strong>Qualification:</strong> {{ $qualification->qualification->name ?? 'N/A' }}</p>
-                        <p><strong>Board/University:</strong> {{ $qualification->board_or_university }}</p>
-                        <p><strong>Session:</strong> {{ $qualification->session }}</p>
-                        <p><strong>Year of Passing:</strong> {{ $qualification->year_of_passing }}</p>
-                        <p><strong>Grade/Percentage:</strong> {{ $qualification->grade_or_percentage }}</p>
-                    </div>
-
-                    <div class="mt-4">
-                        <h3 class="font-medium">Subjects</h3>
-                        <ul class="list-disc list-inside">
-                            @foreach(json_decode($qualification->subjects, true) as $sub)
-                                <li>{{ $sub['subject_name'] ?? $sub['name'] }} - {{ $sub['marks'] }}</li>
-                            @endforeach
-                        </ul>
-                    </div>
-                    <button class="text-white bg-red-500 p-2 rounded"
-                        wire:click="deleteQualification({{ $qualification->id }})" wire:confirm="are you sure?">Delete
-                        Education</button>
-                </div>
-            @empty
-                <div x-show="!show"
-                    class="flex flex-col justify-center items-center mt-4 border border-gray-300 bg-gray-50 rounded-xl p-8 border-dashed text-center">
-                    <i class="fa-solid fa-graduation-cap text-gray-400 text-3xl"></i>
-                    <p class="text-gray-500 font-medium mt-2">No Education Added yet</p>
-                    <p class="text-gray-400 text-sm">Click 'Add Education' to get started</p>
-                </div>
-            @endforelse
-        </div>
-
-
-        <div x-show="show" class="flex flex-col border rounded-lg mt-4 p-5 bg-gray-50">
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 border-b pb-4">
-                <div class="flex flex-col gap-1">
-                    <label class="text-sm">Institution Name*</label>
-                    <input type="text" class="border rounded p-2" wire:model="institute" placeholder="University Name ">
-                    @error('institute')
-                        <p class="text-red-500 font-semibold">{{ $message }}</p>
-                    @enderror
-                </div>
-                <div class="flex flex-col gap-1">
-                    <label class="text-sm">Qualification*</label>
-                    <select class="border rounded p-2" wire:model="qualification">
-                        <option value="">Select Qualification</option>
-                        @foreach ($qualifications as $qualification)
-                            <option value="{{ $qualification->id }}">{{ $qualification->name }}</option>
-                        @endforeach
-                    </select>
-                    @error('qualification')
-                        <p class="text-red-500 font-semibold">{{ $message }}</p>
-                    @enderror
-                </div>
-                <div class="flex flex-col gap-1">
-                    <label class="text-sm">Session</label>
-                    <input type="text" wire:model="session" class="border rounded p-2" placeholder="YYYY-YY">
-                    @error('session')
-                        <p class="text-red-500 font-semibold">{{ $message }}</p>
-                    @enderror
-                </div>
-                <div class="flex flex-col gap-1">
-                    <label class="text-sm">Year of Passing*</label>
-                    <input type="text" wire:model="year_of_passing" class="border rounded p-2" placeholder="YYYY">
-                    @error('year_of_passing')
-                        <p class="text-red-500 font-semibold">{{ $message }}</p>
-                    @enderror
-                </div>
-                <div class="flex flex-col gap-1">
-                    <label class="text-sm">Board/University</label>
-                    <input type="text" wire:model="board_or_university" class="border rounded p-2"
-                        placeholder="Enter board or university name">
-                    @error('board_or_university')
-                        <p class="text-red-500 font-semibold">{{ $message }}</p>
-                    @enderror
-                </div>
-                <div class="flex flex-col gap-1">
-                    <label class="text-sm">Grade/Percentage</label>
-                    <input type="text" wire:model="grade_or_percentage" class="border rounded p-2"
-                        placeholder="Enter grade or percentage">
-                    @error('grade_or_percentage')
-                        <p class="text-red-500 font-semibold">{{ $message }}</p>
-                    @enderror
-                </div>
-            </div>
-            <div class="flex flex-col gap-2 mt-4">
-                <h3 class="text-lg font-medium">Add Subject With Marks</h3>
-                <div class="flex flex-col sm:flex-row gap-2">
-                    <input type="text" wire:model="subject_name" class="border flex-1 p-2 rounded">
-                    @error('subject_name')
-                        <p class="text-red-500 font-semibold">{{ $message }}</p>
-                    @enderror
-                    <div class="flex gap-2">
-                        <input type="text" wire:model="marks" placeholder="Marks" class="border p-2 rounded w-24">
-                        @error('marks')
-                            <p class="text-red-500 font-semibold">{{ $message }}</p>
-                        @enderror
-                        <button wire:click="addSubject"
-                            class="flex items-center gap-2 bg-teal-500 hover:bg-teal-600 px-3 py-2 rounded font-medium text-white">
-                            <i class="fa-solid fa-plus"></i> Add
-                        </button>
-                    </div>
-                </div>
-                <div class="flex gap-2">
-                    @foreach ($qualification_subjects as $index => $subjects)
-                        <div class="border p-1 rounded flex items-center gap-5">
-                            <p>{{ $subjects['subject_name'] }} - {{ $subjects['marks'] }}</p>
-                            <button wire:click="removeSubject({{ $index }})" class="text-red-500">
-                                ✕
-                            </button>
-                        </div>
-                    @endforeach
-                </div>
-            </div>
-            <div class="flex gap-2 mt-4">
-                <button @click="show = false"
-                    class="flex items-center gap-2 bg-red-500 hover:bg-red-600 text-white font-medium px-3 py-2 rounded">
-                    <i class="fa-solid fa-xmark"></i> Cancel
-                </button>
-                <button wire:click="saveEducation"
-                    class="flex items-center gap-2 bg-teal-500 hover:bg-teal-600 text-white font-medium px-3 py-2 rounded">
-                    <i class="fa-solid fa-save"></i> Save Education
-                </button>
-            </div>
         </div>
     </div>
 </div>
