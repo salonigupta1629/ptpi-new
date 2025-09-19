@@ -23,6 +23,8 @@ class Dashboard extends Component
     public $categories;
     public $step = 'category';
     public $unlockedLevels = [];
+    public $hasQualifiedLevel2 = false;
+
 
     public $selection = [
         'category_id' => null,
@@ -33,25 +35,53 @@ class Dashboard extends Component
         'level_name' => null,
     ];
 
-    public function mount()
-    {
-        // Check if user is authenticated and has a teacher record
-        $user = Auth::user();
+    // public function mount()
+    // {
+    //     // Check if user is authenticated and has a teacher record
+    //     $user = Auth::user();
         
-        if ($user && $user->teacher) {
-            $this->unlockedLevels = $user->teacher->unlockedLevels()
-                ->pluck('level_id')
-                ->toArray();
-        } else {
-            $this->unlockedLevels = [];
+    //     if ($user && $user->teacher) {
+    //         $this->unlockedLevels = $user->teacher->unlockedLevels()
+    //             ->pluck('level_id')
+    //             ->toArray();
+    //     } else {
+    //         $this->unlockedLevels = [];
             
-            // If user doesn't have a teacher record, redirect or show error
-            // You might want to handle this case differently based on your app logic
-            if ($user && !$user->teacher) {
-                session()->flash('error', 'Teacher profile not found. Please complete your teacher profile.');
-            }
+    //         // If user doesn't have a teacher record, redirect or show error
+    //         // You might want to handle this case differently based on your app logic
+    //         if ($user && !$user->teacher) {
+    //             session()->flash('error', 'Teacher profile not found. Please complete your teacher profile.');
+    //         }
+    //     }
+    // }
+
+public function mount()
+{
+    // Check if user is authenticated and has a teacher record
+    $user = Auth::user();
+    
+    if ($user && $user->teacher) {
+        $this->unlockedLevels = $user->teacher->unlockedLevels()
+            ->pluck('level_id')
+            ->toArray();
+            
+        // Check if teacher has qualified Level 2
+        $level2Unlock = TeacherUnlockedLevel::where('teacher_id', $user->teacher->id)
+            ->where('level_id', 2) // Assuming Level 2 has ID 2
+            ->where('passed', true)
+            ->first();
+            
+        $this->hasQualifiedLevel2 = (bool) $level2Unlock;
+    } else {
+        $this->unlockedLevels = [];
+        $this->hasQualifiedLevel2 = false;
+        
+        // If user doesn't have a teacher record, redirect or show error
+        if ($user && !$user->teacher) {
+            session()->flash('error', 'Teacher profile not found. Please complete your teacher profile.');
         }
     }
+}
 
     public function updateCategory($id)
     {
@@ -99,33 +129,44 @@ class Dashboard extends Component
         $this->step = 'confirm';
     }
 
-    private function isLevelUnlocked($levelId)
-    {
-        $user = Auth::user();
-        
-        // If user is not authenticated or has no teacher record, only level 1 is accessible
-        if (!$user || !$user->teacher) {
-            return $levelId == 1;
-        }
-        
-        // Level 1 is always unlocked
-        if ($levelId == 1) return true;
-        
-        // Check if teacher has this level unlocked using the relationship
-        if ($user->teacher->hasUnlockedLevel($levelId)) {
-            return true;
-        }
-        
-        // For other levels, check if previous level is completed
-        $level = Level::find($levelId);
-        $previousLevel = Level::where('order', $level->order - 1)->first();
-        
-        if ($previousLevel && $user->teacher->hasUnlockedLevel($previousLevel->id)) {
-            return true;
-        }
-        
-        return false;
+   private function isLevelUnlocked($levelId)
+{
+    $user = Auth::user();
+    
+    // If user is not authenticated or has no teacher record, only level 1 is accessible
+    if (!$user || !$user->teacher) {
+        return $levelId == 1;
     }
+    
+    // Level 1 is always unlocked
+    if ($levelId == 1) return true;
+    
+    // Check if teacher has this level unlocked
+    $unlockedLevel = TeacherUnlockedLevel::where('teacher_id', $user->teacher->id)
+        ->where('level_id', $levelId)
+        ->first();
+    
+    if ($unlockedLevel) {
+        return true; // Level is in unlocked levels table
+    }
+    
+    // For levels beyond 1, check if previous level was passed
+    $level = Level::find($levelId);
+    if (!$level) return false;
+    
+    $previousLevel = Level::where('order', $level->order - 1)->first();
+    
+    if ($previousLevel) {
+        $previousUnlock = TeacherUnlockedLevel::where('teacher_id', $user->teacher->id)
+            ->where('level_id', $previousLevel->id)
+            ->first();
+            
+        // Unlock next level only if previous level was passed
+        return $previousUnlock && $previousUnlock->passed;
+    }
+    
+    return false;
+}
 
     public function goBack()
     {
@@ -146,9 +187,8 @@ class Dashboard extends Component
     }
     public function startExam()
     {
-        // Check if user has a teacher profile before proceeding
         $user = Auth::user();
-        if ($user == 1) {
+          if (!$user || !$user->teacher) {
             session()->flash('error', 'Please complete your teacher profile before starting an exam.');
             return;
         }
@@ -163,7 +203,16 @@ class Dashboard extends Component
     #[Layout('layouts.teacher')]
     public function render()
     {
-        $this->categories = ClassCategory::select('name', 'id')->get();
+      $user = Auth::user();
+
+       // Get only the categories that the teacher has
+    if ($user && $user->teacher) {
+                $this->categories = $user->teacher->classCategories()
+            ->select('class_categories.name', 'class_categories.id')
+            ->get();
+    } else {
+        $this->categories = collect([]);
+    }
         
         return view('livewire.teacher.dashboard', [
             'categories' => $this->categories,
@@ -173,7 +222,7 @@ class Dashboard extends Component
             'selection' => $this->selection,
         ]);
     }
-}
+} 
 
 
 

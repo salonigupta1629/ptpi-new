@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -53,10 +54,23 @@ class Teacher extends Model
         return $this->hasManyThrough(TeacherExperiences::class, User::class, 'id', 'user_id', 'user_id', 'id');
     }
 
-    public function classCategories(): BelongsTo
+     public function classCategories(): BelongsToMany
     {
-        return $this->belongsTo(ClassCategory::class, 'class_categories_id');
+        return $this->belongsToMany(
+            ClassCategory::class, 
+            'teacher_class_categories', 
+            'user_id', 
+            'class_category_id'
+        )->withTimestamps();
     }
 
+public function hasPassedLevel($levelId): bool
+{
+    $unlockedLevel = $this->unlockedLevels()
+        ->where('level_id', $levelId)
+        ->first();
+        
+    return $unlockedLevel && $unlockedLevel->passed;
+}
 
 }

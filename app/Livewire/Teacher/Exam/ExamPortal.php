@@ -225,18 +225,18 @@ public function submitExam()
     
     $this->calculateResult();
 
-    // Get authenticated user ID or use the first available user
-    $userId = 1;
+    // Get authenticated user
+    $user = auth()->user();
     
-    if ($userId === null) {
-        // Use the first user from your database as fallback
-        $userId = \App\Models\User::first()->id; // This will use user ID 1
+    if (!$user) {
+        session()->flash('error', 'You must be logged in to submit an exam.');
+        return redirect()->route('login');
     }
 
     // First, create or get an exam attempt
     $examAttempt = ExamAttempt::firstOrCreate(
         [
-            'user_id' => $userId, // Use the determined user ID
+            'user_id' => $user->id,
             'exam_set_id' => $this->examSetId,
             'status' => 'in_progress'
         ],
@@ -246,7 +246,7 @@ public function submitExam()
         ]
     );
 
-    // Then use exam_attempt_id instead of user_id
+    // Save user answers
     foreach ($this->questions as $question) {
         $selected = $this->answers[$question->id] ?? null;
 
@@ -273,31 +273,32 @@ public function submitExam()
         'language' => $this->selectedLanguage,
     ]);
    
-    // ADD LEVEL UNLOCKING LOGIC HERE
-    $passed = $this->score >= 70; // Or your passing threshold
+   // LEVEL UNLOCKING LOGIC
+$passed = $this->score >= 70; // Your passing threshold
 
+if ($user->teacher) {
+    // Always record the attempt (pass or fail)
+    TeacherUnlockedLevel::updateOrCreate(
+        [
+            'teacher_id' => $user->teacher->id,
+            'level_id' => $this->levelId
+        ],
+        [
+            'score' => $this->score,
+            'passed' => $passed
+        ]
+    );
+    
+    // If passed, unlock the next level
     if ($passed) {
-        // Record that teacher unlocked this level
-        \App\Models\TeacherUnlockedLevel::updateOrCreate(
-            [
-                'teacher_id' => 1,
-                'level_id' => $this->levelId
-            ],
-            [
-                'score' => $this->score,
-                'passed' => true
-            ]
-        );
-        
-        // Check if there's a next level to unlock
         $currentLevel = Level::find($this->levelId);
         $nextLevel = Level::where('order', $currentLevel->order + 1)->first();
         
         if ($nextLevel) {
             // Automatically unlock the next level
-            \App\Models\TeacherUnlockedLevel::firstOrCreate(
+            TeacherUnlockedLevel::firstOrCreate(
                 [
-                    'teacher_id' => auth()->user()->teacher->id,
+                    'teacher_id' => $user->teacher->id,
                     'level_id' => $nextLevel->id
                 ],
                 [
@@ -307,6 +308,7 @@ public function submitExam()
             );
         }
     }
+}
     // END OF LEVEL UNLOCKING LOGIC
    
     session()->put('exam_results', [

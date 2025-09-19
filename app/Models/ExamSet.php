@@ -20,10 +20,6 @@ class ExamSet extends Model
         'total_question',
     ];
 
-    // In your status dropdown in the Blade file, change:
-    // <option value="archieved">Archieved</option>
-    // to:
-    // <option value="archived">Archived</option>
 
     public function category()
     {
@@ -47,4 +43,10 @@ class ExamSet extends Model
     public function questions(){
         return $this->belongsTo(Question::class);
     }
+
+
+public function classCategory()
+{
+    return $this->belongsTo(ClassCategory::class, 'category_id');
+}
 }

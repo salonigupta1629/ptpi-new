@@ -22,6 +22,7 @@
             <thead>
                 <tr class="bg-gray-100">
                     <th class="p-2 border text-left">ID</th>
+                    <th class="p-2 border text-left">Order</th> <!-- Add this column -->
                     <th class="p-2 border text-left">Name</th>
                     <th class="p-2 border text-left">Description</th>
                     <th class="p-2 border text-left">Actions</th>
@@ -31,6 +32,7 @@
                 @forelse($levels as $level)
                     <tr>
                         <td class="p-2 border">{{ $level->id }}</td>
+                        <td class="p-2 border">{{ $level->order }}</td> <!-- Add this column -->
                         <td class="p-2 border">{{ $level->name }}</td>
                         <td class="p-2 border">{{ \Illuminate\Support\Str::limit($level->description, 80) }}</td>
                         <td class="p-2 border flex gap-2">
@@ -48,7 +50,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="4" class="p-4 text-center text-gray-500">No levels found.</td>
+                        <td colspan="5" class="p-4 text-center text-gray-500">No levels found.</td> <!-- Change colspan to 5 -->
                     </tr>
                 @endforelse
             </tbody>
@@ -73,6 +75,14 @@
                         <textarea wire:model.defer="description" class="w-full border border-gray-400 rounded px-3 py-2" rows="4"></textarea>
                         @error('description') <span class="text-sm text-red-600">{{ $message }}</span> @enderror
                     </div>
+
+                    @if($isEditing) <!-- Only show order field when editing -->
+                    <div>
+                        <label class="block text-sm font-medium">Order</label>
+                        <input type="number" wire:model.defer="order" class="w-full border border-gray-300 rounded px-3 py-2" />
+                        @error('order') <span class="text-sm text-red-600">{{ $message }}</span> @enderror
+                    </div>
+                    @endif
 
                     <div class="flex justify-end gap-2">
                         <button type="button" wire:click="closeModal" class="px-4 py-2 bg-gray-500 text-white rounded">Cancel</button>

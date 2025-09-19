@@ -126,16 +126,13 @@
                         <!-- Name Field -->
                         <div class="info-item p-4 rounded-lg border border-gray-100">
                             <div class="view-mode flex justify-between items-center">
-                              <span class="flex flex-1 justify-between  items-center">
+                              <span class="flex flex-1 justify-between  items-center ">
   <div>
                                     <p class="text-sm text-gray-500 mb-1">Name</p>
                                     <p class="font-medium text-gray-800 name-value">Vikash Kumar</p>
                                 </div>
-                                {{-- <button class="edit-btn text-primary hover:text-primary-dark" data-field="name">
-                                    <i class="fas fa-pen"></i>Edit
-                                </button> --}}
                                   <button class="edit-address-btn text-primary  hover:text-primary-dark font-medium flex items-center" data-address-type="current">
-                                <i class="fas fa-pen mr-2 "></i> Edit
+                                <i class="fas fa-pen mr-2 justify-end flex "></i> Edit
                             </button>
                               </span>
                             </div>
