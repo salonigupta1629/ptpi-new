@@ -1,7 +1,6 @@
 <?php
 
 use App\Livewire\Admin\Dashboard;
-use App\Livewire\Interview;
 use Illuminate\Support\Facades\Route;
 use App\Livewire\Admin\Subjects;
 use App\Livewire\Admin\ClassCategories;
@@ -16,6 +15,8 @@ use App\Livewire\Admin\ManageRole;
 use App\Livewire\Admin\ExamCenters;
 use App\Livewire\Admin\ManageTeachers;
 use App\Livewire\Admin\ViewTeacher;
+use App\Livewire\Admin\Interview;
+
 
 Route::get("/", Dashboard::class)->name("dashboard");
 Route::get('subjects', Subjects::class)->name('subjects');

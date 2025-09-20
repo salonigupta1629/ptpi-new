@@ -13,8 +13,11 @@ use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
 
+
 class Dashboard extends Component
 {
+
+    public $subjectsForFilter = [];
     public $selectedClassCategory;
     public $selectedCategoryName;
     public $selectedSubject;
@@ -27,6 +30,7 @@ class Dashboard extends Component
     public $step = 'category';
     public $unlockedLevels = [];
     public $hasQualifiedLevel2 = false;
+    
 
     public $qualifiedExams = [];
 public $myInterviews = [];
@@ -45,26 +49,6 @@ public $interviewFilters = [
         'level_id' => null,
         'level_name' => null,
     ];
-
-    // public function mount()
-    // {
-    //     // Check if user is authenticated and has a teacher record
-    //     $user = Auth::user();
-        
-    //     if ($user && $user->teacher) {
-    //         $this->unlockedLevels = $user->teacher->unlockedLevels()
-    //             ->pluck('level_id')
-    //             ->toArray();
-    //     } else {
-    //         $this->unlockedLevels = [];
-            
-    //         // If user doesn't have a teacher record, redirect or show error
-    //         // You might want to handle this case differently based on your app logic
-    //         if ($user && !$user->teacher) {
-    //             session()->flash('error', 'Teacher profile not found. Please complete your teacher profile.');
-    //         }
-    //     }
-    // }
 
  public function mount()
     {
@@ -169,23 +153,28 @@ public $interviewFilters = [
     }
 
     public function updateSubject($id)
-    {
-        $subject = Subject::findOrFail($id);
+{
+    $subject = Subject::findOrFail($id);
 
-        $this->selection['subject_id'] = $subject->id;
-        $this->selection['subject_name'] = $subject->subject_name;
+    $this->selection['subject_id'] = $subject->id;
+    $this->selection['subject_name'] = $subject->subject_name;
 
-        // Get all levels but mark which ones are unlocked
-        $this->levels = Level::select('id', 'name', 'description', 'order')
-            ->orderBy('order', 'asc')
-            ->get()
-            ->map(function($level) {
-                $level->is_unlocked = $this->isLevelUnlocked($level->id);
-                return $level;
-            });
-            
-        $this->step = 'level';
-    }
+    // Get all levels but mark which ones are unlocked and have questions
+    $this->levels = Level::select('id', 'name', 'description', 'order')
+        ->orderBy('order', 'asc')
+        ->get()
+        ->map(function($level) {
+            $level->is_unlocked = $this->isLevelUnlocked($level->id);
+            $level->has_questions = $this->levelHasQuestions(
+                $level->id, 
+                $this->selection['subject_id'], 
+                $this->selection['category_id']
+            );
+            return $level;
+        });
+        
+    $this->step = 'level';
+}
 
     public function updateLevel($id)
     {
@@ -197,13 +186,19 @@ public $interviewFilters = [
             return;
         }
 
+            // NEW: Check if level has questions
+    if (!$this->levelHasQuestions($id, $this->selection['subject_id'], $this->selection['category_id'])) {
+        session()->flash('error', 'This level currently has no available questions. Please try another level or check back later.');
+        return;
+    }
+
         $this->selection['level_id'] = $level->id;
         $this->selection['level_name'] = $level->name;
 
         $this->step = 'confirm';
     }
 
-   private function isLevelUnlocked($levelId)
+private function isLevelUnlocked($levelId)
 {
     $user = Auth::user();
     
@@ -233,10 +228,11 @@ public $interviewFilters = [
     if ($previousLevel) {
         $previousUnlock = TeacherUnlockedLevel::where('teacher_id', $user->teacher->id)
             ->where('level_id', $previousLevel->id)
+            ->where('passed', true) // ← THIS LINE WAS ADDED
             ->first();
             
         // Unlock next level only if previous level was passed
-        return $previousUnlock && $previousUnlock->passed;
+        return $previousUnlock && $previousUnlock->passed; // ← THIS LINE WAS MODIFIED
     }
     
     return false;
@@ -266,6 +262,16 @@ public $interviewFilters = [
             session()->flash('error', 'Please complete your teacher profile before starting an exam.');
             return;
         }
+
+            // NEW: Final verification that the level has questions
+    if (!$this->levelHasQuestions(
+        $this->selection['level_id'], 
+        $this->selection['subject_id'], 
+        $this->selection['category_id']
+    )) {
+        session()->flash('error', 'This exam is not available at the moment. Please try another level.');
+        return;
+    }
         
         return redirect()->route('teacher.exam-portal', [
             $this->selection['category_id'], 
@@ -356,20 +362,33 @@ private function loadMyInterviews()
         ->toArray();
 }
 
+public function levelHasQuestions($levelId, $subjectId, $categoryId)
+{
+    return ExamSet::where('level_id', $levelId)
+        ->where('subject_id', $subjectId)
+        ->where('category_id', $categoryId)
+        ->whereHas('questions', function($query) {
+            $query->where('id', '>', 0); // Simple check that questions exist
+        })
+        ->exists();
+}
+
   #[Layout('layouts.teacher')]
 public function render()
 {
     $user = Auth::user();
 
-    // Get only the categories that the teacher has
     if ($user && $user->teacher) {
-        $this->categories = $user->teacher->classCategories()
-            ->select('class_categories.name', 'class_categories.id')
-            ->get();
+        // Direct query to get categories for this teacher
+        $this->categories = ClassCategory::whereIn('id', function($query) use ($user) {
+            $query->select('class_category_id')
+                  ->from('teacher_class_categories')
+                  ->where('user_id', $user->id);
+        })->get();
         
-        // Get subjects for filters (all subjects teacher has access to)
-        $this->subjectsForFilter = Subject::whereIn('category_id', $user->teacher->classCategories()->pluck('class_categories.id'))
-            ->get();
+        // Get subjects for filters
+        $categoryIds = $this->categories->pluck('id')->toArray();
+        $this->subjectsForFilter = Subject::whereIn('category_id', $categoryIds)->get();
     } else {
         $this->categories = collect([]);
         $this->subjectsForFilter = collect([]);
@@ -378,7 +397,7 @@ public function render()
     return view('livewire.teacher.dashboard', [
         'categories' => $this->categories,
         'subjects' => $this->subjects,
-        'subjectsForFilter' => $this->subjectsForFilter, // Add this
+        'subjectsForFilter' => $this->subjectsForFilter, 
         'levels' => $this->levels,
         'step' => $this->step,
         'selection' => $this->selection,
@@ -388,191 +407,3 @@ public function render()
 } 
 
 
-
-
-
-// <?php
-
-// namespace App\Livewire\Teacher;
-
-// use App\Models\ClassCategory;
-// use App\Models\Level;
-// use App\Models\Subject;
-// use App\Models\TeacherUnlockedLevel; 
-// use Livewire\Attributes\Layout;
-// use Livewire\Component;
-
-// class Dashboard extends Component
-// {
-//     public $selectedClassCategory;
-//     public $selectedCategoryName;
-//     public $selectedSubject;
-//     public $selectedSubjectName;
-//     public $selectedLevel;
-//     public $selectedLevelName;
-//     public $subjects = [];
-//     public $levels = [];
-//     public $categories;
-//     public $step = 'category';
-//      public $unlockedLevels = [];
-
-
-//     public $selection = [
-//         'category_id' => null,
-//         'category_name' => null,
-//         'subject_id' => null,
-//         'subject_name' => null,
-//         'level_id' => null,
-//         'level_name' => null,
-//     ];
-
-// //     public function mount()
-// // {
-//     // Get all levels the teacher has unlocked
-//     // $teacherId = auth()->user()->teacher->id;
-//     // $this->unlockedLevels = TeacherUnlockedLevel::where('teacher_id', $teacherId)
-//     //     ->pluck('level_id')
-//     //     ->toArray();
-    
-//         //   $this->unlockedLevels = auth()->user()->teacher->unlockedLevels()
-//         // ->pluck('level_id')
-//         // ->toArray();
-// // }
-
-//     public function mount()
-//     {
-//         // Safely get unlocked levels, handling cases where teacher doesn't exist
-//         $teacher = auth()->user()->teacher;
-//         $this->unlockedLevels = $teacher ? 
-//             $teacher->unlockedLevels()->pluck('level_id')->toArray() : [];
-//     }
-
-//     public function updateCategory($id)
-//     {
-//         $category = ClassCategory::findOrFail($id);
-
-//         $this->selection['category_id'] = $category->id;
-//         $this->selection['category_name'] = $category->name;
-
-//         $this->subjects = Subject::where('category_id', $id)->get();
-//         $this->step = 'subject';
-//     }
-
-//    public function updateSubject($id)
-// {
-//     $subject = Subject::findOrFail($id);
-
-//     $this->selection['subject_id'] = $subject->id;
-//     $this->selection['subject_name'] = $subject->subject_name;
-
-//     // Get all levels but mark which ones are unlocked
-//     $this->levels = Level::select('id', 'name', 'description', 'order')
-//         ->orderBy('order', 'asc')
-//         ->get()
-//         ->map(function($level) {
-//             $level->is_unlocked = $this->isLevelUnlocked($level->id);
-//             return $level;
-//         });
-        
-//     $this->step = 'level';
-// }
-
-//     public function updateLevel($id)
-// {
-//     $level = Level::findOrFail($id);
-
-//     // Check if level is unlocked
-//     if (!$this->isLevelUnlocked($id)) {
-//         session()->flash('error', 'This level is locked. Complete previous levels first.');
-//         return;
-//     }
-
-//     $this->selection['level_id'] = $level->id;
-//     $this->selection['level_name'] = $level->name;
-
-//     $this->step = 'confirm';
-// }
-
-// // private function isLevelUnlocked($levelId)
-// // {
-// //     // Level 1 is always unlocked
-// //     if ($levelId == 1) return true;
-    
-// //     // Check if teacher has this level unlocked using the relationship
-// //     if (auth()->user()->teacher->hasUnlockedLevel($levelId)) {
-// //         return true;
-// //     }
-    
-// //     // For other levels, check if previous level is completed
-// //     $level = Level::find($levelId);
-// //     $previousLevel = Level::where('order', $level->order - 1)->first();
-    
-// //     if ($previousLevel && auth()->user()->teacher->hasUnlockedLevel($previousLevel->id)) {
-// //         return true;
-// //     }
-    
-// //     return false;
-// // }
-
-//  private function isLevelUnlocked($levelId)
-//     {
-//         // If user has no teacher record, only level 1 is accessible
-//         $teacher = auth()->user()->teacher;
-//         if (!$teacher) {
-//             return $levelId == 1;
-//         }
-        
-//         // Level 1 is always unlocked
-//         if ($levelId == 1) return true;
-        
-//         // Check if teacher has this level unlocked using the relationship
-//         if ($teacher->hasUnlockedLevel($levelId)) {
-//             return true;
-//         }
-        
-//         // For other levels, check if previous level is completed
-//         $level = Level::find($levelId);
-//         $previousLevel = Level::where('order', $level->order - 1)->first();
-        
-//         if ($previousLevel && $teacher->hasUnlockedLevel($previousLevel->id)) {
-//             return true;
-//         }
-        
-//         return false;
-//     }
-
-
-//     public function goBack()
-//     {
-//         if ($this->step === 'confirm') {
-//             $this->step = 'level';
-//             $this->selection['level_id'] = null;
-//             $this->selection['level_name'] = null;
-//         } elseif ($this->step === 'level') {
-//             $this->step = 'subject';
-//             $this->selection['subject_id'] = null;
-//             $this->selection['subject_name'] = null;
-//         } elseif ($this->step === 'subject') {
-//             $this->step = 'category';
-//             $this->selection['category_id'] = null;
-//             $this->selection['category_name'] = null;
-//             $this->subjects = [];
-//         }
-//     }
-//     public function startExam()
-//     {
-//         return redirect()->route('teacher.exam-portal', [$this->selection['category_id'], $this->selection['subject_id'], $this->selection['level_id']]);
-//     }
-//     #[Layout('layouts.teacher')]
-//     public function render()
-//     {
-//         $this->categories = ClassCategory::select('name', 'id')->get();
-//         return view('livewire.teacher.dashboard', [
-//             'categories' => $this->categories,
-//             'subjects' => $this->subjects,
-//             'levels' => $this->levels,
-//             'step' => $this->step,
-//             'selection' => $this->selection,
-//         ]);
-//     }
-// }

@@ -89,13 +89,22 @@
                     </ul>
                 </div>
                 
-                <div class="flex mt-5 flex-col">
-                    <label for="languageSelect">Choose the language/ भाषा चुने</label>
-                    <select wire:model="selectedLanguage" id="languageSelect" class="border p-2 rounded mt-1">
-                        <option value="english">English</option>
-                        <option value="hindi">Hindi</option>
-                    </select>
-                </div>
+           <div class="flex mt-5 flex-col">
+    <label for="languageSelect" class="font-medium text-gray-700 mb-1">
+        Choose the language/ भाषा चुने
+    </label>
+    <select wire:model.live="selectedLanguage" id="languageSelect" 
+        class="border border-gray-300 p-2 rounded mt-1 focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+               @if(!empty($selectedLanguage)) border-green-400 @endif">
+    <option value="" disabled selected>Select the language/ भाषा चुने</option>
+    <option value="english">English</option>
+    <option value="hindi">Hindi</option>
+</select>
+    
+    @error('selectedLanguage')
+        <span class="text-red-500 text-sm mt-1">{{ $message }}</span>
+    @enderror
+</div>
                 
      <div class="mt-4">
     <label for="readInstruction" class="flex items-center">
@@ -106,10 +115,14 @@
 
 <div class="text-center mt-6">
    <button wire:click="startExam" 
-        wire:key="proceed-button-{{ $agreedToGuidelines ? 'enabled' : 'disabled' }}"
+        wire:key="proceed-button-{{ $agreedToGuidelines && !empty($selectedLanguage) ? 'enabled' : 'disabled' }}"
         class="px-6 py-2 rounded font-semibold transition-colors duration-200
-               @if($agreedToGuidelines) bg-teal-500 hover:bg-teal-600 text-white @else bg-gray-300 text-gray-500 cursor-not-allowed @endif"
-        @if(!$agreedToGuidelines) disabled @endif>
+               @if($agreedToGuidelines && !empty($selectedLanguage)) 
+                   bg-teal-500 hover:bg-teal-600 text-white 
+               @else 
+                   bg-gray-300 text-gray-500 cursor-not-allowed 
+               @endif"
+        @if(!$agreedToGuidelines || empty($selectedLanguage)) disabled @endif>
     Proceed to exam
 </button>
 </div>

@@ -40,11 +40,17 @@ class ExamSet extends Model
     {
         return $this->belongsTo(Subject::class);
     }
-    public function questions(){
-        return $this->belongsTo(Question::class);
-    }
+    // public function questions(){
+    //     return $this->belongsTo(Question::class);
+    // }
 
-
+// In App\Models\ExamSet.php
+public function questions()
+{
+    return $this->hasMany(Question::class);
+    // OR if you have a different foreign key:
+    // return $this->hasMany(Question::class, 'exam_set_id');
+}
 // public function classCategory()
 // {
 //     return $this->belongsTo(ClassCategory::class, 'category_id');

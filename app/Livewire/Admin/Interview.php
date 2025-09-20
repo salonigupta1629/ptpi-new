@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire;
+namespace App\Livewire\Admin;
 
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\On;
@@ -14,6 +14,6 @@ class Interview extends Component
     #[Layout('layouts.admin')]
     public function render()
     {
-        return view('livewire.interview');
+        return view('livewire.admin.interview');
     }
 }
