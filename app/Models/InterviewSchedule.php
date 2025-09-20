@@ -12,7 +12,7 @@ class InterviewSchedule extends Model
 
     protected $fillable = [
         'exam_attempt_id',
-        'teacher_id',
+        'user_id',
         'scheduled_at',
         'status',
         'meeting_link',
