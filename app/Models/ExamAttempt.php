@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 
 class ExamAttempt extends Model
@@ -51,4 +52,10 @@ class ExamAttempt extends Model
     {
         return $this->hasMany(UserAnswer::class);
     }
+
+     public function interview(): HasOne
+    {
+        return $this->hasOne(InterviewSchedule::class);
+    }
+
 }

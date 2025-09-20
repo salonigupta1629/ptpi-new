@@ -45,8 +45,9 @@ class ExamSet extends Model
     }
 
 
-public function classCategory()
-{
-    return $this->belongsTo(ClassCategory::class, 'category_id');
-}
+// public function classCategory()
+// {
+//     return $this->belongsTo(ClassCategory::class, 'category_id');
+// }
+
 }
