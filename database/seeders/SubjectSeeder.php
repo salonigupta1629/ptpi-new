@@ -19,18 +19,21 @@ class SubjectSeeder extends Seeder
             [
                 'subject_name' => 'Mathematics',
                 'subject_description' => 'Basic Mathematics',
+                'category_id' => 1,
                 'created_at' => $now,
                 'updated_at' => $now,
             ],
             [
                 'subject_name' => 'Science',
                 'subject_description' => 'General Science',
+                'category_id' => 1,
                 'created_at' => $now,
                 'updated_at' => $now,
             ],
             [
                 'subject_name' => 'English',
                 'subject_description' => 'Basic English Language',
+                'category_id' => 2,
                 'created_at' => $now,
                 'updated_at' => $now,
             ],
