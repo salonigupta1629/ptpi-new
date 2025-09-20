@@ -20,8 +20,6 @@ class AppServiceProvider extends ServiceProvider
      */
    public function boot()
 {
-    if (app()->environment('local')) {
-        Http::fake(); // Or use withoutVerifying for specific cases
-    }
+    
 }
 }
