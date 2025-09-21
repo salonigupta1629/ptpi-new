@@ -78,7 +78,7 @@
                             <label class="block font-medium text-gray-700 mb-1">Question Text (English)</label>
                             <textarea wire:model.debounce.500ms="question_text" id="question-text-input" rows="4"
                                 class="w-full border rounded-md p-3 focus:ring-2 focus:ring-blue-300 focus:border-blue-300 transition"
-                                placeholder="Enter question in English (e.g., Solve \\( x^2 + 2x + 1 = 0 \\))"></textarea>
+                                placeholder="Enter question in English"></textarea>
                             @error('question_text')
                                 <span class="text-red-500 text-sm">{{ $message }}</span>
                             @enderror
@@ -92,7 +92,7 @@
                                     <input type="text" wire:model.debounce.500ms="options.{{ $i }}"
                                         id="option-{{ $i }}-input"
                                         class="flex-1 border rounded-md p-2 focus:ring-2 focus:ring-blue-300 focus:border-blue-300 transition"
-                                        placeholder="Option {{ $i + 1 }} in English (e.g., \\( x = -1 \\))" />
+                                        placeholder="Option {{ $i + 1 }} in English " />
                                     @error("options.{$i}")
                                         <span class="text-red-500 text-sm">{{ $message }}</span>
                                     @enderror
@@ -104,7 +104,7 @@
                             <label class="block font-medium text-gray-700 mb-1">Solution (Optional, English)</label>
                             <textarea wire:model.debounce.500ms="solution" id="solution-input" rows="3"
                                 class="w-full border rounded-md p-3 focus:ring-2 focus:ring-blue-300 focus:border-blue-300 transition"
-                                placeholder="Enter solution in English (e.g., The equation \\( x^2 + 2x + 1 = 0 \\) factors as \\( (x+1)^2 = 0 \\))"></textarea>
+                                placeholder="Enter solution in English"></textarea>
                             @error('solution')
                                 <span class="text-red-500 text-sm">{{ $message }}</span>
                             @enderror
@@ -117,7 +117,7 @@
                             <label class="block font-medium text-gray-700 mb-1">प्रश्न पाठ (Hindi)</label>
                             <textarea wire:model.debounce.500ms="question_text_hi" id="question-text-hi" rows="4"
                                 class="w-full border rounded-md p-3 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-green-300 focus:border-green-300 transition"
-                                placeholder="Enter Hindi question or leave blank for auto-translation (e.g., समीकरण \\( x^2 + 2x + 1 = 0 \\) हल करें)"></textarea>
+                                placeholder="हिंदी प्रश्न दर्ज करें "></textarea>
                             @error('question_text_hi')
                                 <span class="text-red-500 text-sm">{{ $message }}</span>
                             @enderror
@@ -131,7 +131,7 @@
                                     <input type="text" wire:model.debounce.500ms="options_hi.{{ $i }}"
                                         id="option-{{ $i }}-hi"
                                         class="flex-1 border rounded-md p-2 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-green-300 focus:border-green-300 transition"
-                                        placeholder="विकल्प {{ $i + 1 }} (e.g., \\( x = -1 \\))" />
+                                        placeholder="विकल्प {{ $i + 1 }} " />
                                     @error("options_hi.{$i}")
                                         <span class="text-red-500 text-sm">{{ $message }}</span>
                                     @enderror
@@ -143,7 +143,7 @@
                             <label class="block font-medium text-gray-700 mb-1">समाधान (वैकल्पिक, Hindi)</label>
                             <textarea wire:model.debounce.500ms="solution_hi" id="solution-hi" rows="3"
                                 class="w-full border rounded-md p-3 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-green-300 focus:border-green-300 transition"
-                                placeholder="Enter Hindi solution or leave blank for auto-translation (e.g., समीकरण \\( x^2 + 2x + 1 = 0 \\) का गुणनखंड \\( (x+1)^2 = 0 \\) है)"></textarea>
+                                placeholder="अंग्रेजी में समाधान दर्ज करें"></textarea>
                             @error('solution_hi')
                                 <span class="text-red-500 text-sm">{{ $message }}</span>
                             @enderror
@@ -269,7 +269,6 @@
             @endif
         </div>
     </div>
-
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const questionTextInput = document.getElementById('question-text-input');
@@ -295,35 +294,53 @@
                     return;
                 }
 
-                // Skip translation if text contains LaTeX
-                if (text.match(/\\[\(\[]/)) {
-                    targetElement.value = text; // Preserve LaTeX for manual Hindi input
-                    return;
-                }
+                // Preserve LaTeX by splitting text into LaTeX and non-LaTeX parts
+                const latexPattern = /\\[\(\[].*?\\[\)\]]/g;
+                const latexParts = text.match(latexPattern) || [];
+                let nonLatexText = text.replace(latexPattern, '||LATEX||');
+                let translatedText = '';
 
-                try {
-                    const response = await fetch('https://api.ptpinstitute.com/api/translator/', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            text: text,
-                            source: 'en',
-                            dest: 'hi'
-                        })
-                    });
+                if (nonLatexText.includes('||LATEX||') || !latexParts.length) {
+                    try {
+                        const response = await fetch('https://api.ptpinstitute.com/api/translator/', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                text: nonLatexText.replace(/\|\|LATEX\|\|/g, ''),
+                                source: 'en',
+                                dest: 'hi'
+                            })
+                        });
 
-                    if (!response.ok) {
-                        throw new Error('API request failed');
+                        if (!response.ok) {
+                            throw new Error('API request failed');
+                        }
+
+                        const data = await response.json();
+                        translatedText = data.translated || '';
+
+                        // Reinsert LaTeX parts
+                        let latexIndex = 0;
+                        translatedText = translatedText.replace(/(\s|$)/g, (match) => {
+                            if (latexIndex < latexParts.length) {
+                                return latexParts[latexIndex++] + match;
+                            }
+                            return match;
+                        });
+                    } catch (error) {
+                        console.error('Translation error:', error);
+                        translatedText = 'Translation failed';
                     }
-
-                    const data = await response.json();
-                    targetElement.value = data.translated || '';
-                } catch (error) {
-                    console.error('Translation error:', error);
-                    targetElement.value = 'Translation failed';
+                } else {
+                    translatedText = text; // Preserve text with LaTeX if no non-LaTeX parts
                 }
+
+                targetElement.value = translatedText;
+
+                // Re-render MathJax for the target element
+                MathJax.typesetPromise([targetElement]).catch(err => console.error('MathJax error:', err));
             }
 
             function debounce(func, wait) {

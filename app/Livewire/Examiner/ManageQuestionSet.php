@@ -24,15 +24,15 @@ class ManageQuestionSet extends Component
 
     public function loadQuestions()
     {
-$query = Question::where('exam_set_id', $this->examSet->id)
-                 ->orderBy('id', 'desc');
+        $query = Question::where('exam_set_id', $this->examSet->id)
+            ->orderBy('id', 'desc');
 
         if (!empty($this->search)) {
             $query->where(function ($q) {
                 $q->where('question_text', 'like', '%' . $this->search . '%')
-                  ->orWhere('solution', 'like', '%' . $this->search . '%')
-                  ->orWhereRaw('JSON_UNQUOTE(JSON_EXTRACT(translations, "$.hi.question_text")) LIKE ?', ['%' . $this->search . '%'])
-                  ->orWhereRaw('JSON_UNQUOTE(JSON_EXTRACT(translations, "$.hi.solution")) LIKE ?', ['%' . $this->search . '%']);
+                    ->orWhere('solution', 'like', '%' . $this->search . '%')
+                    ->orWhereRaw('JSON_UNQUOTE(JSON_EXTRACT(translations, "$.hi.question_text")) LIKE ?', ['%' . $this->search . '%'])
+                    ->orWhereRaw('JSON_UNQUOTE(JSON_EXTRACT(translations, "$.hi.solution")) LIKE ?', ['%' . $this->search . '%']);
             });
         }
 
