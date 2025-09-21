@@ -10,6 +10,7 @@ class Levels extends Component
      public $name;
     public $description;
     public $levelId = null;
+     public $order; 
 
     public $isEditing = false;
     public $showModal = false;
@@ -18,6 +19,7 @@ class Levels extends Component
     protected $rules = [
         'name' => 'required|string|max:100',
         'description' => 'nullable|string|max:2000',
+         'order' => 'required|integer|min:1', 
     ];
 
     public function openModal()
@@ -31,28 +33,45 @@ class Levels extends Component
         $this->showModal = false;
     }
 
-    public function save()
-    {
-        $this->validate();
-
-        if ($this->isEditing && $this->levelId) {
-            $level = Level::findOrFail($this->levelId);
-            $level->update([
-                'name' => $this->name,
-                'description' => $this->description,
-            ]);
-            session()->flash('message', 'Level updated successfully.');
-        } else {
-            Level::create([
-                'name' => $this->name,
-                'description' => $this->description,
-            ]);
-            session()->flash('message', 'Level created successfully.');
-        }
-
-        $this->closeModal();
-        $this->resetInput();
+  public function save()
+{
+    // Different validation for editing vs creating
+    if ($this->isEditing && $this->levelId) {
+        $this->validate([
+            'name' => 'required|string|max:100',
+            'description' => 'nullable|string|max:2000',
+            'order' => 'required|integer|min:1',
+        ]);
+    } else {
+        $this->validate([
+            'name' => 'required|string|max:100',
+            'description' => 'nullable|string|max:2000',
+        ]);
     }
+
+    if ($this->isEditing && $this->levelId) {
+        $level = Level::findOrFail($this->levelId);
+        $level->update([
+            'name' => $this->name,
+            'description' => $this->description,
+            'order' => $this->order,
+        ]);
+        session()->flash('message', 'Level updated successfully.');
+    } else {
+        // Automatically set order to the next available number
+        $maxOrder = Level::max('order') ?? 0;
+        
+        Level::create([
+            'name' => $this->name,
+            'description' => $this->description,
+            'order' => $maxOrder + 1, // Add this line
+        ]);
+        session()->flash('message', 'Level created successfully.');
+    }
+
+    $this->closeModal();
+    $this->resetInput();
+}
 
     public function edit($id)
     {
@@ -60,6 +79,7 @@ class Levels extends Component
         $this->levelId = $level->id;
         $this->name = $level->name;
         $this->description = $level->description;
+           $this->order = $level->order;
         $this->isEditing = true;
         $this->showModal = true;
     }
@@ -75,6 +95,7 @@ class Levels extends Component
         $this->levelId = null;
         $this->name = '';
         $this->description = '';
+         $this->order = ''; 
         $this->isEditing = false;
     }
 
@@ -86,7 +107,7 @@ class Levels extends Component
             $query->where('name', 'like', '%' . $this->search . '%');
         }
 
-        $levels = $query->orderBy('created_at', 'desc')->get();
+          $levels = $query->orderBy('order', 'asc')->get(); // Change to order by 'order'
 
         return view('livewire.admin.levels', [
             'levels' => $levels,

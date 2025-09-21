@@ -59,12 +59,11 @@ class TeacherSeeder extends Seeder
                 'image' => null,
                 'aadhar_no' => fake()->numerify('##########'),
                 'phone' => fake()->numerify('9##########'),
-                'alternate_phone' => fake()->numerify('9##########'),
+                'language' => 'hindi',
                 'verified' => fake()->boolean(80), // 80% chance of being verified
-                'class_categories_id' => $classCategories->random()->id,
                 'rating' => fake()->randomFloat(2, 3, 5),
                 'date_of_birth' => fake()->dateTimeBetween('-50 years', '-22 years')->format('Y-m-d'),
-                'availability_status' => fake()->randomElement(['Available', 'Busy', 'On Leave']),
+                'marital_status' => null,
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
@@ -105,6 +104,13 @@ class TeacherSeeder extends Seeder
                     'user_id' => $user->id,
                     'qualification_id' => $qualifications->random()->id,
                     'institution' => fake()->company(),
+                    'board_or_university' => 'basb',
+                    'session' => '2020-2023',
+                    'subjects' => json_encode([
+                        ['name' => 'Science', 'marks' => 75],
+                        ['name' => 'Math', 'marks' => 88],
+                        ['name' => 'English', 'marks' => 92],
+                    ]),
                     'year_of_passing' => fake()->numberBetween(1990, 2023),
                     'grade_or_percentage' => fake()->randomElement(['A', 'B', 'C', 'First Class', 'Second Class']) . ' (' . fake()->numberBetween(60, 95) . '%)',
                     'created_at' => now(),

@@ -26,12 +26,12 @@
 <body class="h-screen flex overflow-hidden bg-gray-100">
 
     <!-- Sidebar -->
-    <aside class="w-64 bg-white border-r border-gray-200 fixed h-screen transition-all duration-300">
+    <aside class="overflow-y-scroll w-64 bg-white border-r border-gray-200 fixed h-screen transition-all duration-300">
         <div class="p-6 text-2xl font-bold text-gray-800 border-b border-gray-200 flex items-center space-x-2">
             <i class="fas fa-clipboard text-blue-600"></i>
             <span>PTPI</span>
         </div>
-        <nav class="mt-4 flex flex-col space-y-2 px-4">
+        <nav class="mt-4 flex flex-col space-y-2 px-4 ">
             <a href="{{ route('admin.dashboard') }}"
                 class="flex items-center space-x-3 text-gray-600 hover:bg-blue-100 hover:text-blue-700 rounded-lg p-3 transition-colors duration-200">
                 <i class="fas fa-tachometer-alt text-lg"></i>
@@ -107,7 +107,7 @@
                     <i class="fas fa-key text-sm"></i>
                     <span class="font-medium text-sm">Passkeys</span>
                 </a>
-                <a href=""
+                <a href="{{ route('admin.interview') }}" wire:navigate
                     class="flex items-center space-x-3 text-gray-500 hover:bg-blue-100 hover:text-blue-700 rounded-lg p-2 transition-colors duration-200">
                     <i class="fas fa-comments text-sm"></i>
                     <span class="font-medium text-sm">Interview</span>
@@ -130,7 +130,7 @@
             </div>
 
             <!-- Logout -->
-            <form method="POST" action="" class="mt-auto">
+            <form method="POST" action="{{ route('logout') }}" class="mt-auto">
                 @csrf
                 <button type="submit"
                     class="w-full flex items-center space-x-3 text-red-500 hover:bg-red-100 hover:text-red-700 rounded-lg p-3 transition-colors duration-200">

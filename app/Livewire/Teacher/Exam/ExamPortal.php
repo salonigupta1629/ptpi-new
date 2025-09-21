@@ -9,6 +9,8 @@ use App\Models\Question;
 use App\Models\Subject;
 use App\Models\UserAnswer;
 use Livewire\Attributes\Layout;
+use App\Models\ExamAttempt; 
+use App\Models\TeacherUnlockedLevel;
 use Livewire\Component;
 
 class ExamPortal extends Component
@@ -34,7 +36,7 @@ class ExamPortal extends Component
     public $showInstructions = true; 
 
     public $tabSwitchCount = 0;
-    public $maxTabSwitches = 5;
+    public $maxTabSwitches = 3;
     public $showWarningModal = false;
     public $warningMessage = '';
     public $selectedLanguage = 'english'; 
@@ -134,54 +136,199 @@ class ExamPortal extends Component
         }
     }
     
-    public function submitExam()
-    {
-        $this->timerActive = false;
-        $this->fullScreen = false;
-        $this->dispatch('exit-exam-mode');
-        
-        $currentQuestion = $this->questions[$this->currentIndex];
-        $this->answers[$currentQuestion->id] = $this->selectedOption[$currentQuestion->id] ?? null;
-        
-        $this->calculateResult();
+// public function submitExam()
+// {
+//     $this->timerActive = false;
+//     $this->fullScreen = false;
+//     $this->dispatch('exit-exam-mode');
+    
+//     $currentQuestion = $this->questions[$this->currentIndex];
+//     $this->answers[$currentQuestion->id] = $this->selectedOption[$currentQuestion->id] ?? null;
+    
+//     $this->calculateResult();
 
-        foreach ($this->questions as $question) {
-            $selected = $this->answers[$question->id] ?? null;
+//     // Get authenticated user ID or use the first available user
+//     $userId = auth()->id();
+    
+//     if ($userId === null) {
+//         // Use the first user from your database as fallback
+//         $userId = \App\Models\User::first()->id; // This will use user ID 1
+//     }
 
-            if($selected != null){
-                UserAnswer::updateOrCreate(
-                    [
-                        'user_id' => 1,
-                        'exam_set_id' => $this->examSetId,
-                        'question_id' => $question->id,
-                    ],
-                    [
-                        'selected_answer' => $selected,
-                        'score' => $this->score,
-                        'status' => $this->examStatus,
-                        'language' => $this->selectedLanguage,
-                    ]
-                );
-            }
-        }
-       
-        session()->put('exam_results', [
-            'score' => $this->score,
-            'correctCount' => $this->correctCount,
-            'totalQuestions' => $this->totalQuestions,
-            'examStatus' => $this->examStatus,
-            'subjectName' => $this->subjectName,
-            'levelName' => $this->levelName,
-            'categoryName' => $this->categoryName,
-            'examSetId' => $this->examSetId,
-            'categoryId' => $this->categoryId,   
-            'subjectId' => $this->subjectId,    
-            'levelId' => $this->levelId , 
-            'language' => $this->selectedLanguage,
-        ]);
+//     // First, create or get an exam attempt
+//     $examAttempt = ExamAttempt::firstOrCreate(
+//         [
+//             'user_id' => $userId, // Use the determined user ID
+//             'exam_set_id' => $this->examSetId,
+//             'status' => 'in_progress'
+//         ],
+//         [
+//             'language' => $this->selectedLanguage,
+//             'started_at' => now()
+//         ]
+//     );
 
-        return $this->redirect(route('teacher.exam.results'), navigate: true);
+//     // Then use exam_attempt_id instead of user_id
+//     foreach ($this->questions as $question) {
+//         $selected = $this->answers[$question->id] ?? null;
+
+//         if($selected != null){
+//             UserAnswer::updateOrCreate(
+//                 [
+//                     'exam_attempt_id' => $examAttempt->id,
+//                     'question_id' => $question->id,
+//                 ],
+//                 [
+//                     'selected_option' => $selected,
+//                     'is_correct' => $selected === $this->correctAnswers[$question->id],
+//                     'marks_awarded' => $selected === $this->correctAnswers[$question->id] ? 1 : 0,
+//                 ]
+//             );
+//         }
+//     }
+
+//     // Update the exam attempt when submitting
+//     $examAttempt->update([
+//         'score' => $this->score,
+//         'status' => $this->examStatus,
+//         'ended_at' => now(),
+//         'language' => $this->selectedLanguage,
+//     ]);
+   
+//     session()->put('exam_results', [
+//         'score' => $this->score,
+//         'correctCount' => $this->correctCount,
+//         'totalQuestions' => $this->totalQuestions,
+//         'examStatus' => $this->examStatus,
+//         'subjectName' => $this->subjectName,
+//         'levelName' => $this->levelName,
+//         'categoryName' => $this->categoryName,
+//         'examSetId' => $this->examSetId,
+//         'categoryId' => $this->categoryId,   
+//         'subjectId' => $this->subjectId,    
+//         'levelId' => $this->levelId, 
+//         'language' => $this->selectedLanguage,
+//         'examAttemptId' => $examAttempt->id,
+//     ]);
+
+//     return $this->redirect(route('teacher.exam.results'), navigate: true);
+// }
+
+public function submitExam()
+{
+    $this->timerActive = false;
+    $this->fullScreen = false;
+    $this->dispatch('exit-exam-mode');
+    
+    $currentQuestion = $this->questions[$this->currentIndex];
+    $this->answers[$currentQuestion->id] = $this->selectedOption[$currentQuestion->id] ?? null;
+    
+    $this->calculateResult();
+
+    // Get authenticated user
+    $user = auth()->user();
+    
+    if (!$user) {
+        session()->flash('error', 'You must be logged in to submit an exam.');
+        return redirect()->route('login');
     }
+
+    // First, create or get an exam attempt
+    $examAttempt = ExamAttempt::firstOrCreate(
+        [
+            'user_id' => $user->id,
+            'exam_set_id' => $this->examSetId,
+            'status' => 'in_progress'
+        ],
+        [
+            'language' => $this->selectedLanguage,
+            'started_at' => now()
+        ]
+    );
+
+    // Save user answers
+    foreach ($this->questions as $question) {
+        $selected = $this->answers[$question->id] ?? null;
+
+        if($selected != null){
+            UserAnswer::updateOrCreate(
+                [
+                    'exam_attempt_id' => $examAttempt->id,
+                    'question_id' => $question->id,
+                ],
+                [
+                    'selected_option' => $selected,
+                    'is_correct' => $selected === $this->correctAnswers[$question->id],
+                    'marks_awarded' => $selected === $this->correctAnswers[$question->id] ? 1 : 0,
+                ]
+            );
+        }
+    }
+
+    // Update the exam attempt when submitting
+    $examAttempt->update([
+        'score' => $this->score,
+        'status' => $this->examStatus,
+        'ended_at' => now(),
+        'language' => $this->selectedLanguage,
+    ]);
+   
+   // LEVEL UNLOCKING LOGIC
+$passed = $this->score >= 70; // Your passing threshold
+
+if ($user->teacher) {
+    // Always record the attempt (pass or fail)
+    TeacherUnlockedLevel::updateOrCreate(
+        [
+            'teacher_id' => $user->teacher->id,
+            'level_id' => $this->levelId
+        ],
+        [
+            'score' => $this->score,
+            'passed' => $passed
+        ]
+    );
+    
+    // If passed, unlock the next level
+    if ($passed) {
+        $currentLevel = Level::find($this->levelId);
+        $nextLevel = Level::where('order', $currentLevel->order + 1)->first();
+        
+        if ($nextLevel) {
+            // Automatically unlock the next level
+            TeacherUnlockedLevel::firstOrCreate(
+                [
+                    'teacher_id' => $user->teacher->id,
+                    'level_id' => $nextLevel->id
+                ],
+                [
+                    'score' => 0,
+                    'passed' => false
+                ]
+            );
+        }
+    }
+}
+    // END OF LEVEL UNLOCKING LOGIC
+   
+    session()->put('exam_results', [
+        'score' => $this->score,
+        'correctCount' => $this->correctCount,
+        'totalQuestions' => $this->totalQuestions,
+        'examStatus' => $this->examStatus,
+        'subjectName' => $this->subjectName,
+        'levelName' => $this->levelName,
+        'categoryName' => $this->categoryName,
+        'examSetId' => $this->examSetId,
+        'categoryId' => $this->categoryId,   
+        'subjectId' => $this->subjectId,    
+        'levelId' => $this->levelId, 
+        'language' => $this->selectedLanguage,
+        'examAttemptId' => $examAttempt->id,
+    ]);
+
+    return $this->redirect(route('teacher.exam.results'), navigate: true);
+}
 
     public function calculateResult()
     {

@@ -16,4 +16,7 @@ class Question extends Model
     public function examSet(){
         return $this->belongsTo(ExamSet::class);
     }
+    public function userAnswers(){
+        return $this->hasMany(UserAnswer::class,'question_id');
+    }
 }

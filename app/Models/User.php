@@ -22,6 +22,7 @@ class User extends Authenticatable
         'role',
         'email',
         'password',
+        'email_otp',
     ];
 
     /**
@@ -90,4 +91,9 @@ class User extends Authenticatable
     {
         return $this->role === 'center-manager';
     }
+
+public function isTeacher()
+{
+    return $this->teacher !== null;
+}
 }
