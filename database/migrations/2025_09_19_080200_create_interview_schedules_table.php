@@ -12,12 +12,14 @@ return new class extends Migration {
     {
         Schema::create('interview_schedules', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('exam_attempt_id')->constrained()->onDelete('cascade');
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->dateTime('scheduled_at');
-            $table->enum('status', ['scheduled', 'completed', 'cancelled'])->default('scheduled');
-            $table->string('meeting_link')->nullable();
-            $table->text('notes')->nullable();
+         $table->foreignId('exam_attempt_id')->constrained()->onDelete('cascade');
+    $table->foreignId('teacher_id')->constrained()->onDelete('cascade');
+    $table->dateTime('scheduled_at');
+    $table->dateTime('requested_at');
+    $table->enum('status', ['pending', 'approved', 'rejected', 'scheduled', 'completed'])
+          ->default('pending');
+    $table->string('meeting_link')->nullable();
+    $table->text('teacher_notes')->nullable();
             $table->timestamps();
         });
     }

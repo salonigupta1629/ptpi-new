@@ -12,15 +12,17 @@ class InterviewSchedule extends Model
 
     protected $fillable = [
         'exam_attempt_id',
-        'user_id',
+      'teacher_id',
         'scheduled_at',
+            'requested_at',
         'status',
         'meeting_link',
-        'notes'
+      'teacher_notes', 
     ];
 
     protected $casts = [
-        'scheduled_at' => 'datetime'
+        'scheduled_at' => 'datetime',
+          'requested_at' => 'datetime'
     ];
 
     public function examAttempt(): BelongsTo
@@ -32,4 +34,22 @@ class InterviewSchedule extends Model
     {
         return $this->belongsTo(Teacher::class);
     }
+
+        public function user()
+    {
+        return $this->through('teacher')->has('user');
+    }
+    
+     public function teacherUser()
+    {
+        return $this->hasOneThrough(
+            User::class,
+            Teacher::class,
+            'id', // Foreign key on teachers table
+            'id', // Foreign key on users table
+            'teacher_id', // Local key on interview_schedules table
+            'user_id' // Local key on teachers table
+        );
+    }
+    
 }

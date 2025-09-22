@@ -95,11 +95,10 @@
     </label>
     <select wire:model.live="selectedLanguage" id="languageSelect" 
         class="border border-gray-300 p-2 rounded mt-1 focus:ring-2 focus:ring-blue-500 focus:border-blue-500
-               @if(!empty($selectedLanguage)) border-green-400 @endif">
-    <option value="" disabled selected>Select the language/ भाषा चुने</option>
-    <option value="english">English</option>
-    <option value="hindi">Hindi</option>
-</select>
+               @if(!empty($selectedLanguage)) border-green-400 @endif">              
+        <option value="english">English</option>
+        <option value="hindi">Hindi</option>
+    </select>
     
     @error('selectedLanguage')
         <span class="text-red-500 text-sm mt-1">{{ $message }}</span>
@@ -177,29 +176,34 @@
                 </div>
 
                 <!-- Question Card -->
-                <div class="mt-6 bg-white p-6 rounded-lg shadow">
-                    @if($questions->isNotEmpty())
-                        @php
-                            $question = $questions[$currentIndex];
-                        @endphp
+              <div class="mt-6 bg-white p-6 rounded-lg shadow">
+    @if($questions->isNotEmpty())
+        @php
+            $question = $questions[$currentIndex];
+            // 🔥 ADD THESE TWO LINES:
+            $questionText = $question->getQuestionText($selectedLanguage);
+            $options = $question->getOptions($selectedLanguage);
+        @endphp
 
-                        <h2 class="text-lg font-semibold mb-4">Question {{ $currentIndex + 1 }}</h2>
-                        <p class="text-gray-700 text-base mb-6">{{ $question->question_text }}</p>
+        <h2 class="text-lg font-semibold mb-4">Question {{ $currentIndex + 1 }}</h2>
+        <!-- 🔥 UPDATE THIS LINE: -->
+        <p class="text-gray-700 text-base mb-6">{{ $questionText }}</p>
 
-                        <div class="space-y-3">
-                            @foreach (json_decode($question->options, true) as $key => $option)
-                            @php
-                            $label = chr(65 + $key); // Convert 0→A, 1→B, 2→C, 3→D
-                            @endphp
-                                <label class="flex items-center gap-3 cursor-pointer p-2 border rounded-lg hover:bg-gray-50">
-                                <input type="radio" wire:model="selectedOption.{{ $question->id }}" 
-                                value="{{ $label }}" 
-                                class="h-4 w-4 text-blue-500 focus:ring-blue-400">
-                                    <span class="text-gray-700">{{ $option }}</span>
-                                </label>
-                            @endforeach
-                        </div>
-                    @endif
+        <div class="space-y-3">
+            <!-- 🔥 UPDATE THIS FOREACH LOOP: -->
+            @foreach ($options as $key => $option)
+            @php
+                $label = chr(65 + $key); // Convert 0→A, 1→B, 2→C, 3→D
+            @endphp
+                <label class="flex items-center gap-3 cursor-pointer p-2 border rounded-lg hover:bg-gray-50">
+                    <input type="radio" wire:model="selectedOption.{{ $question->id }}" 
+                        value="{{ $label }}" 
+                        class="h-4 w-4 text-blue-500 focus:ring-blue-400">
+                    <span class="text-gray-700">{{ $option }}</span>
+                </label>
+            @endforeach
+        </div>
+    @endif
 
                     <!-- Navigation -->
                     <div class="mt-6 flex justify-between">

@@ -280,30 +280,52 @@ private function isLevelUnlocked($levelId)
         ]);
     }
 
-    public function scheduleInterview($examAttemptId, $scheduledTime)
+  public function scheduleInterview($examAttemptId, $scheduledTime)
 {
     try {
+        \Log::info('Schedule interview called', ['examAttemptId' => $examAttemptId, 'scheduledTime' => $scheduledTime]);
+        
         $user = Auth::user();
+        
+        if (!$user || !$user->teacher) {
+            \Log::error('User or teacher not found');
+            session()->flash('error', 'Teacher profile not found.');
+            return;
+        }
 
-        // Get exam details for the note
         $examAttempt = ExamAttempt::with(['examSet.subject'])->find($examAttemptId);
+        
+        if (!$examAttempt) {
+            \Log::error('Exam attempt not found', ['examAttemptId' => $examAttemptId]);
+            session()->flash('error', 'Exam attempt not found.');
+            return;
+        }
+        
         $subjectName = $examAttempt->examSet->subject->subject_name ?? 'Unknown Subject';
         
+        \Log::info('Creating interview record', [
+            'teacher_id' => $user->teacher->id,
+            'scheduled_at' => $scheduledTime
+        ]);
         
-        // Create interview schedule
         $interview = InterviewSchedule::create([
             'exam_attempt_id' => $examAttemptId,
             'teacher_id' => $user->teacher->id,
             'scheduled_at' => $scheduledTime,
-            'status' => 'scheduled',
-            'meeting_link' => $this->generateMeetingLink(), // You need to implement this
-             'notes' => "Interview for {$subjectName} - Level 2 qualification"
+            'requested_at' => now(),
+            'status' => 'pending',
+            'meeting_link' => null,
+            'teacher_notes' => "Interview request for {$subjectName} - Level 2 qualification",
+          'teacher_notes' => "Interview request for {$subjectName} - Level 2 qualification" 
         ]);
         
-        session()->flash('message', 'Interview scheduled successfully!');
-        $this->loadMyInterviews(); // Refresh the interviews list
+        \Log::info('Interview created successfully', ['interview_id' => $interview->id]);
+        
+        session()->flash('message', 'Interview request submitted! Waiting for admin approval.');
+        $this->loadMyInterviews();
         
     } catch (\Exception $e) {
+        \Log::error('Error scheduling interview: ' . $e->getMessage());
         session()->flash('error', 'Error scheduling interview: ' . $e->getMessage());
     }
 }

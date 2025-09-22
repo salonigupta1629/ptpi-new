@@ -62,12 +62,22 @@ class ExamPortal extends Component
         $this->examSetId = $this->examSets->id;
 
         $this->questions = Question::where('exam_set_id', $this->examSetId)->orderBy('id')->get();
-        $this->correctAnswers = $this->questions->pluck('correct_option', 'id')->toArray();
+       $this->correctAnswers = $this->questions->mapWithKeys(function ($question) {
+        return [$question->id => $question->getCorrectOption($this->selectedLanguage)];
+    })->toArray();
 
         foreach ($this->questions as $question) {
             $this->selectedOption[$question->id] = $this->answers[$question->id] ?? null;
         }
     }
+
+    public function updatedSelectedLanguage()
+{
+    // Update correct answers when language changes
+    $this->correctAnswers = $this->questions->mapWithKeys(function ($question) {
+        return [$question->id => $question->getCorrectOption($this->selectedLanguage)];
+    })->toArray();
+}
 
     public function startExam()
     {
@@ -266,7 +276,7 @@ if ($user->teacher) {
 
         foreach ($this->questions as $question) {
             $selectedAnswer = $this->answers[$question->id] ?? null;
-            $correctAnswer = $this->correctAnswers[$question->id] ?? null;
+            $correctAnswer = $question->getCorrectOption($this->selectedLanguage);
             
             if ($selectedAnswer === $correctAnswer) {
                 $correctCount++;
