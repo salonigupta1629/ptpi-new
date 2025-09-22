@@ -73,4 +73,9 @@ public function hasPassedLevel($levelId): bool
     return $unlockedLevel && $unlockedLevel->passed;
 }
 
+public function interviewSchedules()
+{
+    return $this->hasMany(InterviewSchedule::class);
+}
+
 }

@@ -26,6 +26,12 @@ class DatabaseSeeder extends Seeder
             'password' => bcrypt('password'),
         ]);
 
+
+ // Run recruiter seeder
+    $this->call([
+        RecruiterSeeder::class,
+    ]);
+
         // Then run the teacher seeder
         $this->call([
             TeacherSeeder::class,
