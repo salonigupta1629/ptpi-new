@@ -92,7 +92,7 @@
                                     <input type="text" wire:model.debounce.500ms="options.{{ $i }}"
                                         id="option-{{ $i }}-input"
                                         class="flex-1 border rounded-md p-2 focus:ring-2 focus:ring-blue-300 focus:border-blue-300 transition"
-                                        placeholder="Option {{ $i + 1 }} in English " />
+                                        placeholder="Option {{ $i + 1 }} in English" />
                                     @error("options.{$i}")
                                         <span class="text-red-500 text-sm">{{ $message }}</span>
                                     @enderror
@@ -117,7 +117,7 @@
                             <label class="block font-medium text-gray-700 mb-1">प्रश्न पाठ (Hindi)</label>
                             <textarea wire:model.debounce.500ms="question_text_hi" id="question-text-hi" rows="4"
                                 class="w-full border rounded-md p-3 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-green-300 focus:border-green-300 transition"
-                                placeholder="हिंदी प्रश्न दर्ज करें "></textarea>
+                                placeholder="हिंदी प्रश्न दर्ज करें"></textarea>
                             @error('question_text_hi')
                                 <span class="text-red-500 text-sm">{{ $message }}</span>
                             @enderror
@@ -131,7 +131,7 @@
                                     <input type="text" wire:model.debounce.500ms="options_hi.{{ $i }}"
                                         id="option-{{ $i }}-hi"
                                         class="flex-1 border rounded-md p-2 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-green-300 focus:border-green-300 transition"
-                                        placeholder="विकल्प {{ $i + 1 }} " />
+                                        placeholder="विकल्प {{ $i + 1 }}" />
                                     @error("options_hi.{$i}")
                                         <span class="text-red-500 text-sm">{{ $message }}</span>
                                     @enderror
@@ -143,7 +143,7 @@
                             <label class="block font-medium text-gray-700 mb-1">समाधान (वैकल्पिक, Hindi)</label>
                             <textarea wire:model.debounce.500ms="solution_hi" id="solution-hi" rows="3"
                                 class="w-full border rounded-md p-3 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-green-300 focus:border-green-300 transition"
-                                placeholder="अंग्रेजी में समाधान दर्ज करें"></textarea>
+                                placeholder="हिंदी में समाधान दर्ज करें"></textarea>
                             @error('solution_hi')
                                 <span class="text-red-500 text-sm">{{ $message }}</span>
                             @enderror
@@ -211,14 +211,14 @@
             @if ($latestQuestion)
                 <div class="mb-4">
                     <h3 class="font-medium text-gray-800">Question (English):</h3>
-                    <p class="text-gray-700 latex-content">{{ $latestQuestion->question_text }}</p>
+                    <p class="text-gray-700">{{ $latestQuestion->question_text }}</p>
                 </div>
                 <div class="mb-4">
                     <h3 class="font-medium text-gray-800">Options (English):</h3>
                     <ul class="list-disc pl-5 text-gray-700">
                         @foreach ($latestQuestion->options as $index => $option)
                             <li
-                                class="{{ $latestQuestion->correct_option === 'option' . ($index + 1) ? 'text-green-600 font-semibold' : '' }} latex-content">
+                                class="{{ $latestQuestion->correct_option === 'option' . ($index + 1) ? 'text-green-600 font-semibold' : '' }}">
                                 {{ $index + 1 }}. {{ $option }}
                             </li>
                         @endforeach
@@ -227,20 +227,19 @@
                 @if ($latestQuestion->solution)
                     <div class="mb-4">
                         <h3 class="font-medium text-gray-800">Solution (English):</h3>
-                        <p class="text-gray-700 latex-content">{{ $latestQuestion->solution }}</p>
+                        <p class="text-gray-700">{{ $latestQuestion->solution }}</p>
                     </div>
                 @endif
                 <div class="mb-4">
                     <h3 class="font-medium text-gray-800">Question (Hindi):</h3>
-                    <p class="text-gray-700 latex-content">
-                        {{ $latestQuestion->translations['hi']['question_text'] ?? '' }}</p>
+                    <p class="text-gray-700">{{ $latestQuestion->translations['hi']['question_text'] ?? '' }}</p>
                 </div>
                 <div class="mb-4">
                     <h3 class="font-medium text-gray-800">Options (Hindi):</h3>
                     <ul class="list-disc pl-5 text-gray-700">
                         @foreach ($latestQuestion->translations['hi']['options'] ?? [] as $index => $option)
                             <li
-                                class="{{ $latestQuestion->correct_option === 'option' . ($index + 1) ? 'text-green-600 font-semibold' : '' }} latex-content">
+                                class="{{ $latestQuestion->correct_option === 'option' . ($index + 1) ? 'text-green-600 font-semibold' : '' }}">
                                 {{ $index + 1 }}. {{ $option }}
                             </li>
                         @endforeach
@@ -249,8 +248,7 @@
                 @if ($latestQuestion->translations['hi']['solution'])
                     <div class="mb-4">
                         <h3 class="font-medium text-gray-800">Solution (Hindi):</h3>
-                        <p class="text-gray-700 latex-content">{{ $latestQuestion->translations['hi']['solution'] }}
-                        </p>
+                        <p class="text-gray-700">{{ $latestQuestion->translations['hi']['solution'] }}</p>
                     </div>
                 @endif
                 <div class="flex justify-end space-x-2">
@@ -294,53 +292,29 @@
                     return;
                 }
 
-                // Preserve LaTeX by splitting text into LaTeX and non-LaTeX parts
-                const latexPattern = /\\[\(\[].*?\\[\)\]]/g;
-                const latexParts = text.match(latexPattern) || [];
-                let nonLatexText = text.replace(latexPattern, '||LATEX||');
-                let translatedText = '';
+                try {
+                    const response = await fetch('https://api.ptpinstitute.com/api/translator/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            text: text,
+                            source: 'en',
+                            dest: 'hi'
+                        })
+                    });
 
-                if (nonLatexText.includes('||LATEX||') || !latexParts.length) {
-                    try {
-                        const response = await fetch('https://api.ptpinstitute.com/api/translator/', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                            },
-                            body: JSON.stringify({
-                                text: nonLatexText.replace(/\|\|LATEX\|\|/g, ''),
-                                source: 'en',
-                                dest: 'hi'
-                            })
-                        });
-
-                        if (!response.ok) {
-                            throw new Error('API request failed');
-                        }
-
-                        const data = await response.json();
-                        translatedText = data.translated || '';
-
-                        // Reinsert LaTeX parts
-                        let latexIndex = 0;
-                        translatedText = translatedText.replace(/(\s|$)/g, (match) => {
-                            if (latexIndex < latexParts.length) {
-                                return latexParts[latexIndex++] + match;
-                            }
-                            return match;
-                        });
-                    } catch (error) {
-                        console.error('Translation error:', error);
-                        translatedText = 'Translation failed';
+                    if (!response.ok) {
+                        throw new Error('API request failed');
                     }
-                } else {
-                    translatedText = text; // Preserve text with LaTeX if no non-LaTeX parts
+
+                    const data = await response.json();
+                    targetElement.value = data.translated || '';
+                } catch (error) {
+                    console.error('Translation error:', error);
+                    targetElement.value = 'Translation failed';
                 }
-
-                targetElement.value = translatedText;
-
-                // Re-render MathJax for the target element
-                MathJax.typesetPromise([targetElement]).catch(err => console.error('MathJax error:', err));
             }
 
             function debounce(func, wait) {
@@ -364,14 +338,5 @@
             solutionInput.addEventListener('input', debounce(() => {
                 translateText(solutionInput.value, solutionHi);
             }, 500));
-
-            // Re-render MathJax on input change for real-time preview
-            [questionTextInput, ...optionInputs, solutionInput, questionTextHi, ...optionHiInputs, solutionHi]
-            .forEach(input => {
-                input.addEventListener('input', () => {
-                    MathJax.typesetPromise([input]).catch(err => console.error('MathJax error:',
-                        err));
-                });
-            });
         });
     </script>

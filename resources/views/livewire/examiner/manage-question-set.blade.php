@@ -16,7 +16,7 @@
                         </h2>
                         <p class="text-sm opacity-90 mt-1">Manage all questions for this exam set</p>
                     </div>
-                    <a wire:navigate href="{{ route('examiner.add-question', $examSet->id) }}"
+                    <a href="{{ route('examiner.add-question', $examSet->id) }}"
                         class="inline-flex items-center bg-white text-teal-700 px-4 py-2 rounded-xl font-medium hover:bg-teal-50 transition shadow-md">
                         <i class="fas fa-plus-circle mr-2"></i> Add Question
                     </a>

@@ -2,7 +2,6 @@
 <div id="popup-modal" class="hidden fixed inset-0 z-50 bg-black/60 flex items-center justify-center px-4">
   <div class="relative w-full max-w-lg">
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden relative">
-
       <!-- Close Button -->
       <button type="button" id="close-modal"
         class="absolute top-4 right-4 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">
@@ -12,10 +11,8 @@
         </svg>
         <span class="sr-only">Close modal</span>
       </button>
-
       <!-- Modal Content -->
       <div class="p-6 text-left">
-
         <!-- Step 1: Class & Subjects -->
         <div id="step-1">
           <h2 class="text-xl font-semibold mb-4 text-gray-800 dark:text-white">Request a Teacher</h2>
@@ -62,7 +59,6 @@
 
           <label for="city" class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">City / District</label>
           <input type="text" id="city" readonly class="w-full mb-4 px-4 py-2 border rounded bg-gray-100 dark:bg-gray-700 dark:text-white">
-
           <label for="area" class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Select Area</label>
           <select id="area" class="w-full mb-6 px-4 py-2 border rounded dark:bg-gray-700 dark:text-white">
             <option value="">Select an area</option>
@@ -84,12 +80,10 @@
             </button>
           </div>
         </div>
-
       </div>
     </div>
   </div>
 </div>
-
 <script>
   // Modal references
   const modal = document.getElementById('popup-modal');
@@ -240,7 +234,7 @@
     // Close modal after submit
     modal.classList.add('hidden');
 
-   
+
   });
 
   // Close modal button
