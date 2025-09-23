@@ -89,7 +89,7 @@
                     </ul>
                 </div>
                 
-           <div class="flex mt-5 flex-col">
+           {{-- <div class="flex mt-5 flex-col">
     <label for="languageSelect" class="font-medium text-gray-700 mb-1">
         Choose the language/ भाषा चुने
     </label>
@@ -103,6 +103,29 @@
     @error('selectedLanguage')
         <span class="text-red-500 text-sm mt-1">{{ $message }}</span>
     @enderror
+</div> --}}
+
+<div class="flex mt-5 flex-col">
+    <label for="languageSelect" class="font-medium text-gray-700 mb-1">
+        Choose the language/ भाषा चुने
+    </label>
+    <select wire:model.live="selectedLanguage" id="languageSelect" 
+        class="border border-gray-300 p-3 rounded mt-1 focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+               @if(!empty($selectedLanguage)) border-green-400 bg-green-50 @endif">              
+        <option value="" disabled>-- Please select a language -- / कृपया एक भाषा चुनें --</option>
+        <option value="english">English</option>
+        <option value="hindi">Hindi</option>
+    </select>
+    
+    @error('selectedLanguage')
+        <span class="text-red-500 text-sm mt-1">{{ $message }}</span>
+    @enderror
+    
+    {{-- @if(!empty($selectedLanguage))
+        <span class="text-green-600 text-sm mt-1">
+            ✓ Selected: {{ $selectedLanguage == 'english' ? 'English' : 'Hindi' }}
+        </span>
+    @endif --}}
 </div>
                 
      <div class="mt-4">
@@ -176,7 +199,7 @@
                 </div>
 
                 <!-- Question Card -->
-              <div class="mt-6 bg-white p-6 rounded-lg shadow">
+              {{-- <div class="mt-6 bg-white p-6 rounded-lg shadow">
     @if($questions->isNotEmpty())
         @php
             $question = $questions[$currentIndex];
@@ -203,7 +226,34 @@
                 </label>
             @endforeach
         </div>
-    @endif
+    @endif --}}
+
+<!-- Question Card -->
+<div class="mt-6 bg-white p-6 rounded-lg shadow">
+@if($questions->isNotEmpty())
+    @php
+        $question = $questions[$currentIndex];
+        $questionText = $question->getQuestionText($selectedLanguage);
+        $options = $question->getOptions($selectedLanguage);
+    @endphp
+
+    <h2 class="text-lg font-semibold mb-4">Question {{ $currentIndex + 1 }}</h2>
+    <p class="text-gray-700 text-base mb-6">{{ $questionText }}</p>
+
+    <div class="space-y-3">
+        @foreach ($options as $key => $option)
+        @php
+            $label = chr(65 + $key); // Convert 0→A, 1→B, 2→C, 3→D
+        @endphp
+            <label class="flex items-center gap-3 cursor-pointer p-2 border rounded-lg hover:bg-gray-50">
+                <input type="radio" wire:model="selectedOption.{{ $question->id }}" 
+                    value="{{ $label }}" 
+                    class="h-4 w-4 text-blue-500 focus:ring-blue-400">
+                <span class="text-gray-700">{{ $option }}</span>
+            </label>
+        @endforeach
+    </div>
+@endif
 
                     <!-- Navigation -->
                     <div class="mt-6 flex justify-between">
