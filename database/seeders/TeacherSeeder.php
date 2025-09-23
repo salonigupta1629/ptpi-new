@@ -43,6 +43,7 @@ class TeacherSeeder extends Seeder
             // Create user first
             $user = User::create([
                 'name' => fake()->name(),
+                'role' => 'teacher',
                 'email' => fake()->unique()->safeEmail(),
                 'email_verified_at' => now(),
                 'password' => Hash::make('password'),

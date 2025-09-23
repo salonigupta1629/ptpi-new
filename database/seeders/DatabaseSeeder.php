@@ -27,10 +27,10 @@ class DatabaseSeeder extends Seeder
         ]);
 
 
- // Run recruiter seeder
-    $this->call([
-        RecruiterSeeder::class,
-    ]);
+        // Run recruiter seeder
+        $this->call([
+            RecruiterSeeder::class,
+        ]);
 
         // Then run the teacher seeder
         $this->call([
