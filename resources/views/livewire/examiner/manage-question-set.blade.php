@@ -113,28 +113,23 @@
                                         <h5 class="text-sm font-semibold text-gray-600 mb-2 uppercase tracking-wide">
                                             Options</h5>
                                         <ul class="space-y-2">
-                                            @if (is_array($question->options))
-                                                @foreach ($question->options as $key => $option)
-                                                    @php
-                                                        $correctKey = 'option' . ($key + 1);
-                                                    @endphp
-                                                    <li class="flex items-start">
-                                                        <span class="font-medium mr-2">{{ chr(65 + $key) }}.</span>
-                                                        <span
-                                                            class="{{ $question->correct_option === $correctKey ? 'text-green-600 font-semibold' : 'text-gray-700' }}">
-                                                            {{ $option }}
-                                                            @if ($question->correct_option === $correctKey)
-                                                                <span
-                                                                    class="ml-2 text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded">
-                                                                    Correct
-                                                                </span>
-                                                            @endif
-                                                        </span>
-                                                    </li>
-                                                @endforeach
-                                            @else
-                                                <li class="text-red-500">Options format is invalid</li>
-                                            @endif
+                                            @foreach (json_decode($question->options, true) as $key => $option)
+                                                @php
+                                                    $correctKey = 'option' . ($key + 1);
+                                                @endphp
+                                                <li class="flex items-start">
+                                                    <span class="font-medium mr-2">{{ chr(65 + $key) }}.</span>
+                                                    <span
+                                                        class="{{ $question->correct_option === $correctKey ? 'text-green-600 font-semibold' : 'text-gray-700' }}">
+                                                        {{ $option }}
+                                                        @if ($question->correct_option === $correctKey)
+                                                            <span class="ml-2 text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded">
+                                                                Correct
+                                                            </span>
+                                                        @endif
+                                                    </span>
+                                                </li>
+                                            @endforeach
                                         </ul>
 
                                     </div>
@@ -158,8 +153,7 @@
                                         </p>
 
                                         <div class="mb-4">
-                                            <h5
-                                                class="text-sm font-semibold text-gray-600 mb-2 uppercase tracking-wide">
+                                            <h5 class="text-sm font-semibold text-gray-600 mb-2 uppercase tracking-wide">
                                                 विकल्प</h5>
                                             <ul class="space-y-2">
                                                 @if (isset($question->translations['hi']['options']) && is_array($question->translations['hi']['options']))
@@ -188,7 +182,8 @@
                                             <div class="mt-3 p-3 bg-green-50 rounded-lg">
                                                 <h5 class="font-medium text-green-700 mb-1">समाधान:</h5>
                                                 <p class="text-green-800 text-sm">
-                                                    {{ $question->translations['hi']['solution'] }}</p>
+                                                    {{ $question->translations['hi']['solution'] }}
+                                                </p>
                                             </div>
                                         @endif
                                     </div>
