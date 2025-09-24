@@ -183,6 +183,81 @@
                         </button>
                     </div>
                 </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <!-- NEW: Level 3 Choice Modal -->
+    @if($showLevel3Modal)
+        <div class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+            <div class="bg-white rounded-xl shadow-xl w-full max-w-md p-6">
+                <h3 class="text-xl font-semibold mb-4">Level 3 Options</h3>
+                <p class="text-gray-600 mb-4">Choose how you want to complete Level 3:</p>
+                
+                <div class="space-y-3 mb-4">
+                    <label class="flex items-center">
+                        <input type="radio" wire:model="level3Mode" value="interview" class="mr-2">
+                        Interview Only
+                    </label>
+                    <label class="flex items-center">
+                        <input type="radio" wire:model="level3Mode" value="center" class="mr-2">
+                        Exam at Center
+                    </label>
+                    <label class="flex items-center">
+                        <input type="radio" wire:model="level3Mode" value="both" class="mr-2">
+                        Both (Interview + Exam at Center)
+                    </label>
+                </div>
+                @error('level3Mode') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                
+                @if(in_array($level3Mode, ['center', 'both']))
+                    <div class="mt-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Enter Pincode</label>
+                        <input type="text" wire:model="pincodeForCenter" class="w-full border rounded px-3 py-2">
+                        @error('pincodeForCenter') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                        
+                        <button wire:click="fetchCenters" class="mt-2 bg-blue-500 text-white px-4 py-2 rounded">
+                            Search Centers
+                        </button>
+                        
+                        @if(!empty($availableCenters))
+                            <div class="mt-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Select Center</label>
+                                <select wire:model="selectedCenterId" class="w-full border rounded px-3 py-2">
+                                    <option value="">-- Select --</option>
+                                    @foreach($availableCenters as $center)
+                                        <option value="{{ $center['id'] }}">{{ $center['center_name'] }} ({{ $center['city'] }})</option>
+                                    @endforeach
+                                </select>
+                                @error('selectedCenterId') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                            </div>
+                        @endif
+                    </div>
+                @endif
+                
+                <div class="mt-6 flex justify-end gap-3">
+                    <button wire:click="confirmLevel3Choice" class="bg-blue-600 text-white px-4 py-2 rounded">Confirm</button>
+                    <button wire:click="$set('showLevel3Modal', false)" class="bg-gray-300 text-gray-700 px-4 py-2 rounded">Cancel</button>
+                </div>
+            </div>
+        </div>
+    @endif
+
+
+
                 @endif
             </div>
 
