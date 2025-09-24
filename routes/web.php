@@ -37,9 +37,13 @@ Route::name("examiner.")->prefix("examiner")->group(function () {
 Route::name("interviewer.")->prefix("interviewer")->group(function () {
     require __DIR__ . "/interviewer.php";
 });
+Route::middleware(['auth', 'center-manager'])->group(function () {
+    Route::name('center-manager.')->prefix('center-manager')->group(function () {
+        require __DIR__ . "/centermanager.php";
+    });
+});
 Route::get('/verify-otp/{email}', VerifyOtp::class)->name('otp.verify');
 
-// Route::view('/', 'welcome');
 
 Route::view('dashboard', 'dashboard')
     ->middleware(['auth', 'verified'])
