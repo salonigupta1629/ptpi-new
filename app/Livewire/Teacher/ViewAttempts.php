@@ -12,7 +12,12 @@ class ViewAttempts extends Component
     #[Layout('layouts.teacher')]
     public function render()
     {
-        $attempts = ExamAttempt::with(['examSet', 'user'])
+        $attempts = ExamAttempt::with([
+        'examSet.category',  
+        'examSet.subject',       
+        'examSet.level',        
+        'user'
+    ])
             ->latest()
             ->get();
 
