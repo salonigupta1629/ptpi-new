@@ -18,6 +18,7 @@ return new class extends Migration
             $table->enum('mode', ['center', 'interview', 'both']);
             $table->foreignId('center_id')->nullable()->constrained('exam_centers')->onDelete('set null');
             $table->string('pincode')->nullable();
+            $table->enum('status',['pending','approved','rejected'])->default('pending');
             $table->timestamps();
         });
     }
