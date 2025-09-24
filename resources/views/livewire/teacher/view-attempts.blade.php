@@ -47,6 +47,7 @@
                     <thead class="bg-gray-50 text-gray-700 text-sm uppercase">
                         <tr>
                             <th class="px-6 py-3 text-left font-medium">Date & Time</th>
+                            <th class="px-6 py-3 text-left font-medium">Record Type</th>
                             <th class="px-6 py-3 text-left font-medium">Category</th>
                             <th class="px-6 py-3 text-left font-medium">Subject</th>
                             <th class="px-6 py-3 text-left font-medium">Level</th>
@@ -71,9 +72,30 @@
                                         </div>
                                     </div>
                                 </td>
+                                   <td class="px-6 py-4 whitespace-nowrap">
+                        @php
+                            $levelName = strtolower($attempt->examSet->level->name ?? '');
+                            $isExam = in_array($levelName, ['level 1', 'level 2', 'center']);
+                            $recordType = $isExam ? 'Exam' : 'Interview';
+                            $bgColor = $isExam ? 'bg-green-100 text-green-800' : 'bg-orange-100 text-orange-800';
+                            $iconColor = $isExam ? 'text-green-600' : 'text-orange-600';
+                        @endphp
+                        <span class="px-3 py-1.5 inline-flex items-center text-xs font-semibold rounded-full {{ $bgColor }}">
+                            @if($isExam)
+                                <svg class="h-4 w-4 mr-1 {{ $iconColor }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                                </svg>
+                            @else
+                                <svg class="h-4 w-4 mr-1 {{ $iconColor }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                </svg>
+                            @endif
+                            {{ $recordType }}
+                        </span>
+                    </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <span class="px-3 py-1.5 text-xs font-medium bg-blue-100 text-blue-800 rounded-full category-cell">
-                                        {{ $attempt->examSet->classCategory->name ?? 'N/A' }}
+                                        {{ $attempt->examSet->category->name ?? 'N/A' }}
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
@@ -221,134 +243,3 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 
-
-{{-- 
-
-
-
-
-
-<div class="min-h-screen bg-gray-50">
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
-        
-        <!-- Page Title with Class Category Filter -->
-        <div class="bg-white rounded-2xl shadow-md p-6 flex flex-col md:flex-row md:items-center md:justify-between">
-            <div>
-                <h2 class="text-3xl font-extrabold text-gray-900">📊 Exam Attempts</h2>
-                <p class="text-gray-500 mt-1 text-sm">Showing results for: <span class="font-medium text-indigo-600">All Categories</span></p>
-            </div>
-            <div class="mt-4 md:mt-0 flex items-center space-x-3">
-                <label for="categoryFilter" class="text-sm font-medium text-gray-700">Class Category</label>
-                <select id="categoryFilter" 
-                        class="w-52 border-gray-300 rounded-xl py-2 px-3 shadow-sm text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
-                    <option value="all">All Class Categories</option>
-                    <option value="0 to 2">0 to 2</option>
-                    <option value="3 to 5">3 to 5</option>
-                    <option value="6 to 8">6 to 8</option>
-                </select>
-            </div>
-        </div>
-
-        <!-- Assessment Attempts Table -->
-        <div class="bg-white rounded-2xl shadow-md overflow-hidden">
-            <div class="p-6 border-b border-gray-100">
-                <h3 class="text-xl font-bold text-gray-900">Assessment Attempts</h3>
-            </div>
-            <div class="overflow-x-auto">
-                <table class="w-full border-collapse">
-                    <thead class="bg-gray-100 text-gray-700 text-xs uppercase tracking-wider">
-                        <tr>
-                            <th class="px-6 py-3 text-left font-semibold">Date</th>
-                            <th class="px-6 py-3 text-left font-semibold">Category</th>
-                            <th class="px-6 py-3 text-left font-semibold">Subject</th>
-                            <th class="px-6 py-3 text-left font-semibold">Level</th>
-                            <th class="px-6 py-3 text-left font-semibold">Score</th>
-                            <th class="px-6 py-3 text-left font-semibold">Status</th>
-                        </tr>
-                    </thead>
-                    <tbody id="attemptsTable" class="divide-y divide-gray-100">
-                        @forelse($attempts as $attempt)
-                            <tr class="hover:bg-gray-50 transition">
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    {{ $attempt->started_at->format('d/m/Y') }}
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 category-cell">
-                                    {{ $attempt->examSet->class_categories->name ?? 'N/A' }}
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                                    {{ $attempt->examSet->subject->subject_name ?? 'N/A' }}
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                                    {{ $attempt->examSet->level->name ?? '-' }}
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold 
-                                           {{ $attempt->score >= 40 ? 'text-green-600' : 'text-red-600' }}">
-                                    {{ $attempt->score ? $attempt->score.'%' : 'Pending' }}
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    @if($attempt->score >= 40)
-                                        <span class="px-3 py-1 inline-flex text-xs font-semibold rounded-full bg-green-100 text-green-700">Passed</span>
-                                    @else
-                                        <span class="px-3 py-1 inline-flex text-xs font-semibold rounded-full bg-red-100 text-red-700">Failed</span>
-                                    @endif
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="6" class="px-6 py-8 text-center text-gray-500 text-sm">
-                                    No exam attempts found.
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </main>
-</div>
-
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const searchInput = document.getElementById('searchInput');
-    const categoryFilter = document.getElementById('categoryFilter');
-    const table = document.getElementById('attemptsTable');
-    const rows = table.getElementsByTagName('tr');
-
-    function filterTable() {
-        const searchText = searchInput.value.toLowerCase();
-        const selectedCategory = categoryFilter.value.toLowerCase();
-
-        for (let i = 0; i < rows.length; i++) {
-            const row = rows[i];
-            const cells = row.getElementsByTagName('td');
-            let rowContainsText = false;
-            let matchesCategory = false;
-
-            if (cells.length > 0) {
-                // Check search match
-                for (let j = 0; j < cells.length; j++) {
-                    const cellText = cells[j].textContent.toLowerCase();
-                    if (cellText.includes(searchText)) {
-                        rowContainsText = true;
-                        break;
-                    }
-                }
-                // Check category match
-                const categoryCell = row.querySelector('.category-cell')?.textContent.toLowerCase() || '';
-                matchesCategory = (selectedCategory === 'all' || categoryCell.includes(selectedCategory));
-            }
-
-            // Show/hide row
-            if ((searchText.length === 0 || rowContainsText) && matchesCategory) {
-                row.style.display = '';
-            } else {
-                row.style.display = 'none';
-            }
-        }
-    }
-
-    searchInput.addEventListener('input', filterTable);
-    categoryFilter.addEventListener('change', filterTable);
-});
-</script> --}}

@@ -28,28 +28,31 @@
 
         <div class="space-y-6">
             @foreach ($questions as $index => $question)
-                @php
-                    $options = json_decode($question->options, true);
+              @php
+    $options = json_decode($question->options, true);
+    $map = ['A' => 0, 'B' => 1, 'C' => 2, 'D' => 3];
+    $correctIndex = $map[$question->correct_option] ?? null;
 
-                    $map = ['A' => 0, 'B' => 1, 'C' => 2, 'D' => 3];
-                    $correctIndex = $map[$question->correct_option] ?? null;
-
-                    $userAnswer = $question->userAnswers->first();
-                    $userSelectedIndex = isset($map[$userAnswer->selected_option]) ? $map[$userAnswer->selected_option] : null;
-                    $isCorrect = $userAnswer->is_correct ?? null;
-                @endphp
+    $userAnswer = $question->userAnswers->first();
+    // Safe access to user answer properties
+    $userSelectedOption = $userAnswer->selected_option ?? null;
+    $userSelectedIndex = isset($map[$userSelectedOption]) ? $map[$userSelectedOption] : null;
+    $isCorrect = $userAnswer->is_correct ?? null;
+@endphp
 
                 <div class="border rounded-xl p-4 bg-gray-50 hover:shadow-lg transition">
-                    <div class="flex items-center justify-between">
-                        <h3 class="font-semibold text-gray-800">Q{{ $index+1 }}. {{ $question->question_text }}</h3>
-                        @if(!is_null($isCorrect))
-                            @if ($isCorrect)
-                                <span class="px-2 py-1 bg-green-100 text-green-700 text-xs font-bold rounded-lg">✔ Correct</span>
-                            @else
-                                <span class="px-2 py-1 bg-red-100 text-red-700 text-xs font-bold rounded-lg">✘ Incorrect</span>
-                            @endif
-                        @endif
-                    </div>
+                   <div class="flex items-center justify-between">
+    <h3 class="font-semibold text-gray-800">Q{{ $index+1 }}. {{ $question->question_text }}</h3>
+    @if(!is_null($isCorrect))
+        @if ($isCorrect)
+            <span class="px-2 py-1 bg-green-100 text-green-700 text-xs font-bold rounded-lg">✔ Correct</span>
+        @else
+            <span class="px-2 py-1 bg-red-100 text-red-700 text-xs font-bold rounded-lg">✘ Incorrect</span>
+        @endif
+    @else
+        <span class="px-2 py-1 bg-gray-100 text-gray-700 text-xs font-bold rounded-lg">Not Answered</span>
+    @endif
+</div>
 
                     <!-- Options -->
                     <div class="mt-3 space-y-2">
