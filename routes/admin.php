@@ -16,6 +16,7 @@ use App\Livewire\Admin\ExamCenters;
 use App\Livewire\Admin\ManageTeachers;
 use App\Livewire\Admin\ViewTeacher;
 use App\Livewire\Admin\Interview;
+use App\Livewire\Admin\ManageRecruiter;
 
 
 Route::get("/", Dashboard::class)->name("dashboard");
@@ -33,3 +34,4 @@ Route::get('exam-centers', ExamCenters::class)->name('exam-centers');
 Route::get('teachers', ManageTeachers::class)->name('teachers-list');
 Route::get('view/teachers/{teacherId}', ViewTeacher::class)->name('teacher.view');
 Route::get('interview-management', Interview::class)->name('interview');
+Route::get('manage-recruiters', ManageRecruiter::class)->name('manage-recruiters');
