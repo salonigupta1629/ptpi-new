@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\AdminMiddleware;
+use App\Http\Middleware\CenterManagerMiddleware;
 use App\Http\Middleware\RecruiterMiddleware;
 use App\Http\Middleware\TeacherMiddleware;
 use Illuminate\Foundation\Application;
@@ -18,6 +19,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'admin' => AdminMiddleware::class,
             'teacher' => TeacherMiddleware::class,
             'recruiter' => RecruiterMiddleware::class,
+            'center-manager' => CenterManagerMiddleware::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

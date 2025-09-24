@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Admin\CenterExamRequest;
 use App\Livewire\Admin\Dashboard;
 use Illuminate\Support\Facades\Route;
 use App\Livewire\Admin\Subjects;
@@ -30,6 +31,7 @@ Route::get('exam/{examId}/questions', ManageQuestions::class)->name('exam-questi
 Route::get('manage-role', ManageRole::class)->name('manage-role');
 Route::get('question-managers', ManageQuestionManager::class)->name('question-managers');
 Route::get('exam-centers', ExamCenters::class)->name('exam-centers');
+Route::get('exam-center-requests', CenterExamRequest::class)->name('exam-center-requests');
 Route::get('teachers', ManageTeachers::class)->name('teachers-list');
 Route::get('view/teachers/{teacherId}', ViewTeacher::class)->name('teacher.view');
 Route::get('interview-management', Interview::class)->name('interview');
