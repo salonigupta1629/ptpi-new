@@ -26,7 +26,7 @@ new #[Layout('layouts.auth')] class extends Component {
         } elseif (auth()->user()->role === 'admin' && auth()->user()->email_otp === null) {
             $this->redirectIntended(default: route('admin.dashboard', absolute: false), navigate: true);
         } elseif (auth()->user()->role === 'center-manager' && auth()->user()->email_otp === null) {
-            $this->redirectIntended(default: route('center-manager.dashboard', absolute: false));
+            $this->redirectIntended(default: route('center-manager.dashboard', absolute: false), navigate: true);
         }
     }
 }; ?>
