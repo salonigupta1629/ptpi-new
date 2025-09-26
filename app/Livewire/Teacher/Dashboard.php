@@ -54,6 +54,7 @@ class Dashboard extends Component
     public $pincodeForCenter = '';
     public $availableCenters = [];
     public $selectedCenterId = null;
+    public $selectedExamSet;
 
     public function mount()
     {
@@ -333,15 +334,30 @@ class Dashboard extends Component
             return;
         }
 
+         $this->selectedExamSet = ExamSet::where('level_id',$this->selection['level_id'])
+                                ->where('subject_id',$this->selection['subject_id'])
+                                ->where('category_id',$this->selection['category_id'])->first();
+
+        $attempt = ExamAttempt::create([
+            'user_id' => $user->id,
+            'exam_set_id' => $this->selectedExamSet->id,
+            'status' => 'in_progress',
+            'language' => 'hindi',
+            'score' => 0,
+            'started_at' => now(),
+            'ended_at' => now(),
+        ]);
         // Store in new table
         TeacherLevel3Choice::create([
             'user_id' => $user->id,
-            'level_id' => $this->selection['level_id'],
+            'attempt_id' => $attempt->id,
             'mode' => $this->level3Mode,
             'center_id' => $this->selectedCenterId ?? null,
             'pincode' => $this->pincodeForCenter ?? null,
         ]);
+       
 
+        $this->dispatch('notify', message: 'Center Request Sent');
         $this->showLevel3Modal = false;
 
         // Proceed based on mode
