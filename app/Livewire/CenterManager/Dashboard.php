@@ -18,6 +18,7 @@ class Dashboard extends Component
     public $requestId, $requestedApplication;
     public $generatePasskeyId;
     public $examCenter;
+    public $search = '';
 
     public function mount(){
         $this->examCenter = ExamCenter::where('manager_id',auth()->user()->id)->first();
@@ -51,7 +52,7 @@ class Dashboard extends Component
     }
     public function savePasskey()
     {
-        $application = TeacherLevel3Choice::find($this->generatePasskeyId)->first();
+        $application = TeacherLevel3Choice::findOrFail($this->generatePasskeyId);
         $user_id = $application->user_id;
         Passkeys::updateOrCreate(
             [
@@ -63,12 +64,25 @@ class Dashboard extends Component
             ]
         );
         $this->dispatch('notify', message: 'Saved Passkey Successfully');
+        $this->reset('generatePasskeyId');
         $this->openPasskeyModal = false;
     }
     #[Layout('layouts.centermanager')]
     public function render()
     {
-        $teacherApplications = TeacherLevel3Choice::where('center_id',$this->examCenter->id)->paginate(5);
+        $query = TeacherLevel3Choice::where('center_id', $this->examCenter->id);
+
+        if (!empty($this->search)) {
+            $query->whereHas('user', function($q){
+                $q->where(function($sub){
+                    $sub->where('name', 'like', '%' . $this->search . '%')
+                        ->orWhere('email', 'like', '%' . $this->search . '%');
+                });
+            });
+        }
+
+        $teacherApplications = $query->paginate(5);
+
         return view('livewire.center-manager.dashboard', compact('teacherApplications'));
     }
 }

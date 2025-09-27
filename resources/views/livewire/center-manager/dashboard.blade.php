@@ -6,7 +6,7 @@
 
             <!-- Search -->
             <div class="relative">
-                <input type="text" placeholder="Search name, email, center or pin..."
+                <input type="text" wire:model.live.debounce.500="search" placeholder="Search name, email, center or pin..."
                     class="pl-10 pr-4 py-2 border rounded-lg shadow-sm w-72 focus:outline-none focus:ring-2 focus:ring-indigo-400" />
                 <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
             </div>
@@ -43,20 +43,33 @@
                                 <td class="px-4 py-3 text-right">
                                     <div class="flex items-center gap-2 justify-end">
                                         <!-- Generate Passkey -->
-                                        <button wire:click="generatePasskey({{ $teacherApplication->id }})"
-                                            class="bg-blue-500 hover:bg-blue-600 px-3 py-1.5 rounded-lg text-white text-sm flex items-center gap-2 transition">
-                                            <span wire:loading.remove wire:target="generatePasskey">Generate Passkey</span>
-                                            <span wire:loading wire:target="generatePasskey" class="flex items-center">
-                                                <svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg"
-                                                    fill="none" viewBox="0 0 24 24">
-                                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
-                                                        stroke-width="4"></circle>
-                                                    <path class="opacity-75" fill="currentColor"
-                                                        d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
-                                                </svg>
-                                                <span class="ml-2">Generating...</span>
-                                            </span>
-                                        </button>
+                                       <button wire:click="generatePasskey({{ $teacherApplication->id }})"
+        class="bg-blue-500 hover:bg-blue-600 px-3 py-1.5 rounded-lg text-white text-sm flex items-center gap-2 transition">
+
+    {{-- Normal state --}}
+    <span wire:loading.remove wire:target="generatePasskey">
+        {{ \App\Models\Passkeys::where('application_id', $teacherApplication->id)->exists() 
+            ? 'Regenerate Passkey' 
+            : 'Generate Passkey' }}
+    </span>
+
+    {{-- Loading state --}}
+    <span wire:loading wire:target="generatePasskey" class="flex items-center">
+        <svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg"
+            fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor"
+                d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+        </svg>
+        <span class="ml-2">
+            {{ \App\Models\Passkeys::where('application_id', $teacherApplication->id)->exists() 
+                ? 'Regenerating...' 
+                : 'Generating...' }}
+        </span>
+    </span>
+</button>
+
 
                                         <!-- View Button -->
                                         <button wire:click="$dispatch('viewModal',{requestId: {{ $teacherApplication->id }}})"
