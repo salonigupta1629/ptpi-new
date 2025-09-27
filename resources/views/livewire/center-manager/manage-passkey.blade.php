@@ -1,5 +1,5 @@
 <div class="max-w-7xl mx-auto p-6">
-  <div class="bg-white rounded-2xl shadow-xl p-6">
+  <div class="bg-white rounded-2xl shadow-lg p-6">
     <h2 class="text-xl font-semibold text-gray-800 mb-4">Generated Passkeys</h2>
 
     <!-- Responsive Table -->
@@ -18,7 +18,9 @@
           @foreach ($passkeys as $passkey)
             <tr class="bg-white hover:bg-slate-50 shadow-sm rounded-lg">
               <td class="px-4 py-3 text-sm text-gray-700 font-medium">{{ $passkey->id }}</td>
-              <td class="px-4 py-3 text-sm text-gray-800">{{ $passkey->user->name }}</td>
+              <td class="px-4 py-3  flex flex-col gap-1 text-gray-800"><span>{{ $passkey->user->name }}</span>
+                <span class="text-xs text-gray-700">{{ $passkey->user->email }}</span>
+              </td>
               <td class="px-4 py-3">
                 <span class="font-mono text-sm bg-gray-100 px-2 py-1 rounded-md">{{ $passkey->passkey }}</span>
               </td>

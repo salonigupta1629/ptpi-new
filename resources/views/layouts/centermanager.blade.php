@@ -45,7 +45,7 @@
                     class="flex items-center gap-2 px-4 py-2 rounded-md text-gray-700 hover:bg-teal-50 hover:text-teal-600 transition">
                     <i class="fa-solid fa-clock-rotate-left"></i> Exam History
                 </a>
-                <a href="#"
+                <a href="{{ route('center-manager.setting') }}" wire:navigate
                     class="flex items-center gap-2 px-4 py-2 rounded-md text-gray-700 hover:bg-teal-50 hover:text-teal-600 transition">
                     <i class="fa-solid fa-gear"></i> Settings
                 </a>
