@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -17,10 +18,12 @@
         rel="stylesheet">
 
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    
+
 
     <!-- Font Awesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.css" rel="stylesheet" />
+
 </head>
 
 <body class="h-screen flex overflow-hidden bg-gray-100">
@@ -97,11 +100,17 @@
 
             <!-- Manage Request Submenu -->
             <div class="pl-6 space-y-1">
-                <a href=""
+                <a href="{{ route('admin.teacher-hiring') }}"
                     class="flex items-center space-x-3 text-gray-500 hover:bg-blue-100 hover:text-blue-700 rounded-lg p-2 transition-colors duration-200">
                     <i class="fas fa-user-plus text-sm"></i>
                     <span class="font-medium text-sm">Hiring</span>
                 </a>
+                <a href="{{ route('admin.recruiter-enquiry') }}" wire:navigate
+                    class="flex items-center space-x-3 text-gray-500 hover:bg-blue-100 hover:text-blue-700 rounded-lg p-2 transition-colors duration-200">
+                    <i class="fas fa-question-circle text-sm"></i>
+                    <span class="font-medium text-sm">Recruiter Enquiry</span>
+                </a>
+
                 <a href=""
                     class="flex items-center space-x-3 text-gray-500 hover:bg-blue-100 hover:text-blue-700 rounded-lg p-2 transition-colors duration-200">
                     <i class="fas fa-key text-sm"></i>
@@ -158,6 +167,8 @@
             {{ $slot }}
         </main>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>
+
 
     @livewireStyles
     @livewireScripts

@@ -15,6 +15,9 @@ use App\Livewire\Admin\ManageQuestionManager;
 use App\Livewire\Admin\ManageRole;
 use App\Livewire\Admin\ExamCenters;
 use App\Livewire\Admin\ManageTeachers;
+use App\Livewire\Admin\RecruiterEnquiry;
+use App\Livewire\Admin\TeacherHiring;
+use App\Livewire\Admin\TeacherHiyer;
 use App\Livewire\Admin\ViewTeacher;
 use App\Livewire\Admin\Interview;
 use App\Livewire\Admin\ManageRecruiter;
@@ -36,4 +39,3 @@ Route::get('exam-center-requests', CenterExamRequest::class)->name('exam-center-
 Route::get('teachers', ManageTeachers::class)->name('teachers-list');
 Route::get('view/teachers/{teacherId}', ViewTeacher::class)->name('teacher.view');
 Route::get('interview-management', Interview::class)->name('interview');
-Route::get('manage-recruiters', ManageRecruiter::class)->name('manage-recruiters');

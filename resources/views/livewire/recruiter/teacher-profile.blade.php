@@ -7,6 +7,12 @@
             <i class="fas fa-arrow-left mr-2"></i>
             Back To List
         </a>
+       @if (session('message'))
+    <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-2 rounded">
+        {{ session('message') }}
+    </div>
+@endif
+
 
         @if($teacherData)
         <!-- Profile Card -->
@@ -275,6 +281,12 @@
             </a>
         </div>
         @endif
+    </div>
+    <div class="m-4 flex justify-end ">
+        <button wire:click='submit' class="text-end font-semibold bg-teal-600 rounded-md text-white p-2">
+        <i class="fa-solid fa-reply"></i>
+
+            Request Teacher</button>
     </div>
 
     <script>

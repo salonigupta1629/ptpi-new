@@ -11,12 +11,13 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Teacher extends Model
 {
     protected $guarded = [];
-        public function user(): BelongsTo
+
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-     public function unlockedLevels(): HasMany
+    public function unlockedLevels(): HasMany
     {
         return $this->hasMany(TeacherUnlockedLevel::class);
     }
@@ -28,6 +29,14 @@ class Teacher extends Model
                     ->exists();
     }
 
+    public function hasPassedLevel($levelId): bool
+    {
+        $unlockedLevel = $this->unlockedLevels()
+            ->where('level_id', $levelId)
+            ->first();
+
+        return $unlockedLevel && $unlockedLevel->passed;
+    }
 
     public function addresses(): HasManyThrough
     {
@@ -54,12 +63,12 @@ class Teacher extends Model
         return $this->hasManyThrough(TeacherExperiences::class, User::class, 'id', 'user_id', 'user_id', 'id');
     }
 
-     public function classCategories(): BelongsToMany
+    public function classCategories(): BelongsToMany
     {
         return $this->belongsToMany(
-            ClassCategory::class, 
-            'teacher_class_categories', 
-            'user_id', 
+            ClassCategory::class,
+            'teacher_class_categories',
+            'user_id',
             'class_category_id'
         )->withTimestamps();
     }
@@ -69,13 +78,8 @@ public function hasPassedLevel($levelId): bool
     $unlockedLevel = $this->unlockedLevels()
         ->where('level_id', $levelId)
         ->first();
-        
-    return $unlockedLevel && $unlockedLevel->passed;
-}
 
-public function interviewSchedules()
-{
-    return $this->hasMany(InterviewSchedule::class);
+    return $unlockedLevel && $unlockedLevel->passed;
 }
 
 }
