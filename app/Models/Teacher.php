@@ -11,12 +11,13 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Teacher extends Model
 {
     protected $guarded = [];
-        public function user(): BelongsTo
+
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-     public function unlockedLevels(): HasMany
+    public function unlockedLevels(): HasMany
     {
         return $this->hasMany(TeacherUnlockedLevel::class);
     }
@@ -28,6 +29,14 @@ class Teacher extends Model
                     ->exists();
     }
 
+    public function hasPassedLevel($levelId): bool
+    {
+        $unlockedLevel = $this->unlockedLevels()
+            ->where('level_id', $levelId)
+            ->first();
+            
+        return $unlockedLevel && $unlockedLevel->passed;
+    }
 
     public function addresses(): HasManyThrough
     {
@@ -54,7 +63,7 @@ class Teacher extends Model
         return $this->hasManyThrough(TeacherExperiences::class, User::class, 'id', 'user_id', 'user_id', 'id');
     }
 
-     public function classCategories(): BelongsToMany
+    public function classCategories(): BelongsToMany
     {
         return $this->belongsToMany(
             ClassCategory::class, 
@@ -64,13 +73,36 @@ class Teacher extends Model
         )->withTimestamps();
     }
 
-public function hasPassedLevel($levelId): bool
-{
-    $unlockedLevel = $this->unlockedLevels()
-        ->where('level_id', $levelId)
-        ->first();
-        
-    return $unlockedLevel && $unlockedLevel->passed;
-}
+    public function getSubjectsTextAttribute()
+    {
+        // For HasManyThrough relationship, access the subject names differently
+        $subjectNames = $this->subjects->pluck('subject.name')->filter()->unique();
+        return $subjectNames->isNotEmpty() ? $subjectNames->join(', ') : 'Not specified';
+    }
 
+    public function getGradeLevelsTextAttribute()
+    {
+        return $this->classCategories->pluck('name')->join(', ') ?: 'Not specified';
+    }
+
+    public function getInitialsAttribute()
+    {
+        $name = $this->user->name ?? '';
+        $names = explode(' ', $name);
+        $initials = '';
+        
+        if (count($names) >= 2) {
+            $initials = strtoupper(substr($names[0], 0, 1) . substr($names[count($names)-1], 0, 1));
+        } elseif (count($names) == 1) {
+            $initials = strtoupper(substr($names[0], 0, 2));
+        }
+        
+        return $initials;
+    }
+
+    public function getExperienceTextAttribute()
+    {
+        $years = $this->experience_years ?? 0;
+        return $years . ' year' . ($years != 1 ? 's' : '') . ' experience';
+    }
 }

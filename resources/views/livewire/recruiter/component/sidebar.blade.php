@@ -162,6 +162,16 @@
                         <i class="fas fa-times-circle mr-1"></i>Clear Filters
                     </button>
                 </div>
+                
+            <!-- Logout -->
+            <form method="POST" action="{{ route('logout') }}" class="mt-auto">
+                @csrf
+                <button type="submit"
+                    class="w-full flex items-center space-x-3 text-red-500 hover:bg-red-100 hover:text-red-700 rounded-lg p-3 transition-colors duration-200">
+                    <i class="fas fa-right-from-bracket text-lg"></i>
+                    <span class="font-medium">Logout</span>
+                </button>
+            </form>
             </div>
         </div>
     </aside>
