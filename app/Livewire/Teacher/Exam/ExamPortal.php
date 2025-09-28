@@ -39,38 +39,100 @@ class ExamPortal extends Component
     public $maxTabSwitches = 3;
     public $showWarningModal = false;
     public $warningMessage = '';
-    public $selectedLanguage = 'english'; 
+    public $selectedLanguage = ''; 
  public $agreedToGuidelines = false;
 
-    public function mount($category, $subject, $level)
-    {
-        $this->categories = ClassCategory::find($category);
-        $this->subjects = Subject::find($subject);
-        $this->levels = Level::find($level);
-        $this->levelName = $this->levels->name;
-        $this->subjectName = $this->subjects->subject_name;
-        $this->categoryName = $this->categories->name;
-        $this->subjectId = $subject;
-        $this->levelId = $level;
 
-        $this->categoryId = $category;
-        $this->subjectId = $subject;
+ public function mount($category, $subject, $level)
+{
+    $this->categories = ClassCategory::find($category);
+    $this->subjects = Subject::find($subject);
+    $this->levels = Level::find($level);
+    $this->levelName = $this->levels->name;
+    $this->subjectName = $this->subjects->subject_name;
+    $this->categoryName = $this->categories->name;
+    $this->subjectId = $subject;
+    $this->levelId = $level;
 
-        $this->examSets = ExamSet::where('level_id', $level)
-            ->where('category_id', $category)
-            ->where('subject_id', $subject)->first();
-        $this->examSetId = $this->examSets->id;
+    $this->categoryId = $category;
+    $this->subjectId = $subject;
 
-        $this->questions = Question::where('exam_set_id', $this->examSetId)->orderBy('id')->get();
-        $this->correctAnswers = $this->questions->pluck('correct_option', 'id')->toArray();
+    $this->examSets = ExamSet::where('level_id', $level)
+        ->where('category_id', $category)
+        ->where('subject_id', $subject)->first();
+    $this->examSetId = $this->examSets->id;
 
-        foreach ($this->questions as $question) {
-            $this->selectedOption[$question->id] = $this->answers[$question->id] ?? null;
-        }
+    $this->questions = Question::where('exam_set_id', $this->examSetId)->orderBy('id')->get();
+    
+    //  CHANGED THIS LINE: Use getCorrectOption (which now returns A, B, C, D)
+    $this->correctAnswers = $this->questions->mapWithKeys(function ($question) {
+        return [$question->id => $question->getCorrectOption($this->selectedLanguage)];
+    })->toArray();
+
+    foreach ($this->questions as $question) {
+        $this->selectedOption[$question->id] = $this->answers[$question->id] ?? null;
     }
+}
+
+public function updatedSelectedLanguage()
+{
+    // CHANGED THIS LINE: Update correct answers with letters when language changes
+    $this->correctAnswers = $this->questions->mapWithKeys(function ($question) {
+        return [$question->id => $question->getCorrectOption($this->selectedLanguage)];
+    })->toArray();
+}
+
+
+
+
+
+
+//     public function mount($category, $subject, $level)
+//     {
+//         $this->categories = ClassCategory::find($category);
+//         $this->subjects = Subject::find($subject);
+//         $this->levels = Level::find($level);
+//         $this->levelName = $this->levels->name;
+//         $this->subjectName = $this->subjects->subject_name;
+//         $this->categoryName = $this->categories->name;
+//         $this->subjectId = $subject;
+//         $this->levelId = $level;
+
+//         $this->categoryId = $category;
+//         $this->subjectId = $subject;
+
+//         $this->examSets = ExamSet::where('level_id', $level)
+//             ->where('category_id', $category)
+//             ->where('subject_id', $subject)->first();
+//         $this->examSetId = $this->examSets->id;
+
+//         $this->questions = Question::where('exam_set_id', $this->examSetId)->orderBy('id')->get();
+//        $this->correctAnswers = $this->questions->mapWithKeys(function ($question) {
+//         return [$question->id => $question->getCorrectOption($this->selectedLanguage)];
+//     })->toArray();
+
+//         foreach ($this->questions as $question) {
+//             $this->selectedOption[$question->id] = $this->answers[$question->id] ?? null;
+//         }
+//     }
+
+//     public function updatedSelectedLanguage()
+// {
+//     // Update correct answers when language changes
+//     $this->correctAnswers = $this->questions->mapWithKeys(function ($question) {
+//         return [$question->id => $question->getCorrectOption($this->selectedLanguage)];
+//     })->toArray();
+// }
 
     public function startExam()
     {
+
+         // Validate that a language is selected
+    if (empty($this->selectedLanguage)) {
+        session()->flash('error', 'Please select a language before starting the exam.');
+        return;
+    }
+    
         $this->showInstructions = false; 
         $this->fullScreen = true;
         $this->timerActive = true;
@@ -136,84 +198,6 @@ class ExamPortal extends Component
         }
     }
     
-// public function submitExam()
-// {
-//     $this->timerActive = false;
-//     $this->fullScreen = false;
-//     $this->dispatch('exit-exam-mode');
-    
-//     $currentQuestion = $this->questions[$this->currentIndex];
-//     $this->answers[$currentQuestion->id] = $this->selectedOption[$currentQuestion->id] ?? null;
-    
-//     $this->calculateResult();
-
-//     // Get authenticated user ID or use the first available user
-//     $userId = auth()->id();
-    
-//     if ($userId === null) {
-//         // Use the first user from your database as fallback
-//         $userId = \App\Models\User::first()->id; // This will use user ID 1
-//     }
-
-//     // First, create or get an exam attempt
-//     $examAttempt = ExamAttempt::firstOrCreate(
-//         [
-//             'user_id' => $userId, // Use the determined user ID
-//             'exam_set_id' => $this->examSetId,
-//             'status' => 'in_progress'
-//         ],
-//         [
-//             'language' => $this->selectedLanguage,
-//             'started_at' => now()
-//         ]
-//     );
-
-//     // Then use exam_attempt_id instead of user_id
-//     foreach ($this->questions as $question) {
-//         $selected = $this->answers[$question->id] ?? null;
-
-//         if($selected != null){
-//             UserAnswer::updateOrCreate(
-//                 [
-//                     'exam_attempt_id' => $examAttempt->id,
-//                     'question_id' => $question->id,
-//                 ],
-//                 [
-//                     'selected_option' => $selected,
-//                     'is_correct' => $selected === $this->correctAnswers[$question->id],
-//                     'marks_awarded' => $selected === $this->correctAnswers[$question->id] ? 1 : 0,
-//                 ]
-//             );
-//         }
-//     }
-
-//     // Update the exam attempt when submitting
-//     $examAttempt->update([
-//         'score' => $this->score,
-//         'status' => $this->examStatus,
-//         'ended_at' => now(),
-//         'language' => $this->selectedLanguage,
-//     ]);
-   
-//     session()->put('exam_results', [
-//         'score' => $this->score,
-//         'correctCount' => $this->correctCount,
-//         'totalQuestions' => $this->totalQuestions,
-//         'examStatus' => $this->examStatus,
-//         'subjectName' => $this->subjectName,
-//         'levelName' => $this->levelName,
-//         'categoryName' => $this->categoryName,
-//         'examSetId' => $this->examSetId,
-//         'categoryId' => $this->categoryId,   
-//         'subjectId' => $this->subjectId,    
-//         'levelId' => $this->levelId, 
-//         'language' => $this->selectedLanguage,
-//         'examAttemptId' => $examAttempt->id,
-//     ]);
-
-//     return $this->redirect(route('teacher.exam.results'), navigate: true);
-// }
-
 public function submitExam()
 {
     $this->timerActive = false;
@@ -330,27 +314,63 @@ if ($user->teacher) {
     return $this->redirect(route('teacher.exam.results'), navigate: true);
 }
 
-    public function calculateResult()
-    {
-        $correctCount = 0;
-        $totalQuestions = $this->questions->count();
+public function calculateResult()
+{
+    $correctCount = 0;
+    $totalQuestions = $this->questions->count();
 
-        foreach ($this->questions as $question) {
-            $selectedAnswer = $this->answers[$question->id] ?? null;
-            $correctAnswer = $this->correctAnswers[$question->id] ?? null;
-            
-            if ($selectedAnswer === $correctAnswer) {
-                $correctCount++;
-            }
+    // DEBUG: See what's happening
+    \Log::info("=== EXAM RESULT CALCULATION ===");
+    
+    foreach ($this->questions as $question) {
+        $selectedAnswer = $this->answers[$question->id] ?? null;
+        $correctAnswer = $question->getCorrectOption($this->selectedLanguage);
+        
+        \Log::info("Question ID: " . $question->id);
+        \Log::info("Stored correct_option: " . $question->correct_option);
+        \Log::info("Converted to letter: " . $correctAnswer);
+        \Log::info("User selected: " . $selectedAnswer);
+        \Log::info("Match: " . ($selectedAnswer === $correctAnswer ? 'YES' : 'NO'));
+        \Log::info("---");
+
+        if ($selectedAnswer === $correctAnswer) {
+            $correctCount++;
         }
-
-        $score = ($correctCount / $totalQuestions) * 100;
-        $this->score = $score;
-        $this->correctCount = $correctCount;
-        $this->totalQuestions = $totalQuestions;
-        $this->result = "Score: $correctCount/$totalQuestions (" . round($score, 2) . "%) - " . 
-                       ($score >= 60 ? "Passed" : "Failed");
     }
+
+    $score = ($correctCount / $totalQuestions) * 100;
+    $this->score = $score;
+    $this->correctCount = $correctCount;
+    $this->totalQuestions = $totalQuestions;
+    
+    \Log::info("FINAL: {$correctCount}/{$totalQuestions} = {$score}%");
+    
+    $this->result = "Score: $correctCount/$totalQuestions (" . round($score, 2) . "%) - " . 
+                   ($score >= 60 ? "Passed" : "Failed");
+}
+
+
+    // public function calculateResult()
+    // {
+    //     $correctCount = 0;
+    //     $totalQuestions = $this->questions->count();
+
+    //     foreach ($this->questions as $question) {
+    //         $selectedAnswer = $this->answers[$question->id] ?? null;
+    //         $correctAnswer = $question->getCorrectOption($this->selectedLanguage);
+            
+    //         if ($selectedAnswer === $correctAnswer) {
+    //             $correctCount++;
+    //         }
+    //     }
+
+    //     $score = ($correctCount / $totalQuestions) * 100;
+    //     $this->score = $score;
+    //     $this->correctCount = $correctCount;
+    //     $this->totalQuestions = $totalQuestions;
+    //     $this->result = "Score: $correctCount/$totalQuestions (" . round($score, 2) . "%) - " . 
+    //                    ($score >= 60 ? "Passed" : "Failed");
+    // }
 
     public function backToDashboard()
     {

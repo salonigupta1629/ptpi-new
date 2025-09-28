@@ -9,12 +9,15 @@ use App\Models\Level;
 use App\Models\Subject;
 use App\Models\InterviewSchedule;
 use App\Models\TeacherUnlockedLevel;
+use App\Models\ExamCenter; // Added for fetching centers
+use App\Models\TeacherLevel3Choice; // Added for storing level 3 choices
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
 
 class Dashboard extends Component
 {
+    public $subjectsForFilter = [];
     public $selectedClassCategory;
     public $selectedCategoryName;
     public $selectedSubject;
@@ -27,15 +30,14 @@ class Dashboard extends Component
     public $step = 'category';
     public $unlockedLevels = [];
     public $hasQualifiedLevel2 = false;
-
+    
     public $qualifiedExams = [];
-public $myInterviews = [];
-public $interviewFilters = [
-    'subject' => 'all',
-    'category' => 'all',
-    'status' => 'all'
-];
-
+    public $myInterviews = [];
+    public $interviewFilters = [
+        'subject' => 'all',
+        'category' => 'all',
+        'status' => 'all'
+    ];
 
     public $selection = [
         'category_id' => null,
@@ -46,27 +48,15 @@ public $interviewFilters = [
         'level_name' => null,
     ];
 
-    // public function mount()
-    // {
-    //     // Check if user is authenticated and has a teacher record
-    //     $user = Auth::user();
-        
-    //     if ($user && $user->teacher) {
-    //         $this->unlockedLevels = $user->teacher->unlockedLevels()
-    //             ->pluck('level_id')
-    //             ->toArray();
-    //     } else {
-    //         $this->unlockedLevels = [];
-            
-    //         // If user doesn't have a teacher record, redirect or show error
-    //         // You might want to handle this case differently based on your app logic
-    //         if ($user && !$user->teacher) {
-    //             session()->flash('error', 'Teacher profile not found. Please complete your teacher profile.');
-    //         }
-    //     }
-    // }
+    // New properties for Level 3 modal
+    public $showLevel3Modal = false;
+    public $level3Mode = ''; // 'center', 'interview', 'both'
+    public $pincodeForCenter = '';
+    public $availableCenters = [];
+    public $selectedCenterId = null;
+    public $selectedExamSet;
 
- public function mount()
+    public function mount()
     {
         // Check if user is authenticated and has a teacher record
         $user = Auth::user();
@@ -100,54 +90,54 @@ public $interviewFilters = [
         }
     }
 
- private function loadQualifiedExams()
-{
-    $user = Auth::user();
-    
-    if (!$user || !$user->teacher) {
-        $this->qualifiedExams = [];
-        return;
-    }
-
-    try {
-        $examAttempts = ExamAttempt::with(['examSet.subject', 'examSet.level', 'examSet.category'])
-            ->where('user_id', $user->id)
-            ->where('score', '>=', 70)
-            ->get();
-
-        // Group by subject and keep only the best attempt for each subject
-        $groupedExams = [];
+    private function loadQualifiedExams()
+    {
+        $user = Auth::user();
         
-        foreach ($examAttempts as $attempt) {
-            if (!$attempt->examSet || !$attempt->examSet->level || $attempt->examSet->level->order != 2) {
-                continue;
-            }
-            
-            $subjectId = $attempt->examSet->subject_id;
-            
-            // If we haven't seen this subject yet, or this attempt has a higher score
-            if (!isset($groupedExams[$subjectId]) || $attempt->score > $groupedExams[$subjectId]['score']) {
-                $groupedExams[$subjectId] = [
-                    'id' => $attempt->id,
-                    'exam_set_id' => $attempt->exam_set_id,
-                    'subject' => $attempt->examSet->subject->subject_name ?? 'Unknown Subject',
-                    'category' => $attempt->examSet->category->name ?? 'Unknown Category',
-                    'score' => $attempt->score,
-                    'completed_at' => $attempt->ended_at,
-                    'level' => $attempt->examSet->level->name ?? 'Level 2'
-                ];
-            }
+        if (!$user || !$user->teacher) {
+            $this->qualifiedExams = [];
+            return;
         }
-        
-        $this->qualifiedExams = array_values($groupedExams);
-        
-        \Log::info('Unique qualified Level 2 exams found: ' . count($this->qualifiedExams));
 
-    } catch (\Exception $e) {
-        \Log::error('Error loading qualified exams: ' . $e->getMessage());
-        $this->qualifiedExams = [];
+        try {
+            $examAttempts = ExamAttempt::with(['examSet.subject', 'examSet.level', 'examSet.category'])
+                ->where('user_id', $user->id)
+                ->where('score', '>=', 70)
+                ->get();
+
+            // Group by subject and keep only the best attempt for each subject
+            $groupedExams = [];
+            
+            foreach ($examAttempts as $attempt) {
+                if (!$attempt->examSet || !$attempt->examSet->level || $attempt->examSet->level->order != 2) {
+                    continue;
+                }
+                
+                $subjectId = $attempt->examSet->subject_id;
+                
+                // If we haven't seen this subject yet, or this attempt has a higher score
+                if (!isset($groupedExams[$subjectId]) || $attempt->score > $groupedExams[$subjectId]['score']) {
+                    $groupedExams[$subjectId] = [
+                        'id' => $attempt->id,
+                        'exam_set_id' => $attempt->exam_set_id,
+                        'subject' => $attempt->examSet->subject->subject_name ?? 'Unknown Subject',
+                        'category' => $attempt->examSet->category->name ?? 'Unknown Category',
+                        'score' => $attempt->score,
+                        'completed_at' => $attempt->ended_at,
+                        'level' => $attempt->examSet->level->name ?? 'Level 2'
+                    ];
+                }
+            }
+            
+            $this->qualifiedExams = array_values($groupedExams);
+            
+            \Log::info('Unique qualified Level 2 exams found: ' . count($this->qualifiedExams));
+
+        } catch (\Exception $e) {
+            \Log::error('Error loading qualified exams: ' . $e->getMessage());
+            $this->qualifiedExams = [];
+        }
     }
-}
 
     public function updateInterviewFilters($filterType, $value)
     {
@@ -155,7 +145,6 @@ public $interviewFilters = [
         // Reload interviews when filters change
         $this->loadMyInterviews();
     }
-
 
     public function updateCategory($id)
     {
@@ -175,12 +164,17 @@ public $interviewFilters = [
         $this->selection['subject_id'] = $subject->id;
         $this->selection['subject_name'] = $subject->subject_name;
 
-        // Get all levels but mark which ones are unlocked
+        // Get all levels but mark which ones are unlocked and have questions
         $this->levels = Level::select('id', 'name', 'description', 'order')
             ->orderBy('order', 'asc')
             ->get()
             ->map(function($level) {
                 $level->is_unlocked = $this->isLevelUnlocked($level->id);
+                $level->has_questions = $this->levelHasQuestions(
+                    $level->id, 
+                    $this->selection['subject_id'], 
+                    $this->selection['category_id']
+                );
                 return $level;
             });
             
@@ -197,50 +191,57 @@ public $interviewFilters = [
             return;
         }
 
+        // Check if level has questions
+        if (!$this->levelHasQuestions($id, $this->selection['subject_id'], $this->selection['category_id'])) {
+            session()->flash('error', 'This level currently has no available questions. Please try another level or check back later.');
+            return;
+        }
+
         $this->selection['level_id'] = $level->id;
         $this->selection['level_name'] = $level->name;
 
         $this->step = 'confirm';
     }
 
-   private function isLevelUnlocked($levelId)
-{
-    $user = Auth::user();
-    
-    // If user is not authenticated or has no teacher record, only level 1 is accessible
-    if (!$user || !$user->teacher) {
-        return $levelId == 1;
-    }
-    
-    // Level 1 is always unlocked
-    if ($levelId == 1) return true;
-    
-    // Check if teacher has this level unlocked
-    $unlockedLevel = TeacherUnlockedLevel::where('teacher_id', $user->teacher->id)
-        ->where('level_id', $levelId)
-        ->first();
-    
-    if ($unlockedLevel) {
-        return true; // Level is in unlocked levels table
-    }
-    
-    // For levels beyond 1, check if previous level was passed
-    $level = Level::find($levelId);
-    if (!$level) return false;
-    
-    $previousLevel = Level::where('order', $level->order - 1)->first();
-    
-    if ($previousLevel) {
-        $previousUnlock = TeacherUnlockedLevel::where('teacher_id', $user->teacher->id)
-            ->where('level_id', $previousLevel->id)
+    private function isLevelUnlocked($levelId)
+    {
+        $user = Auth::user();
+        
+        // If user is not authenticated or has no teacher record, only level 1 is accessible
+        if (!$user || !$user->teacher) {
+            return $levelId == 1;
+        }
+        
+        // Level 1 is always unlocked
+        if ($levelId == 1) return true;
+        
+        // Check if teacher has this level unlocked
+        $unlockedLevel = TeacherUnlockedLevel::where('teacher_id', $user->teacher->id)
+            ->where('level_id', $levelId)
             ->first();
-            
-        // Unlock next level only if previous level was passed
-        return $previousUnlock && $previousUnlock->passed;
+        
+        if ($unlockedLevel) {
+            return true; // Level is in unlocked levels table
+        }
+        
+        // For levels beyond 1, check if previous level was passed
+        $level = Level::find($levelId);
+        if (!$level) return false;
+        
+        $previousLevel = Level::where('order', $level->order - 1)->first();
+        
+        if ($previousLevel) {
+            $previousUnlock = TeacherUnlockedLevel::where('teacher_id', $user->teacher->id)
+                ->where('level_id', $previousLevel->id)
+                ->where('passed', true)
+                ->first();
+                
+            // Unlock next level only if previous level was passed
+            return $previousUnlock && $previousUnlock->passed;
+        }
+        
+        return false;
     }
-    
-    return false;
-}
 
     public function goBack()
     {
@@ -259,14 +260,31 @@ public $interviewFilters = [
             $this->subjects = [];
         }
     }
+
     public function startExam()
     {
         $user = Auth::user();
-          if (!$user || !$user->teacher) {
+        if (!$user || !$user->teacher) {
             session()->flash('error', 'Please complete your teacher profile before starting an exam.');
             return;
         }
-        
+
+        if (!$this->levelHasQuestions(
+            $this->selection['level_id'], 
+            $this->selection['subject_id'], 
+            $this->selection['category_id']
+        )) {
+            session()->flash('error', 'This exam is not available at the moment. Please try another level.');
+            return;
+        }
+
+        // Check if level 3
+        if ($this->selection['level_id'] == 3) { // Assuming Level 3 has ID 3
+            $this->openLevel3Modal();
+            return; // Don't redirect yet
+        }
+
+        // Redirect for levels 1/2
         return redirect()->route('teacher.exam-portal', [
             $this->selection['category_id'], 
             $this->selection['subject_id'], 
@@ -274,136 +292,265 @@ public $interviewFilters = [
         ]);
     }
 
+    // New method: Open Level 3 modal
+    public function openLevel3Modal()
+    {
+        $this->showLevel3Modal = true;
+        $this->reset(['level3Mode', 'pincodeForCenter', 'availableCenters', 'selectedCenterId']);
+    }
+
+    // New method: Fetch centers based on pincode
+    public function fetchCenters()
+    {
+        $this->validate(['pincodeForCenter' => 'required|numeric|digits_between:5,6']);
+
+        $this->availableCenters = ExamCenter::where('pincode', 'like', '%' . $this->pincodeForCenter . '%') // Fuzzy match
+            ->where('inactive', false)
+            ->get()
+            ->toArray();
+
+        if (empty($this->availableCenters)) {
+            session()->flash('error', 'No active exam centers found for this pincode. Try another.');
+        }
+    }
+
+    // New method: Confirm and store Level 3 choice
+    public function confirmLevel3Choice()
+    {
+        $this->validate([
+            'level3Mode' => 'required|in:center,interview,both',
+        ]);
+
+        if (in_array($this->level3Mode, ['center', 'both'])) {
+            $this->validate([
+                'selectedCenterId' => 'required|exists:exam_centers,id',
+                'pincodeForCenter' => 'required',
+            ]);
+        }
+
+        $user = Auth::user();
+        if (!$user) {
+            session()->flash('error', 'User not authenticated.');
+            return;
+        }
+
+         $this->selectedExamSet = ExamSet::where('level_id',$this->selection['level_id'])
+                                ->where('subject_id',$this->selection['subject_id'])
+                                ->where('category_id',$this->selection['category_id'])->first();
+
+        $attempt = ExamAttempt::create([
+            'user_id' => $user->id,
+            'exam_set_id' => $this->selectedExamSet->id,
+            'status' => 'in_progress',
+            'language' => 'hindi',
+            'score' => 0,
+            'started_at' => now(),
+            'ended_at' => now(),
+        ]);
+        // Store in new table
+        TeacherLevel3Choice::create([
+            'user_id' => $user->id,
+            'attempt_id' => $attempt->id,
+            'mode' => $this->level3Mode,
+            'center_id' => $this->selectedCenterId ?? null,
+            'pincode' => $this->pincodeForCenter ?? null,
+        ]);
+       
+
+        $this->dispatch('notify', message: 'Center Request Sent');
+        $this->showLevel3Modal = false;
+
+        // Proceed based on mode
+        if ($this->level3Mode === 'interview') {
+            $this->loadQualifiedExams();
+            // Optionally, redirect to interview scheduling UI or trigger modal
+            // For simplicity, we can assume loadQualifiedExams sets up the UI
+        } elseif ($this->level3Mode === 'center') {
+            return redirect()->route('teacher.exam-portal', [
+                $this->selection['category_id'], 
+                $this->selection['subject_id'], 
+                $this->selection['level_id'],
+                'center_id' => $this->selectedCenterId
+            ]);
+        } else { // both
+            $this->loadQualifiedExams(); // Trigger interview scheduling
+            return redirect()->route('teacher.exam-portal', [
+                $this->selection['category_id'], 
+                $this->selection['subject_id'], 
+                $this->selection['level_id'],
+                'center_id' => $this->selectedCenterId
+            ]);
+        }
+    }
+
     public function scheduleInterview($examAttemptId, $scheduledTime)
-{
-    try {
+    {
+        try {
+            \Log::info('Schedule interview called', ['examAttemptId' => $examAttemptId, 'scheduledTime' => $scheduledTime]);
+            
+            $user = Auth::user();
+            
+            if (!$user || !$user->teacher) {
+                \Log::error('User or teacher not found');
+                session()->flash('error', 'Teacher profile not found.');
+                return;
+            }
+
+            $examAttempt = ExamAttempt::with(['examSet.subject'])->find($examAttemptId);
+            
+            if (!$examAttempt) {
+                \Log::error('Exam attempt not found', ['examAttemptId' => $examAttemptId]);
+                session()->flash('error', 'Exam attempt not found.');
+                return;
+            }
+            
+            $subjectName = $examAttempt->examSet->subject->subject_name ?? 'Unknown Subject';
+            
+            \Log::info('Creating interview record', [
+                'teacher_id' => $user->teacher->id,
+                'scheduled_at' => $scheduledTime
+            ]);
+            
+            $interview = InterviewSchedule::create([
+                'exam_attempt_id' => $examAttemptId,
+                'teacher_id' => $user->teacher->id,
+                'scheduled_at' => $scheduledTime,
+                'requested_at' => now(),
+                'status' => 'pending',
+                'meeting_link' => null,
+                'teacher_notes' => "Interview request for {$subjectName} - Level 2 qualification",
+            ]);
+            
+            \Log::info('Interview created successfully', ['interview_id' => $interview->id]);
+            
+            session()->flash('message', 'Interview request submitted! Waiting for admin approval.');
+            $this->loadMyInterviews();
+            
+        } catch (\Exception $e) {
+            \Log::error('Error scheduling interview: ' . $e->getMessage());
+            session()->flash('error', 'Error scheduling interview: ' . $e->getMessage());
+        }
+    }
+
+    private function generateMeetingLink()
+    {
+        // Implement meeting link generation logic
+        return 'https://meet.example.com/' . uniqid();
+    }
+
+    private function loadMyInterviews()
+    {
+        $user = Auth::user();
+        
+        if (!$user || !$user->teacher) {
+            $this->myInterviews = [];
+            return;
+        }
+
+        $query = InterviewSchedule::with(['examAttempt.examSet.subject', 'examAttempt.examSet.category'])
+            ->where('teacher_id', $user->teacher->id);
+
+        // Apply subject filter
+        if ($this->interviewFilters['subject'] !== 'all') {
+            $query->whereHas('examAttempt.examSet.subject', function($q) {
+                $q->where('subject_name', $this->interviewFilters['subject']);
+            });
+        }
+
+        // Apply category filter
+        if ($this->interviewFilters['category'] !== 'all') {
+            $query->whereHas('examAttempt.examSet.category', function($q) {
+                $q->where('name', $this->interviewFilters['category']);
+            });
+        }
+
+        // Apply status filter
+        if ($this->interviewFilters['status'] !== 'all') {
+            $query->where('status', $this->interviewFilters['status']);
+        }
+
+        $this->myInterviews = $query->get()
+            ->map(function($interview) {
+                return [
+                    'id' => $interview->id,
+                    'exam_attempt_id' => $interview->exam_attempt_id,
+                    'subject' => $interview->examAttempt->examSet->subject->subject_name ?? 'Unknown Subject',
+                    'category' => $interview->examAttempt->examSet->category->name ?? 'Unknown Category',
+                    'scheduled_at' => $interview->scheduled_at,
+                    'status' => $interview->status,
+                    'meeting_link' => $interview->meeting_link,
+                    'notes' => $interview->notes
+                ];
+            })
+            ->toArray();
+    }
+
+    public function levelHasQuestions($levelId, $subjectId, $categoryId)
+    {
+        return ExamSet::where('level_id', $levelId)
+            ->where('subject_id', $subjectId)
+            ->where('category_id', $categoryId)
+            ->whereHas('questions', function($query) {
+                $query->where('id', '>', 0);
+            })
+            ->exists();
+    }
+
+    #[Layout('layouts.teacher')]
+    public function render()
+    {
         $user = Auth::user();
 
-        // Get exam details for the note
-        $examAttempt = ExamAttempt::with(['examSet.subject'])->find($examAttemptId);
-        $subjectName = $examAttempt->examSet->subject->subject_name ?? 'Unknown Subject';
+        if ($user && $user->teacher) {
+            // Direct query to get categories for this teacher
+            $this->categories = ClassCategory::whereIn('id', function($query) use ($user) {
+                $query->select('class_category_id')
+                      ->from('teacher_class_categories')
+                      ->where('user_id', $user->id);
+            })->get();
+            
+            // Get subjects for filters
+            $categoryIds = $this->categories->pluck('id')->toArray();
+            $this->subjectsForFilter = Subject::whereIn('category_id', $categoryIds)->get();
+        } else {
+            $this->categories = collect([]);
+            $this->subjectsForFilter = collect([]);
+        }
         
-        
-        // Create interview schedule
-        $interview = InterviewSchedule::create([
-            'exam_attempt_id' => $examAttemptId,
-            'teacher_id' => $user->teacher->id,
-            'scheduled_at' => $scheduledTime,
-            'status' => 'scheduled',
-            'meeting_link' => $this->generateMeetingLink(), // You need to implement this
-             'notes' => "Interview for {$subjectName} - Level 2 qualification"
+        return view('livewire.teacher.dashboard', [
+            'categories' => $this->categories,
+            'subjects' => $this->subjects,
+            'subjectsForFilter' => $this->subjectsForFilter, 
+            'levels' => $this->levels,
+            'step' => $this->step,
+            'selection' => $this->selection,
         ]);
-        
-        session()->flash('message', 'Interview scheduled successfully!');
-        $this->loadMyInterviews(); // Refresh the interviews list
-        
-    } catch (\Exception $e) {
-        session()->flash('error', 'Error scheduling interview: ' . $e->getMessage());
     }
 }
 
-private function generateMeetingLink()
-{
-    // Implement your meeting link generation logic
-    // This could be Zoom, Google Meet, MS Teams, or custom link
-    return 'https://meet.example.com/' . uniqid();
-}
-
-private function loadMyInterviews()
-{
-    $user = Auth::user();
-    
-    if (!$user || !$user->teacher) {
-        $this->myInterviews = [];
-        return;
-    }
-
-    $query = InterviewSchedule::with(['examAttempt.examSet.subject', 'examAttempt.examSet.category'])
-        ->where('teacher_id', $user->teacher->id);
-
-    // Apply subject filter
-    if ($this->interviewFilters['subject'] !== 'all') {
-        $query->whereHas('examAttempt.examSet.subject', function($q) {
-            $q->where('subject_name', $this->interviewFilters['subject']);
-        });
-    }
-
-    // Apply category filter
-    if ($this->interviewFilters['category'] !== 'all') {
-        $query->whereHas('examAttempt.examSet.category', function($q) {
-            $q->where('name', $this->interviewFilters['category']);
-        });
-    }
-
-    // Apply status filter
-    if ($this->interviewFilters['status'] !== 'all') {
-        $query->where('status', $this->interviewFilters['status']);
-    }
-
-    $this->myInterviews = $query->get()
-        ->map(function($interview) {
-            return [
-                'id' => $interview->id,
-                'exam_attempt_id' => $interview->exam_attempt_id,
-                'subject' => $interview->examAttempt->examSet->subject->subject_name ?? 'Unknown Subject',
-                'category' => $interview->examAttempt->examSet->category->name ?? 'Unknown Category',
-                'scheduled_at' => $interview->scheduled_at,
-                'status' => $interview->status,
-                'meeting_link' => $interview->meeting_link,
-                'notes' => $interview->notes
-            ];
-        })
-        ->toArray();
-}
-
-  #[Layout('layouts.teacher')]
-public function render()
-{
-    $user = Auth::user();
-
-    // Get only the categories that the teacher has
-    if ($user && $user->teacher) {
-        $this->categories = $user->teacher->classCategories()
-            ->select('class_categories.name', 'class_categories.id')
-            ->get();
-        
-        // Get subjects for filters (all subjects teacher has access to)
-        $this->subjectsForFilter = Subject::whereIn('category_id', $user->teacher->classCategories()->pluck('class_categories.id'))
-            ->get();
-    } else {
-        $this->categories = collect([]);
-        $this->subjectsForFilter = collect([]);
-    }
-    
-    return view('livewire.teacher.dashboard', [
-        'categories' => $this->categories,
-        'subjects' => $this->subjects,
-        'subjectsForFilter' => $this->subjectsForFilter, // Add this
-        'levels' => $this->levels,
-        'step' => $this->step,
-        'selection' => $this->selection,
-    ]);
-}
-
-} 
 
 
 
 
-
-// <?php
 
 // namespace App\Livewire\Teacher;
 
+// use App\Models\ExamAttempt;
+// use App\Models\ExamSet;
 // use App\Models\ClassCategory;
 // use App\Models\Level;
 // use App\Models\Subject;
-// use App\Models\TeacherUnlockedLevel; 
+// use App\Models\InterviewSchedule;
+// use App\Models\TeacherUnlockedLevel;
 // use Livewire\Attributes\Layout;
 // use Livewire\Component;
+// use Illuminate\Support\Facades\Auth;
+
 
 // class Dashboard extends Component
 // {
+
+//     public $subjectsForFilter = [];
 //     public $selectedClassCategory;
 //     public $selectedCategoryName;
 //     public $selectedSubject;
@@ -414,7 +561,17 @@ public function render()
 //     public $levels = [];
 //     public $categories;
 //     public $step = 'category';
-//      public $unlockedLevels = [];
+//     public $unlockedLevels = [];
+//     public $hasQualifiedLevel2 = false;
+    
+
+//     public $qualifiedExams = [];
+// public $myInterviews = [];
+// public $interviewFilters = [
+//     'subject' => 'all',
+//     'category' => 'all',
+//     'status' => 'all'
+// ];
 
 
 //     public $selection = [
@@ -426,26 +583,96 @@ public function render()
 //         'level_name' => null,
 //     ];
 
-// //     public function mount()
-// // {
-//     // Get all levels the teacher has unlocked
-//     // $teacherId = auth()->user()->teacher->id;
-//     // $this->unlockedLevels = TeacherUnlockedLevel::where('teacher_id', $teacherId)
-//     //     ->pluck('level_id')
-//     //     ->toArray();
-    
-//         //   $this->unlockedLevels = auth()->user()->teacher->unlockedLevels()
-//         // ->pluck('level_id')
-//         // ->toArray();
-// // }
-
-//     public function mount()
+//  public function mount()
 //     {
-//         // Safely get unlocked levels, handling cases where teacher doesn't exist
-//         $teacher = auth()->user()->teacher;
-//         $this->unlockedLevels = $teacher ? 
-//             $teacher->unlockedLevels()->pluck('level_id')->toArray() : [];
+//         // Check if user is authenticated and has a teacher record
+//         $user = Auth::user();
+        
+//         if ($user && $user->teacher) {
+//             $this->unlockedLevels = $user->teacher->unlockedLevels()
+//                 ->pluck('level_id')
+//                 ->toArray();
+            
+//             // Check if teacher has qualified Level 2
+//             $level2Unlock = TeacherUnlockedLevel::where('teacher_id', $user->teacher->id)
+//                 ->where('level_id', 2) // Assuming Level 2 has ID 2
+//                 ->where('passed', true)
+//                 ->first();
+            
+//             $this->hasQualifiedLevel2 = (bool) $level2Unlock;
+            
+//             // Load qualified exams and interviews if teacher has qualified Level 2
+//             if ($this->hasQualifiedLevel2) {
+//                 $this->loadQualifiedExams();
+//                 $this->loadMyInterviews();
+//             }
+//         } else {
+//             $this->unlockedLevels = [];
+//             $this->hasQualifiedLevel2 = false;
+            
+//             // If user doesn't have a teacher record, redirect or show error
+//             if ($user && !$user->teacher) {
+//                 session()->flash('error', 'Teacher profile not found. Please complete your teacher profile.');
+//             }
+//         }
 //     }
+
+//  private function loadQualifiedExams()
+// {
+//     $user = Auth::user();
+    
+//     if (!$user || !$user->teacher) {
+//         $this->qualifiedExams = [];
+//         return;
+//     }
+
+//     try {
+//         $examAttempts = ExamAttempt::with(['examSet.subject', 'examSet.level', 'examSet.category'])
+//             ->where('user_id', $user->id)
+//             ->where('score', '>=', 70)
+//             ->get();
+
+//         // Group by subject and keep only the best attempt for each subject
+//         $groupedExams = [];
+        
+//         foreach ($examAttempts as $attempt) {
+//             if (!$attempt->examSet || !$attempt->examSet->level || $attempt->examSet->level->order != 2) {
+//                 continue;
+//             }
+            
+//             $subjectId = $attempt->examSet->subject_id;
+            
+//             // If we haven't seen this subject yet, or this attempt has a higher score
+//             if (!isset($groupedExams[$subjectId]) || $attempt->score > $groupedExams[$subjectId]['score']) {
+//                 $groupedExams[$subjectId] = [
+//                     'id' => $attempt->id,
+//                     'exam_set_id' => $attempt->exam_set_id,
+//                     'subject' => $attempt->examSet->subject->subject_name ?? 'Unknown Subject',
+//                     'category' => $attempt->examSet->category->name ?? 'Unknown Category',
+//                     'score' => $attempt->score,
+//                     'completed_at' => $attempt->ended_at,
+//                     'level' => $attempt->examSet->level->name ?? 'Level 2'
+//                 ];
+//             }
+//         }
+        
+//         $this->qualifiedExams = array_values($groupedExams);
+        
+//         \Log::info('Unique qualified Level 2 exams found: ' . count($this->qualifiedExams));
+
+//     } catch (\Exception $e) {
+//         \Log::error('Error loading qualified exams: ' . $e->getMessage());
+//         $this->qualifiedExams = [];
+//     }
+// }
+
+//     public function updateInterviewFilters($filterType, $value)
+//     {
+//         $this->interviewFilters[$filterType] = $value;
+//         // Reload interviews when filters change
+//         $this->loadMyInterviews();
+//     }
+
 
 //     public function updateCategory($id)
 //     {
@@ -458,19 +685,24 @@ public function render()
 //         $this->step = 'subject';
 //     }
 
-//    public function updateSubject($id)
+//     public function updateSubject($id)
 // {
 //     $subject = Subject::findOrFail($id);
 
 //     $this->selection['subject_id'] = $subject->id;
 //     $this->selection['subject_name'] = $subject->subject_name;
 
-//     // Get all levels but mark which ones are unlocked
+//     // Get all levels but mark which ones are unlocked and have questions
 //     $this->levels = Level::select('id', 'name', 'description', 'order')
 //         ->orderBy('order', 'asc')
 //         ->get()
 //         ->map(function($level) {
 //             $level->is_unlocked = $this->isLevelUnlocked($level->id);
+//             $level->has_questions = $this->levelHasQuestions(
+//                 $level->id, 
+//                 $this->selection['subject_id'], 
+//                 $this->selection['category_id']
+//             );
 //             return $level;
 //         });
         
@@ -478,69 +710,66 @@ public function render()
 // }
 
 //     public function updateLevel($id)
-// {
-//     $level = Level::findOrFail($id);
+//     {
+//         $level = Level::findOrFail($id);
 
-//     // Check if level is unlocked
-//     if (!$this->isLevelUnlocked($id)) {
-//         session()->flash('error', 'This level is locked. Complete previous levels first.');
+//         // Check if level is unlocked
+//         if (!$this->isLevelUnlocked($id)) {
+//             session()->flash('error', 'This level is locked. Complete previous levels first.');
+//             return;
+//         }
+
+//             // NEW: Check if level has questions
+//     if (!$this->levelHasQuestions($id, $this->selection['subject_id'], $this->selection['category_id'])) {
+//         session()->flash('error', 'This level currently has no available questions. Please try another level or check back later.');
 //         return;
 //     }
 
-//     $this->selection['level_id'] = $level->id;
-//     $this->selection['level_name'] = $level->name;
+//         $this->selection['level_id'] = $level->id;
+//         $this->selection['level_name'] = $level->name;
 
-//     $this->step = 'confirm';
-// }
-
-// // private function isLevelUnlocked($levelId)
-// // {
-// //     // Level 1 is always unlocked
-// //     if ($levelId == 1) return true;
-    
-// //     // Check if teacher has this level unlocked using the relationship
-// //     if (auth()->user()->teacher->hasUnlockedLevel($levelId)) {
-// //         return true;
-// //     }
-    
-// //     // For other levels, check if previous level is completed
-// //     $level = Level::find($levelId);
-// //     $previousLevel = Level::where('order', $level->order - 1)->first();
-    
-// //     if ($previousLevel && auth()->user()->teacher->hasUnlockedLevel($previousLevel->id)) {
-// //         return true;
-// //     }
-    
-// //     return false;
-// // }
-
-//  private function isLevelUnlocked($levelId)
-//     {
-//         // If user has no teacher record, only level 1 is accessible
-//         $teacher = auth()->user()->teacher;
-//         if (!$teacher) {
-//             return $levelId == 1;
-//         }
-        
-//         // Level 1 is always unlocked
-//         if ($levelId == 1) return true;
-        
-//         // Check if teacher has this level unlocked using the relationship
-//         if ($teacher->hasUnlockedLevel($levelId)) {
-//             return true;
-//         }
-        
-//         // For other levels, check if previous level is completed
-//         $level = Level::find($levelId);
-//         $previousLevel = Level::where('order', $level->order - 1)->first();
-        
-//         if ($previousLevel && $teacher->hasUnlockedLevel($previousLevel->id)) {
-//             return true;
-//         }
-        
-//         return false;
+//         $this->step = 'confirm';
 //     }
 
+// private function isLevelUnlocked($levelId)
+// {
+//     $user = Auth::user();
+    
+//     // If user is not authenticated or has no teacher record, only level 1 is accessible
+//     if (!$user || !$user->teacher) {
+//         return $levelId == 1;
+//     }
+    
+//     // Level 1 is always unlocked
+//     if ($levelId == 1) return true;
+    
+//     // Check if teacher has this level unlocked
+//     $unlockedLevel = TeacherUnlockedLevel::where('teacher_id', $user->teacher->id)
+//         ->where('level_id', $levelId)
+//         ->first();
+    
+//     if ($unlockedLevel) {
+//         return true; // Level is in unlocked levels table
+//     }
+    
+//     // For levels beyond 1, check if previous level was passed
+//     $level = Level::find($levelId);
+//     if (!$level) return false;
+    
+//     $previousLevel = Level::where('order', $level->order - 1)->first();
+    
+//     if ($previousLevel) {
+//         $previousUnlock = TeacherUnlockedLevel::where('teacher_id', $user->teacher->id)
+//             ->where('level_id', $previousLevel->id)
+//             ->where('passed', true) // ← THIS LINE WAS ADDED
+//             ->first();
+            
+//         // Unlock next level only if previous level was passed
+//         return $previousUnlock && $previousUnlock->passed; // ← THIS LINE WAS MODIFIED
+//     }
+    
+//     return false;
+// }
 
 //     public function goBack()
 //     {
@@ -561,18 +790,175 @@ public function render()
 //     }
 //     public function startExam()
 //     {
-//         return redirect()->route('teacher.exam-portal', [$this->selection['category_id'], $this->selection['subject_id'], $this->selection['level_id']]);
+//         $user = Auth::user();
+//           if (!$user || !$user->teacher) {
+//             session()->flash('error', 'Please complete your teacher profile before starting an exam.');
+//             return;
+//         }
+
+//             // NEW: Final verification that the level has questions
+//     if (!$this->levelHasQuestions(
+//         $this->selection['level_id'], 
+//         $this->selection['subject_id'], 
+//         $this->selection['category_id']
+//     )) {
+//         session()->flash('error', 'This exam is not available at the moment. Please try another level.');
+//         return;
 //     }
-//     #[Layout('layouts.teacher')]
-//     public function render()
-//     {
-//         $this->categories = ClassCategory::select('name', 'id')->get();
-//         return view('livewire.teacher.dashboard', [
-//             'categories' => $this->categories,
-//             'subjects' => $this->subjects,
-//             'levels' => $this->levels,
-//             'step' => $this->step,
-//             'selection' => $this->selection,
+        
+//         return redirect()->route('teacher.exam-portal', [
+//             $this->selection['category_id'], 
+//             $this->selection['subject_id'], 
+//             $this->selection['level_id']
 //         ]);
 //     }
+
+//   public function scheduleInterview($examAttemptId, $scheduledTime)
+// {
+//     try {
+//         \Log::info('Schedule interview called', ['examAttemptId' => $examAttemptId, 'scheduledTime' => $scheduledTime]);
+        
+//         $user = Auth::user();
+        
+//         if (!$user || !$user->teacher) {
+//             \Log::error('User or teacher not found');
+//             session()->flash('error', 'Teacher profile not found.');
+//             return;
+//         }
+
+//         $examAttempt = ExamAttempt::with(['examSet.subject'])->find($examAttemptId);
+        
+//         if (!$examAttempt) {
+//             \Log::error('Exam attempt not found', ['examAttemptId' => $examAttemptId]);
+//             session()->flash('error', 'Exam attempt not found.');
+//             return;
+//         }
+        
+//         $subjectName = $examAttempt->examSet->subject->subject_name ?? 'Unknown Subject';
+        
+//         \Log::info('Creating interview record', [
+//             'teacher_id' => $user->teacher->id,
+//             'scheduled_at' => $scheduledTime
+//         ]);
+        
+//         $interview = InterviewSchedule::create([
+//             'exam_attempt_id' => $examAttemptId,
+//             'teacher_id' => $user->teacher->id,
+//             'scheduled_at' => $scheduledTime,
+//             'requested_at' => now(),
+//             'status' => 'pending',
+//             'meeting_link' => null,
+//             'teacher_notes' => "Interview request for {$subjectName} - Level 2 qualification",
+//           'teacher_notes' => "Interview request for {$subjectName} - Level 2 qualification" 
+//         ]);
+        
+//         \Log::info('Interview created successfully', ['interview_id' => $interview->id]);
+        
+//         session()->flash('message', 'Interview request submitted! Waiting for admin approval.');
+//         $this->loadMyInterviews();
+        
+//     } catch (\Exception $e) {
+//         \Log::error('Error scheduling interview: ' . $e->getMessage());
+//         session()->flash('error', 'Error scheduling interview: ' . $e->getMessage());
+//     }
 // }
+
+// private function generateMeetingLink()
+// {
+//     // Implement your meeting link generation logic
+//     // This could be Zoom, Google Meet, MS Teams, or custom link
+//     return 'https://meet.example.com/' . uniqid();
+// }
+
+// private function loadMyInterviews()
+// {
+//     $user = Auth::user();
+    
+//     if (!$user || !$user->teacher) {
+//         $this->myInterviews = [];
+//         return;
+//     }
+
+//     $query = InterviewSchedule::with(['examAttempt.examSet.subject', 'examAttempt.examSet.category'])
+//         ->where('teacher_id', $user->teacher->id);
+
+//     // Apply subject filter
+//     if ($this->interviewFilters['subject'] !== 'all') {
+//         $query->whereHas('examAttempt.examSet.subject', function($q) {
+//             $q->where('subject_name', $this->interviewFilters['subject']);
+//         });
+//     }
+
+//     // Apply category filter
+//     if ($this->interviewFilters['category'] !== 'all') {
+//         $query->whereHas('examAttempt.examSet.category', function($q) {
+//             $q->where('name', $this->interviewFilters['category']);
+//         });
+//     }
+
+//     // Apply status filter
+//     if ($this->interviewFilters['status'] !== 'all') {
+//         $query->where('status', $this->interviewFilters['status']);
+//     }
+
+//     $this->myInterviews = $query->get()
+//         ->map(function($interview) {
+//             return [
+//                 'id' => $interview->id,
+//                 'exam_attempt_id' => $interview->exam_attempt_id,
+//                 'subject' => $interview->examAttempt->examSet->subject->subject_name ?? 'Unknown Subject',
+//                 'category' => $interview->examAttempt->examSet->category->name ?? 'Unknown Category',
+//                 'scheduled_at' => $interview->scheduled_at,
+//                 'status' => $interview->status,
+//                 'meeting_link' => $interview->meeting_link,
+//                 'notes' => $interview->notes
+//             ];
+//         })
+//         ->toArray();
+// }
+
+// public function levelHasQuestions($levelId, $subjectId, $categoryId)
+// {
+//     return ExamSet::where('level_id', $levelId)
+//         ->where('subject_id', $subjectId)
+//         ->where('category_id', $categoryId)
+//         ->whereHas('questions', function($query) {
+//             $query->where('id', '>', 0); // Simple check that questions exist
+//         })
+//         ->exists();
+// }
+
+//   #[Layout('layouts.teacher')]
+// public function render()
+// {
+//     $user = Auth::user();
+
+//     if ($user && $user->teacher) {
+//         // Direct query to get categories for this teacher
+//         $this->categories = ClassCategory::whereIn('id', function($query) use ($user) {
+//             $query->select('class_category_id')
+//                   ->from('teacher_class_categories')
+//                   ->where('user_id', $user->id);
+//         })->get();
+        
+//         // Get subjects for filters
+//         $categoryIds = $this->categories->pluck('id')->toArray();
+//         $this->subjectsForFilter = Subject::whereIn('category_id', $categoryIds)->get();
+//     } else {
+//         $this->categories = collect([]);
+//         $this->subjectsForFilter = collect([]);
+//     }
+    
+//     return view('livewire.teacher.dashboard', [
+//         'categories' => $this->categories,
+//         'subjects' => $this->subjects,
+//         'subjectsForFilter' => $this->subjectsForFilter, 
+//         'levels' => $this->levels,
+//         'step' => $this->step,
+//         'selection' => $this->selection,
+//     ]);
+// }
+
+// } 
+
+

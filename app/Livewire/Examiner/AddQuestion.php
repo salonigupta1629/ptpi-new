@@ -55,7 +55,7 @@ class AddQuestion extends Component
         Question::create([
             'exam_set_id' => $this->examSetId,
             'question_text' => $this->question_text,
-            'options' => $this->options,
+            'options' => json_encode($this->options),
             'correct_option' => $this->correct_option,
             'solution' => $this->solution,
             'translations' => [

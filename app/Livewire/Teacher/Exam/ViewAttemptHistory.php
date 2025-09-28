@@ -15,18 +15,26 @@ class ViewAttemptHistory extends Component
     public $questions;
     public $attemptId;
     public $user_selected_option;
-    public function mount($examSet)
-    {
-        $this->examSetId = $examSet;
-        $this->attempts = ExamAttempt::with(['examSet'])
-            ->where('user_id', auth()->user()->id)
-            ->where('exam_set_id', $this->examSetId)
-            ->get();
+
+public function mount($examSet)
+{
+    $this->examSetId = $examSet;
+    
+    $this->attempts = ExamAttempt::with(['examSet'])
+        ->where('user_id', auth()->user()->id)
+        ->where('exam_set_id', $this->examSetId)
+        ->get();
+
+    // Check if attempts exist before accessing first()
+    if ($this->attempts->isNotEmpty()) {
         $this->attemptId = $this->attempts->first()->id;
         $this->questions = Question::with(['userAnswers' => function($q){
-            $q->where('exam_attempt_id',$this->attemptId ?? null);
-        }])->where('exam_set_id',$this->examSetId)->orderBy('id')->get();
+            $q->where('exam_attempt_id', $this->attemptId);
+        }])->where('exam_set_id', $this->examSetId)->orderBy('id')->get();
+    } else {
+        $this->questions = collect(); 
     }
+}
 
     #[Layout('layouts.teacher')]
     public function render()

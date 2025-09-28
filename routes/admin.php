@@ -1,7 +1,7 @@
 <?php
 
+use App\Livewire\Admin\CenterExamRequest;
 use App\Livewire\Admin\Dashboard;
-use App\Livewire\Interview;
 use Illuminate\Support\Facades\Route;
 use App\Livewire\Admin\Subjects;
 use App\Livewire\Admin\ClassCategories;
@@ -19,6 +19,9 @@ use App\Livewire\Admin\RecruiterEnquiry;
 use App\Livewire\Admin\TeacherHiring;
 use App\Livewire\Admin\TeacherHiyer;
 use App\Livewire\Admin\ViewTeacher;
+use App\Livewire\Admin\Interview;
+use App\Livewire\Admin\ManageRecruiter;
+
 
 Route::get("/", Dashboard::class)->name("dashboard");
 Route::get('subjects', Subjects::class)->name('subjects');
@@ -32,8 +35,7 @@ Route::get('exam/{examId}/questions', ManageQuestions::class)->name('exam-questi
 Route::get('manage-role', ManageRole::class)->name('manage-role');
 Route::get('question-managers', ManageQuestionManager::class)->name('question-managers');
 Route::get('exam-centers', ExamCenters::class)->name('exam-centers');
+Route::get('exam-center-requests', CenterExamRequest::class)->name('exam-center-requests');
 Route::get('teachers', ManageTeachers::class)->name('teachers-list');
 Route::get('view/teachers/{teacherId}', ViewTeacher::class)->name('teacher.view');
 Route::get('interview-management', Interview::class)->name('interview');
-Route::get('recruiter-enquiry', RecruiterEnquiry::class)->name('recruiter-enquiry');
-Route::get('teacher-hiring', TeacherHiyer::class)->name('teacher-hiring');

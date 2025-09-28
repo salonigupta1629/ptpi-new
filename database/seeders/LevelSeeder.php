@@ -16,9 +16,9 @@ class LevelSeeder extends Seeder
         $now = Carbon::now();
 
         Level::insert([
-            ['name' => 'Level 1', 'description' => 'For beginners', 'created_at' => $now, 'updated_at' => $now],
-            ['name' => 'Level 2', 'description' => 'Intermediate level', 'created_at' => $now, 'updated_at' => $now],
-            ['name' => 'Level 3', 'description' => 'Advanced level', 'created_at' => $now, 'updated_at' => $now],
+            ['name' => 'Level 1', 'description' => 'For beginners','order' => 1, 'created_at' => $now, 'updated_at' => $now],
+            ['name' => 'Level 2', 'description' => 'Intermediate level','order' => 2, 'created_at' => $now, 'updated_at' => $now],
+            ['name' => 'Level 3', 'description' => 'Advanced level', 'order' => 3, 'created_at' => $now, 'updated_at' => $now],
         ]);
     }
 }
